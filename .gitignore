@@ -1,0 +1,65 @@
+# .gitignore for Pensine Web
+
+# Secrets et configuration locale
+.env
+.env.local
+.env.*.local
+.pensine-config.json
+*.secret
+*.key
+test-credentials.json
+
+# Node modules (si ajouté plus tard)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+
+# Logs
+*.log
+logs/
+*.log.*
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+
+# IDE / Editors
+.idea/
+*.swp
+*.swo
+*~
+.vscode/settings.local.json
+# .vscode/ - Keep settings and extensions for contributors
+
+# Tests
+test-results/
+playwright-report/
+playwright/.cache/
+coverage/
+.nyc_output/
+
+# Build outputs (si build step ajouté)
+dist/
+build/
+*.min.js
+*.min.css
+
+# Temporaires
+tmp/
+temp/
+*.tmp
+*.temp
+.cache/
+
+# Backup files
+*.bak
+*.backup
+*~.nib
