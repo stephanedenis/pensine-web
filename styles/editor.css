@@ -1,0 +1,522 @@
+/**
+ * Unified Editor Styles
+ * Supports: code view, rich view, split view
+ */
+
+#editor-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: var(--bg-primary);
+}
+
+#editor-container.hidden {
+    display: none;
+}
+
+/* Editor Header */
+.editor-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border);
+}
+
+.editor-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    flex-shrink: 0;
+}
+
+#editor-file-name {
+    color: var(--text);
+}
+
+.file-type-badge {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+}
+
+.file-type-badge.journal {
+    background: var(--month-color-0);
+    color: white;
+}
+
+.file-type-badge.config {
+    background: var(--month-color-2);
+    color: white;
+}
+
+.file-type-badge.markdown {
+    background: var(--month-color-4);
+    color: white;
+}
+
+.file-type-badge.json {
+    background: var(--month-color-6);
+    color: white;
+}
+
+/* Editor Tabs (replaces view-mode-switcher) */
+.editor-tabs {
+    display: flex;
+    gap: 4px;
+    background: transparent;
+    flex: 1;
+    justify-content: center;
+    align-items: flex-end;
+}
+
+.editor-tab {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 20px;
+    border: none;
+    background: var(--bg-primary);
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s;
+    border-bottom: 3px solid transparent;
+    border-radius: 8px 8px 0 0;
+    position: relative;
+}
+
+.editor-tab:hover {
+    background: var(--bg-hover);
+    color: var(--text);
+}
+
+.editor-tab.active {
+    background: var(--bg-primary);
+    color: var(--accent-primary);
+    border-bottom-color: var(--accent-primary);
+    font-weight: 600;
+}
+
+.editor-tab .tab-icon {
+    font-size: 16px;
+}
+
+.editor-tab .tab-label {
+    font-size: 13px;
+}
+
+/* Editor Controls */
+.editor-controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 20px;
+    flex-shrink: 0;
+}
+
+#editor-save-btn,
+#editor-close-btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+#editor-save-btn {
+    background: var(--accent-primary);
+    color: white;
+}
+
+#editor-save-btn:hover {
+    background: var(--accent-hover);
+}
+
+#editor-save-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+#editor-close-btn {
+    background: var(--bg-secondary);
+    color: var(--text);
+    border: 1px solid var(--border);
+}
+
+#editor-close-btn:hover {
+    background: var(--bg-hover);
+}
+
+/* Editor Content Area */
+.editor-content {
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+    position: relative;
+}
+
+.editor-pane {
+    flex: 1;
+    overflow: auto;
+    padding: 20px;
+}
+
+.editor-pane.hidden {
+    display: none;
+}
+
+/* Code View */
+#editor-code-view {
+    background: var(--bg-primary);
+}
+
+.code-editor {
+    width: 100%;
+    min-height: 100%;
+    padding: 16px;
+    border: none;
+    background: var(--bg-primary);
+    color: var(--text);
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace;
+    font-size: 14px;
+    line-height: 1.6;
+    resize: none;
+    outline: none;
+}
+
+/* Rich View */
+#editor-rich-view {
+    background: var(--bg-primary);
+}
+
+.rich-content {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+/* Markdown rendering */
+.markdown-content {
+    color: var(--text);
+}
+
+.markdown-content h1 {
+    font-size: 2em;
+    margin-top: 0;
+    margin-bottom: 0.5em;
+    color: var(--text);
+    border-bottom: 2px solid var(--border);
+    padding-bottom: 0.3em;
+}
+
+.markdown-content h2 {
+    font-size: 1.5em;
+    margin-top: 1.5em;
+    margin-bottom: 0.5em;
+    color: var(--text);
+}
+
+.markdown-content h3 {
+    font-size: 1.25em;
+    margin-top: 1em;
+    margin-bottom: 0.5em;
+    color: var(--text);
+}
+
+.markdown-content p {
+    margin-bottom: 1em;
+    line-height: 1.6;
+}
+
+.markdown-content a {
+    color: var(--accent-primary);
+    text-decoration: none;
+}
+
+.markdown-content a:hover {
+    text-decoration: underline;
+}
+
+.markdown-content strong {
+    font-weight: 600;
+}
+
+.markdown-content em {
+    font-style: italic;
+}
+
+.markdown-content code {
+    background: var(--bg-secondary);
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', monospace;
+    font-size: 0.9em;
+}
+
+.markdown-content pre {
+    background: var(--bg-secondary);
+    padding: 16px;
+    border-radius: 6px;
+    overflow-x: auto;
+    margin: 1em 0;
+}
+
+.markdown-content pre code {
+    background: none;
+    padding: 0;
+}
+
+/* MarkdownIt tables */
+.markdown-content table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 1.5em 0;
+    overflow: hidden;
+    border-radius: 6px;
+}
+
+.markdown-content thead {
+    background: var(--bg-secondary);
+}
+
+.markdown-content th,
+.markdown-content td {
+    border: 1px solid var(--border);
+    padding: 12px 16px;
+    text-align: left;
+}
+
+.markdown-content th {
+    font-weight: 600;
+    color: var(--text);
+}
+
+.markdown-content tr:nth-child(even) {
+    background: var(--bg-secondary);
+}
+
+.markdown-content tr:hover {
+    background: var(--bg-hover);
+}
+
+.table-wrapper {
+    overflow-x: auto;
+    margin: 1em 0;
+}
+
+/* Blockquotes */
+.markdown-content blockquote {
+    border-left: 4px solid var(--accent-primary);
+    padding-left: 1em;
+    margin-left: 0;
+    color: var(--text-secondary);
+    font-style: italic;
+}
+
+/* Lists */
+.markdown-content ul,
+.markdown-content ol {
+    margin: 1em 0;
+    padding-left: 2em;
+}
+
+.markdown-content li {
+    margin-bottom: 0.5em;
+}
+
+/* Horizontal rule */
+.markdown-content hr {
+    border: none;
+    border-top: 2px solid var(--border);
+    margin: 2em 0;
+}
+
+/* Config Form */
+.config-form {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.config-form-title {
+    margin-bottom: 24px;
+    color: var(--text);
+    border-bottom: 2px solid var(--border);
+    padding-bottom: 12px;
+}
+
+.config-field {
+    margin-bottom: 20px;
+    position: relative;
+}
+
+.config-field label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: var(--text);
+}
+
+.config-field input[type="text"],
+.config-field input[type="number"] {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--bg-primary);
+    color: var(--text);
+    font-size: 14px;
+    transition: border-color 0.2s;
+}
+
+.config-field input[type="text"]:focus,
+.config-field input[type="number"]:focus {
+    outline: none;
+    border-color: var(--accent-primary);
+}
+
+.config-field-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.config-field-checkbox label {
+    margin-bottom: 0;
+    order: 2;
+    flex: 1;
+}
+
+.config-field-checkbox input[type="checkbox"] {
+    order: 1;
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+}
+
+.config-field-type {
+    position: absolute;
+    top: 0;
+    right: 0;
+    font-size: 11px;
+    color: var(--text-secondary);
+    background: var(--bg-secondary);
+    padding: 2px 6px;
+    border-radius: 3px;
+}
+
+.config-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+}
+
+.config-actions button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-primary {
+    background: var(--accent-primary);
+    color: white;
+}
+
+.btn-primary:hover {
+    background: var(--accent-hover);
+}
+
+.btn-secondary {
+    background: var(--bg-secondary);
+    color: var(--text);
+    border: 1px solid var(--border);
+}
+
+.btn-secondary:hover {
+    background: var(--bg-hover);
+}
+
+/* JSON View */
+.json-view {
+    background: var(--bg-secondary);
+    padding: 20px;
+    border-radius: 6px;
+    overflow-x: auto;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', monospace;
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--text);
+}
+
+.code-view {
+    background: var(--bg-secondary);
+    padding: 20px;
+    border-radius: 6px;
+    overflow-x: auto;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', monospace;
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--text);
+}
+
+/* Split View Mode */
+#editor-container[data-mode="split"] .editor-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: var(--border);
+}
+
+#editor-container[data-mode="split"] #editor-code-view,
+#editor-container[data-mode="split"] #editor-rich-view {
+    display: block;
+}
+
+#editor-container[data-mode="code"] #editor-code-view {
+    display: block;
+}
+
+#editor-container[data-mode="code"] #editor-rich-view {
+    display: none;
+}
+
+#editor-container[data-mode="rich"] #editor-code-view {
+    display: none;
+}
+
+#editor-container[data-mode="rich"] #editor-rich-view {
+    display: block;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .editor-header {
+        flex-direction: column;
+        gap: 12px;
+        align-items: flex-start;
+    }
+
+    .editor-controls {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    #editor-container[data-mode="split"] .editor-content {
+        grid-template-columns: 1fr;
+        grid-template-rows: 1fr 1fr;
+    }
+}

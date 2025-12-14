@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pensine - Knowledge Management</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/calendar.css">
+    <link rel="stylesheet" href="styles/editor.css">
+    <link rel="stylesheet" href="styles/wizard.css">
+    
+    <!-- MarkdownIt + Extensions -->
+    <script src="https://cdn.jsdelivr.net/npm/markdown-it@14.0.0/dist/markdown-it.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/markdown-it-anchor@9.0.1/dist/markdownItAnchor.umd.min.js"></script>
+    
+    <!-- Highlight.js for code syntax -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/styles/github-dark.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/es/highlight.min.js"></script>
+</head>
+<body>
+    <div id="app">
+        <!-- Header -->
+        <header id="header">
+            <div class="header-left">
+                <h1>🧠 Pensine <span class="version">v0.0.22</span></h1>
+                <span id="sync-status" class="status-indicator">●</span>
+            </div>
+            <div class="header-right">
+                <button id="calendar-btn" title="Calendrier">📆</button>
+                <button id="history-btn" title="Historique">📜</button>
+                <button id="sync-btn" title="Sync avec GitHub">🔄</button>
+                <button id="settings-btn" title="Paramètres">⚙️</button>
+            </div>
+        </header>
+
+        <!-- Sidebar -->
+        <aside id="sidebar">
+            <nav>
+                <ul>
+                    <li><a href="#" data-view="journal" class="active">📅 Journal</a></li>
+                    <li><a href="#" data-view="pages">📄 Pages</a></li>
+                    <li><a href="#" data-view="search">🔍 Recherche</a></li>
+                </ul>
+            </nav>
+            
+            <div id="calendar-container">
+                <div class="calendar-header">
+                    <div class="calendar-nav">
+                        <button id="calendar-prev" title="Semaines précédentes">▲</button>
+                        <button id="calendar-today" title="Aujourd'hui">●</button>
+                        <button id="calendar-next" title="Semaines suivantes">▼</button>
+                    </div>
+                </div>
+                <div class="calendar-weekdays-header"></div>
+                <div id="calendar-scroll-container">
+                    <div id="calendar-weeks"></div>
+                </div>
+            </div>
+            
+            <div id="recent-pages" class="hidden">
+                <h3>Pages Récentes</h3>
+                <ul id="recent-list"></ul>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main id="content">
+            <!-- Remote Change Notification -->
+            <div id="remote-change-banner" class="notification-banner hidden">
+                <span>⚠️ Le fichier a été modifié sur le serveur</span>
+                <div class="banner-actions">
+                    <button id="reload-file-btn" class="btn-reload">🔄 Recharger</button>
+                    <button id="ignore-changes-btn" class="btn-ignore">❌ Ignorer</button>
+                </div>
+            </div>
+            
+            <div id="loading" class="loading">Chargement...</div>
+            <div id="error" class="error hidden"></div>
+            
+            <!-- Unified Editor (for journals, pages, config, etc.) -->
+            <div id="editor-container" class="hidden">
+                <!-- Editor Header with View Mode Controls -->
+                <div class="editor-header">
+                    <div class="editor-title">
+                        <span id="editor-file-name"></span>
+                        <span id="editor-file-type" class="file-type-badge"></span>
+                    </div>
+                    <div class="editor-controls">
+                        <div class="view-mode-switcher">
+                            <button id="view-mode-code" class="view-mode-btn" data-mode="code" title="Vue Code">
+                                &lt;/&gt;
+                            </button>
+                            <button id="view-mode-rich" class="view-mode-btn active" data-mode="rich" title="Vue Enrichie">
+                                👁️
+                            </button>
+                            <button id="view-mode-split" class="view-mode-btn" data-mode="split" title="Side-by-side">
+                                ⬌
+                            </button>
+                        </div>
+                        <button id="editor-save-btn" class="btn-primary" title="Sauvegarder (Ctrl+S)">
+                            💾 Sauvegarder
+                        </button>
+                        <button id="editor-close-btn" class="btn-secondary" title="Fermer">
+                            ✕
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Editor Content Area -->
+                <div class="editor-content">
+                    <!-- Code View (always present, shown/hidden) -->
+                    <div id="editor-code-view" class="editor-pane">
+                        <textarea id="editor-code-textarea" class="code-editor"></textarea>
+                    </div>
+
+                    <!-- Rich View (rendered content) -->
+                    <div id="editor-rich-view" class="editor-pane">
+                        <div id="editor-rich-content" class="rich-content"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Journal View (legacy, will integrate with editor) -->
+            <div id="journal-view" class="view active">
+                <div class="journal-header">
+                    <button id="prev-day">◀</button>
+                    <h2 id="current-date">Aujourd'hui</h2>
+                    <button id="next-day">▶</button>
+                    <button id="today-btn">Aujourd'hui</button>
+                </div>
+                <div id="journal-content" class="editor"></div>
+            </div>
+
+            <!-- Pages View -->
+            <div id="pages-view" class="view">
+                <div class="pages-header">
+                    <input type="text" id="page-search" placeholder="Rechercher une page...">
+                    <button id="new-page-btn">➕ Nouvelle Page</button>
+                </div>
+                <ul id="pages-list"></ul>
+            </div>
+
+            <!-- Graph View -->
+            <div id="graph-view" class="view">
+                <canvas id="graph-canvas"></canvas>
+            </div>
+
+            <!-- Search View -->
+            <div id="search-view" class="view">
+                <input type="text" id="search-input" placeholder="Rechercher...">
+                <div id="search-results"></div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Right Sidebar - History (outside grid) -->
+    <aside id="history-sidebar">
+        <h3>📜 Historique <button id="close-history" title="Fermer">✖</button></h3>
+        <ul id="history-list">
+            <li class="history-empty">Aucun historique</li>
+        </ul>
+    </aside>
+
+    <!-- Configuration Wizard (shown on first launch if no config) -->
+    <div id="config-wizard" class="wizard hidden">
+        <div class="wizard-content">
+            <div class="wizard-header">
+                <h1>🧠 Bienvenue dans Pensine</h1>
+                <p>Configuration initiale de votre second cerveau</p>
+            </div>
+            <div id="wizard-steps"></div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="config.js"></script>
+    <script src="lib/github-adapter.js"></script>
+    <script src="lib/config-wizard.js"></script>
+    <script src="lib/markdown-renderer.js"></script>
+    <script src="lib/markdown-parser.js"></script>
+    <script src="lib/storage.js"></script>
+    <script src="lib/editor.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
