@@ -127,7 +127,7 @@ class PensineApp {
 
     async init() {
         // Initialize storage
-        await storageManager.init();
+        await storageManager.initialize();
 
         // Setup editor
         const editorElement = document.getElementById('journal-content');
@@ -676,10 +676,8 @@ class PensineApp {
     }
 
     loadSettings() {
-        const settings = storageManager.getSettings();
-        if (settings) {
-            githubAdapter.configure(settings);
-        }
+        // Obsolète - settings now managed by storage-manager-unified.js
+        // Configuration loaded automatically during storageManager.initialize()
     }
 
     // UI Helpers
@@ -1434,12 +1432,16 @@ class PensineApp {
             const configPath = '.pensine-config.json';
             let content;
 
-            // Try to load from localStorage first
-            const localSettings = storageManager.getSettings();
-            if (localSettings) {
-                content = JSON.stringify(localSettings, null, 2);
-                console.log('📋 Config loaded from localStorage');
-            } else {
+            // Try to load from storage adapter
+            try {
+                const config = await storageManager.adapter?.getConfig();
+                if (config) {
+                    content = JSON.stringify(config, null, 2);
+                    console.log('📋 Config loaded from storage adapter');
+                } else {
+                    throw new Error('No config available');
+                }
+            } catch (e) {
                 // Fallback: try to fetch from GitHub
                 try {
                     const result = await githubAdapter.getFile(configPath);
