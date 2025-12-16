@@ -208,6 +208,9 @@ class PensineApp {
     }
 
     setupEventListeners() {
+        // Panel resizing
+        this.setupPanelResize();
+
         // Navigation
         document.querySelectorAll('#sidebar nav a').forEach(link => {
             link.addEventListener('click', (e) => {
@@ -299,6 +302,55 @@ class PensineApp {
                 }
             });
         }
+    }
+
+    setupPanelResize() {
+        const handle = document.getElementById('sidebar-resize-handle');
+        const sidebar = document.getElementById('sidebar');
+        
+        if (!handle || !sidebar) return;
+
+        let isResizing = false;
+        let startX = 0;
+        let startWidth = 0;
+
+        // Load saved width from localStorage
+        const savedWidth = localStorage.getItem('sidebar-width');
+        if (savedWidth) {
+            document.documentElement.style.setProperty('--sidebar-width', savedWidth + 'px');
+        }
+
+        handle.addEventListener('mousedown', (e) => {
+            isResizing = true;
+            startX = e.clientX;
+            startWidth = sidebar.offsetWidth;
+            handle.classList.add('resizing');
+            document.body.style.cursor = 'col-resize';
+            document.body.style.userSelect = 'none';
+            e.preventDefault();
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (!isResizing) return;
+
+            const deltaX = e.clientX - startX;
+            const newWidth = Math.max(200, Math.min(600, startWidth + deltaX));
+            
+            document.documentElement.style.setProperty('--sidebar-width', newWidth + 'px');
+        });
+
+        document.addEventListener('mouseup', () => {
+            if (isResizing) {
+                isResizing = false;
+                handle.classList.remove('resizing');
+                document.body.style.cursor = '';
+                document.body.style.userSelect = '';
+                
+                // Save width to localStorage
+                const currentWidth = sidebar.offsetWidth;
+                localStorage.setItem('sidebar-width', currentWidth);
+            }
+        });
 
         // ========================================
         // Unified Editor Controls

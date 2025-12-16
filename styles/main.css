@@ -28,9 +28,9 @@ body {
 #app {
     display: grid;
     grid-template-areas:
-        "header header"
-        "sidebar content";
-    grid-template-columns: 250px 1fr;
+        "header header header"
+        "sidebar handle content";
+    grid-template-columns: var(--sidebar-width, 250px) 4px 1fr;
     grid-template-rows: 60px 1fr;
     height: 100vh;
     width: 100vw;
@@ -70,14 +70,34 @@ body {
     color: var(--text-secondary);
 }
 
-.status-indicator.synced { color: var(--success); }
-.status-indicator.syncing { color: #ffa500; animation: pulse 1s infinite; }
-.status-indicator.error { color: var(--error); }
-.status-indicator.conflict { color: #ffa500; animation: pulse 0.5s infinite; }
+.status-indicator.synced {
+    color: var(--success);
+}
+
+.status-indicator.syncing {
+    color: #ffa500;
+    animation: pulse 1s infinite;
+}
+
+.status-indicator.error {
+    color: var(--error);
+}
+
+.status-indicator.conflict {
+    color: #ffa500;
+    animation: pulse 0.5s infinite;
+}
 
 @keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.3; }
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.3;
+    }
 }
 
 .header-right {
@@ -104,11 +124,10 @@ button:hover {
 #sidebar {
     grid-area: sidebar;
     background: var(--bg-secondary);
-    border-right: 1px solid var(--border);
     padding: 20px;
     overflow: hidden;
-    min-width: 0;
-    max-width: 250px;
+    min-width: 200px;
+    max-width: 600px;
     display: flex;
     flex-direction: column;
 }
@@ -164,6 +183,43 @@ button:hover {
 
 #recent-list a:hover {
     color: var(--accent);
+}
+
+/* Resize Handles */
+.resize-handle {
+    background: var(--border);
+    position: relative;
+    z-index: 10;
+}
+
+.resize-handle-vertical {
+    grid-area: handle;
+    cursor: col-resize;
+    transition: background 0.2s;
+}
+
+.resize-handle-vertical:hover,
+.resize-handle-vertical.resizing {
+    background: var(--accent);
+}
+
+.resize-handle-vertical::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 3px;
+    height: 40px;
+    background: var(--text-secondary);
+    opacity: 0;
+    transition: opacity 0.2s;
+    border-radius: 2px;
+}
+
+.resize-handle-vertical:hover::before,
+.resize-handle-vertical.resizing::before {
+    opacity: 0.5;
 }
 
 /* Main Content */
@@ -380,6 +436,7 @@ button:hover {
     border-radius: 4px;
     margin-bottom: 20px;
 }
+
 /* Remote Change Notification Banner */
 .notification-banner {
     background: linear-gradient(135deg, #ffa500 0%, #ff8c00 100%);
@@ -398,6 +455,7 @@ button:hover {
         transform: translateY(-100%);
         opacity: 0;
     }
+
     to {
         transform: translateY(0);
         opacity: 1;
@@ -415,7 +473,8 @@ button:hover {
     gap: 10px;
 }
 
-.btn-reload, .btn-ignore {
+.btn-reload,
+.btn-ignore {
     padding: 6px 16px;
     border: none;
     border-radius: 4px;
@@ -552,7 +611,8 @@ button:hover {
     min-width: 0;
 }
 
-.history-view, .history-restore {
+.history-view,
+.history-restore {
     background: transparent;
     border: 1px solid var(--border);
     padding: 2px 4px;
@@ -594,7 +654,8 @@ button:hover {
     flex-shrink: 0;
 }
 
-.history-empty, .history-error {
+.history-empty,
+.history-error {
     padding: 20px 8px;
     text-align: center;
     color: var(--text-secondary);
