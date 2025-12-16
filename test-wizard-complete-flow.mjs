@@ -219,10 +219,14 @@ async function testWizardCompleteFlow() {
         hasEncryptedToken: !!localStorage.getItem('pensine-encrypted-token'),
         hasOwner: !!localStorage.getItem('github-owner'),
         hasRepo: !!localStorage.getItem('github-repo'),
+        hasStorageMode: !!localStorage.getItem('pensine-storage-mode'),
+        hasGithubConfig: !!localStorage.getItem('pensine-github-config'),
         // Debug: get actual values
         config: localStorage.getItem('pensine-config'),
         owner: localStorage.getItem('github-owner'),
-        repo: localStorage.getItem('github-repo')
+        repo: localStorage.getItem('github-repo'),
+        storageMode: localStorage.getItem('pensine-storage-mode'),
+        githubConfig: localStorage.getItem('pensine-github-config')
       };
     });
 
@@ -231,11 +235,11 @@ async function testWizardCompleteFlow() {
     console.log(`   Token: ${localStorageData.hasEncryptedToken ? '✅ saved (encrypted)' : '❌ missing'}`);
     console.log(`   Owner: ${localStorageData.hasOwner ? '✅ saved' : '❌ missing'} (${localStorageData.owner})`);
     console.log(`   Repo: ${localStorageData.hasRepo ? '✅ saved' : '❌ missing'} (${localStorageData.repo})`);
-    
-    // Check console logs for configuration check
-    console.log('\n📋 Recent console messages (last 10):');
-    const recentLogs = consoleMessages.slice(-10);
-    recentLogs.forEach(msg => console.log(`   ${msg}`));
+    console.log(`   Storage Mode: ${localStorageData.hasStorageMode ? '✅ saved' : '❌ missing'} (${localStorageData.storageMode})`);
+    console.log(`   GitHub Config: ${localStorageData.hasGithubConfig ? '✅ saved' : '❌ missing'}`);
+    if (localStorageData.hasGithubConfig) {
+      console.log(`     → ${localStorageData.githubConfig}`);
+    }
 
   } catch (error) {
     console.error('\n❌ Test failed:', error.message);

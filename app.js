@@ -242,9 +242,18 @@ class PensineApp {
     async validateToken() {
         // Test simple pour valider le token
         try {
-            await githubAdapter.request('/user');
-            console.log('✅ Token GitHub valide');
-            return true;
+            // Use storageManager adapter instead of githubAdapter
+            if (storageManager.adapter && storageManager.mode !== 'local') {
+                await storageManager.checkConnection();
+                console.log('✅ Storage adapter valide');
+                return true;
+            } else if (storageManager.mode === 'local') {
+                // Local mode doesn't need token validation
+                console.log('✅ Local mode - no token validation needed');
+                return true;
+            } else {
+                throw new Error('No storage adapter configured');
+            }
         } catch (error) {
             throw new Error('Token invalide: ' + error.message);
         }
