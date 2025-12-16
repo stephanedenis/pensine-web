@@ -86,7 +86,8 @@
 .linear-calendar-scroll {
   flex: 1;
   overflow-y: auto;
-  overflow-x: visible; /* Allow month labels to show in left margin */
+  overflow-x: visible;
+  /* Allow month labels to show in left margin */
   scrollbar-width: thin;
   scrollbar-color: var(--calendar-border) var(--calendar-bg-secondary);
 }
@@ -110,7 +111,8 @@
 
 /* Weeks Container */
 .linear-calendar-weeks {
-  padding: 4px 30px 4px 4px; /* Extra right padding for month labels */
+  padding: 4px 30px 4px 4px;
+  /* Extra right padding for month labels */
 }
 
 /* Week Row */
@@ -134,14 +136,17 @@
   letter-spacing: 0.5px;
   display: flex;
   flex-direction: column;
-  align-items: flex-end; /* Justify right */
+  align-items: flex-end;
+  /* Justify right */
   justify-content: center;
   padding: 4px 2px;
   background: var(--calendar-bg-secondary);
   border-radius: 2px;
   line-height: 1.2;
-  gap: 0; /* No gap to keep on single line */
-  white-space: nowrap; /* Force single line */
+  gap: 0;
+  /* No gap to keep on single line */
+  white-space: nowrap;
+  /* Force single line */
   /* Float in right margin with high z-index */
   position: absolute;
   right: -26px;
@@ -517,6 +522,55 @@
 }
 
 .calendar-day.weekend.month-color-11 {
+  background: color-mix(in srgb, var(--month-color-11) calc(var(--weekend-opacity) * 100%), var(--calendar-bg-secondary));
+}
+
+/* Weekend colors with day-month-color (for days in different month than week) */
+.calendar-day.weekend.day-month-color-0 {
+  background: color-mix(in srgb, var(--month-color-0) calc(var(--weekend-opacity) * 100%), var(--calendar-bg-secondary));
+}
+
+.calendar-day.weekend.day-month-color-1 {
+  background: color-mix(in srgb, var(--month-color-1) calc(var(--weekend-opacity) * 100%), var(--calendar-bg-secondary));
+}
+
+.calendar-day.weekend.day-month-color-2 {
+  background: color-mix(in srgb, var(--month-color-2) calc(var(--weekend-opacity) * 100%), var(--calendar-bg-secondary));
+}
+
+.calendar-day.weekend.day-month-color-3 {
+  background: color-mix(in srgb, var(--month-color-3) calc(var(--weekend-opacity) * 100%), var(--calendar-bg-secondary));
+}
+
+.calendar-day.weekend.day-month-color-4 {
+  background: color-mix(in srgb, var(--month-color-4) calc(var(--weekend-opacity) * 100%), var(--calendar-bg-secondary));
+}
+
+.calendar-day.weekend.day-month-color-5 {
+  background: color-mix(in srgb, var(--month-color-5) calc(var(--weekend-opacity) * 100%), var(--calendar-bg-secondary));
+}
+
+.calendar-day.weekend.day-month-color-6 {
+  background: color-mix(in srgb, var(--month-color-6) calc(var(--weekend-opacity) * 100%), var(--calendar-bg-secondary));
+}
+
+.calendar-day.weekend.day-month-color-7 {
+  background: color-mix(in srgb, var(--month-color-7) calc(var(--weekend-opacity) * 100%), var(--calendar-bg-secondary));
+}
+
+.calendar-day.weekend.day-month-color-8 {
+  background: color-mix(in srgb, var(--month-color-8) calc(var(--weekend-opacity) * 100%), var(--calendar-bg-secondary));
+}
+
+.calendar-day.weekend.day-month-color-9 {
+  background: color-mix(in srgb, var(--month-color-9) calc(var(--weekend-opacity) * 100%), var(--calendar-bg-secondary));
+}
+
+.calendar-day.weekend.day-month-color-10 {
+  background: color-mix(in srgb, var(--month-color-10) calc(var(--weekend-opacity) * 100%), var(--calendar-bg-secondary));
+}
+
+.calendar-day.weekend.day-month-color-11 {
   background: color-mix(in srgb, var(--month-color-11) calc(var(--weekend-opacity) * 100%), var(--calendar-bg-secondary));
 }
 
