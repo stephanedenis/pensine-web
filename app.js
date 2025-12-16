@@ -1063,9 +1063,7 @@ class PensineApp {
 
     async getJournalFiles() {
         try {
-            const response = await githubAdapter.request(
-                `/repos/${githubAdapter.owner}/${githubAdapter.repo}/contents/journals`
-            );
+            const response = await storageManager.listFiles('journals');
 
             if (Array.isArray(response)) {
                 return response
@@ -1088,7 +1086,7 @@ class PensineApp {
 
         try {
             // Try to fetch existing file
-            const { content } = await githubAdapter.getFile(fileName);
+            const { content } = await storageManager.getFile(fileName);
             await this.openInEditor(fileName, content);
         } catch (error) {
             // File doesn't exist yet, create empty
