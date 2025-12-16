@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LinearCalendar Demo</title>
+  <link rel="stylesheet" href="linear-calendar.css">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      padding: 20px;
+      background: #f3f4f6;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      margin-bottom: 10px;
+      color: #1f2937;
+    }
+
+    .subtitle {
+      color: #6b7280;
+      margin-bottom: 30px;
+    }
+
+    .demo-grid {
+      display: grid;
+      grid-template-columns: 1fr 350px;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    .calendar-wrapper {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+    }
+
+    #calendar {
+      height: 600px;
+    }
+
+    .controls {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      max-height: 600px;
+      overflow-y: auto;
+    }
+
+    .control-group {
+      margin-bottom: 20px;
+    }
+
+    .control-group:last-child {
+      margin-bottom: 0;
+    }
+
+    label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 8px;
+    }
+
+    button {
+      width: 100%;
+      padding: 10px 16px;
+      background: #0e639c;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    button:hover {
+      background: #0a4d7a;
+    }
+
+    button:active {
+      transform: scale(0.98);
+    }
+
+    button.event-type-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+    }
+
+    .event-type-color {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .opacity-slider {
+      width: 100%;
+      margin-bottom: 8px;
+    }
+
+    .opacity-presets {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+    }
+
+    .opacity-presets button {
+      padding: 6px;
+      font-size: 0.75rem;
+    }
+
+    .color-picker-group {
+      display: grid;
+      grid-template-columns: 1fr 50px;
+      gap: 8px;
+      align-items: center;
+    }
+
+    input[type="color"] {
+      width: 50px;
+      height: 32px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .emoji-picker {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 4px;
+      max-height: 120px;
+      overflow-y: auto;
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      padding: 8px;
+      background: #f9fafb;
+    }
+
+    .emoji-option {
+      padding: 8px;
+      font-size: 20px;
+      text-align: center;
+      cursor: pointer;
+      border-radius: 4px;
+      background: white;
+      border: 2px solid transparent;
+    }
+
+    .emoji-option:hover {
+      background: #e5e7eb;
+    }
+
+    .emoji-option.selected {
+      border-color: #0e639c;
+      background: #dbeafe;
+    }
+
+    .toggle-switch {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .toggle-switch input[type="checkbox"] {
+      width: 40px;
+      height: 20px;
+      cursor: pointer;
+    }
+
+    .marker-selector {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+    }
+
+    .marker-option {
+      padding: 8px;
+      border: 2px solid #e5e7eb;
+      border-radius: 6px;
+      cursor: pointer;
+      text-align: center;
+      font-size: 0.75rem;
+      background: white;
+    }
+
+    .marker-option:hover {
+      border-color: #0e639c;
+    }
+
+    .marker-option.selected {
+      border-color: #0e639c;
+      background: #dbeafe;
+      font-weight: 600;
+    }
+
+    .range-info {
+      background: #fef3c7;
+      border: 1px solid #fbbf24;
+      padding: 12px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      color: #78350f;
+    }
+
+    .range-info.active {
+      background: #dbeafe;
+      border-color: #0e639c;
+      color: #0a4d7a;
+    }
+
+    input[type="date"] {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      font-size: 0.875rem;
+      margin-bottom: 8px;
+    }
+
+    .button-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .info {
+      background: #f3f4f6;
+      padding: 12px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      color: #6b7280;
+    }
+
+    .info strong {
+      color: #374151;
+    }
+
+    .marked-dates {
+      max-height: 150px;
+      overflow-y: auto;
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      padding: 8px;
+      font-size: 0.8rem;
+      color: #6b7280;
+    }
+
+    .marked-dates:empty::before {
+      content: 'No dates marked yet. Click on dates in the calendar.';
+      font-style: italic;
+    }
+
+    .marked-date {
+      display: inline-block;
+      background: #0e639c;
+      color: white;
+      padding: 2px 8px;
+      border-radius: 4px;
+      margin: 2px;
+      font-size: 0.75rem;
+    }
+
+    @media (max-width: 768px) {
+      .demo-grid {
+        grid-template-columns: 1fr;
+      }
+
+      #calendar {
+        height: 400px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>📅 LinearCalendar Component Demo</h1>
+    <p class="subtitle">Infinite scrolling linear calendar with 12-color month visualization</p>
+
+    <div class="demo-grid">
+      <div class="calendar-wrapper">
+        <div id="calendar"></div>
+      </div>
+
+      <div class="controls">
+        <div class="control-group">
+          <label>Weekend Opacity</label>
+          <input type="range" id="weekendOpacity" class="opacity-slider" min="0" max="100" value="15" step="5"
+            oninput="updateWeekendOpacity(this.value)">
+          <div class="opacity-presets">
+            <button onclick="setWeekendOpacity(5)">Light (5%)</button>
+            <button onclick="setWeekendOpacity(15)">Medium (15%)</button>
+            <button onclick="setWeekendOpacity(30)">Strong (30%)</button>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label>Event Opacity</label>
+          <input type="range" id="eventOpacity" class="opacity-slider" min="0" max="100" value="25" step="5"
+            oninput="updateEventOpacity(this.value)">
+          <div class="opacity-presets">
+            <button onclick="setEventOpacity(10)">Light (10%)</button>
+            <button onclick="setEventOpacity(25)">Medium (25%)</button>
+            <button onclick="setEventOpacity(40)">Strong (40%)</button>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label>Quick Navigation</label>
+          <div class="button-group">
+            <button onclick="scrollToToday()">📍 Today</button>
+            <button onclick="scrollToRandomDate()">🎲 Random</button>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label for="jumpDate">Jump to Date</label>
+          <input type="date" id="jumpDate" value="">
+          <button onclick="scrollToSelectedDate()">🔍 Jump</button>
+        </div>
+
+        <!-- Range Selection Control -->
+        <div class="control-group">
+          <label>Range Selection</label>
+          <div class="toggle-switch">
+            <input type="checkbox" id="rangeToggle" onchange="toggleRangeSelection(this.checked)">
+            <span>Enable drag selection</span>
+          </div>
+          <div class="range-info" id="rangeInfo">
+            ℹ️ Click and drag across dates to select a range
+          </div>
+        </div>
+
+        <!-- Custom Event Creation -->
+        <div class="control-group">
+          <label>Create Custom Event</label>
+
+          <div style="margin-bottom: 8px;">
+            <label style="font-size: 0.8rem; color: #6b7280;">Event Color</label>
+            <div class="color-picker-group">
+              <input type="text" id="customColor" value="#ff6b6b" placeholder="#ff6b6b" style="font-family: monospace;">
+              <input type="color" id="colorPicker" value="#ff6b6b"
+                oninput="document.getElementById('customColor').value = this.value">
+            </div>
+          </div>
+
+          <div style="margin-bottom: 8px;">
+            <label style="font-size: 0.8rem; color: #6b7280;">Opacity: <span id="customOpacityValue">50%</span></label>
+            <input type="range" id="customOpacity" min="0" max="100" value="50" step="5"
+              oninput="document.getElementById('customOpacityValue').textContent = this.value + '%'"
+              style="width: 100%;">
+          </div>
+
+          <div style="margin-bottom: 8px;">
+            <label style="font-size: 0.8rem; color: #6b7280;">Marker Type</label>
+            <div class="marker-selector">
+              <div class="marker-option selected" data-marker="dot" onclick="selectMarker('dot')">
+                • Dot
+              </div>
+              <div class="marker-option" data-marker="bar" onclick="selectMarker('bar')">
+                ▌Bar
+              </div>
+              <div class="marker-option" data-marker="badge" onclick="selectMarker('badge')">
+                🔖 Badge
+              </div>
+            </div>
+          </div>
+
+          <div style="margin-bottom: 8px;">
+            <div class="toggle-switch">
+              <input type="checkbox" id="showIcon" checked>
+              <label for="showIcon" style="font-size: 0.8rem; margin: 0;">Show Icon</label>
+            </div>
+          </div>
+
+          <div style="margin-bottom: 8px;" id="iconPickerGroup">
+            <label style="font-size: 0.8rem; color: #6b7280;">Icon Emoji</label>
+            <div class="emoji-picker">
+              <div class="emoji-option selected" data-emoji="🎯" onclick="selectEmoji('🎯')">🎯</div>
+              <div class="emoji-option" data-emoji="⭐" onclick="selectEmoji('⭐')">⭐</div>
+              <div class="emoji-option" data-emoji="💡" onclick="selectEmoji('💡')">💡</div>
+              <div class="emoji-option" data-emoji="🔥" onclick="selectEmoji('🔥')">🔥</div>
+              <div class="emoji-option" data-emoji="🎨" onclick="selectEmoji('🎨')">🎨</div>
+              <div class="emoji-option" data-emoji="🚀" onclick="selectEmoji('🚀')">🚀</div>
+              <div class="emoji-option" data-emoji="💼" onclick="selectEmoji('💼')">💼</div>
+              <div class="emoji-option" data-emoji="📚" onclick="selectEmoji('📚')">📚</div>
+              <div class="emoji-option" data-emoji="🎮" onclick="selectEmoji('🎮')">🎮</div>
+              <div class="emoji-option" data-emoji="🏆" onclick="selectEmoji('🏆')">🏆</div>
+              <div class="emoji-option" data-emoji="🌟" onclick="selectEmoji('🌟')">🌟</div>
+              <div class="emoji-option" data-emoji="💪" onclick="selectEmoji('💪')">💪</div>
+            </div>
+          </div>
+
+          <button onclick="addCustomEvent()" style="width: 100%; margin-top: 8px; background: #8b5cf6;">
+            ✨ Add to Random Date
+          </button>
+        </div>
+
+        <div class="control-group">
+          <label>Add Event Types</label>
+          <button class="event-type-btn" onclick="addHoliday()">
+            <span class="event-type-color" style="background: #dc2626;"></span>
+            🎉 Holiday
+          </button>
+          <button class="event-type-btn" onclick="addVacation()">
+            <span class="event-type-color" style="background: #f59e0b;"></span>
+            ✈️ Vacation
+          </button>
+          <button class="event-type-btn" onclick="addNote()">
+            <span class="event-type-color" style="background: #3b82f6;"></span>
+            📝 Note
+          </button>
+          <button class="event-type-btn" onclick="addAppointment()">
+            <span class="event-type-color" style="background: #8b5cf6;"></span>
+            📅 Appointment
+          </button>
+          <button class="event-type-btn" onclick="addMeeting()">
+            <span class="event-type-color" style="background: #10b981;"></span>
+            🤝 Meeting
+          </button>
+          <button class="event-type-btn" onclick="addBirthday()">
+            <span class="event-type-color" style="background: #ec4899;"></span>
+            🎂 Birthday
+          </button>
+          <button onclick="clearAll()" style="margin-top: 8px; background: #dc2626;">🗑️ Clear All Events</button>
+        </div>
+
+        <div class="control-group">
+          <label>Event Count: <span id="count">0</span></label>
+          <div id="eventsList" class="marked-dates"></div>
+        </div>
+
+        <div class="info">
+          <strong>💡 Features:</strong><br>
+          • Click event buttons to add to random dates<br>
+          • Adjust weekend/event opacity with sliders<br>
+          • 8 event types with visual markers<br>
+          • Dots, bars & badges inspired by Outlook/Google Calendar<br>
+          • Drag to select date ranges<br>
+          • Full event customization
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="configurable-component.js"></script>
+  <script src="linear-calendar.js"></script>
+  <script>
+    let selectedMarker = 'dot';
+    let selectedEmoji = '🎯';
+    let selectedRange = null;
+
+    // Initialize calendar
+    const calendar = new LinearCalendar('#calendar', {
+      weekStartDay: 1, // Monday
+      weeksToLoad: 52,
+      locale: 'en-US',
+      monthFormat: 'long', // Test with long month names
+      weekendOpacity: 0.15,
+      markedDateOpacity: 0.25,
+      dayNumberPosition: 'top-left', // Test top-left position
+      dayHeight: 40, // Test custom height
+      enableRangeSelection: false,
+      onDayClick: (date, events, e) => {
+        console.log('Day clicked:', date, 'Events:', events);
+        if (events && events.length > 0) {
+          alert(`${calendar.formatDate(date)}\n\nEvents:\n${events.map(ev => `• ${ev.type}: ${ev.label || ''}`).join('\n')}`);
+        }
+      },
+      onRangeSelect: (startDate, endDate) => {
+        selectedRange = { start: startDate, end: endDate };
+        const info = document.getElementById('rangeInfo');
+        info.className = 'range-info active';
+        info.textContent = `✅ Selected: ${calendar.formatDate(startDate)} → ${calendar.formatDate(endDate)}`;
+        console.log('Range selected:', startDate, 'to', endDate);
+      },
+      onWeekLoad: (direction) => {
+        console.log('Weeks loaded:', direction);
+      },
+      infiniteScroll: true
+    });
+
+    // Set default jump date to today
+    document.getElementById('jumpDate').valueAsDate = new Date();
+
+    // Get random future date (within next 90 days)
+    function getRandomFutureDate(daysAhead = 90) {
+      const today = new Date();
+      const randomDays = Math.floor(Math.random() * daysAhead) + 1;
+      const date = new Date(today);
+      date.setDate(date.getDate() + randomDays);
+      return date;
+    }
+
+    // Update event list display
+    function updateEventsList() {
+      const events = calendar.getAllEvents();
+      const container = document.getElementById('eventsList');
+      const count = document.getElementById('count');
+
+      const totalEvents = Array.from(events.values()).reduce((sum, evts) => sum + evts.length, 0);
+      count.textContent = totalEvents;
+
+      if (totalEvents === 0) {
+        container.innerHTML = '';
+      } else {
+        const eventsByType = {};
+        events.forEach((evts, date) => {
+          evts.forEach(evt => {
+            if (!eventsByType[evt.type]) {
+              eventsByType[evt.type] = [];
+            }
+            eventsByType[evt.type].push(date);
+          });
+        });
+
+        container.innerHTML = Object.entries(eventsByType)
+          .map(([type, dates]) => `<div style="margin: 4px 0; font-size: 0.75rem;">${type}: ${dates.length}</div>`)
+          .join('');
+      }
+    }
+
+    // Opacity controls
+    function updateWeekendOpacity(value) {
+      calendar.setWeekendOpacity(value / 100);
+    }
+
+    function setWeekendOpacity(percent) {
+      document.getElementById('weekendOpacity').value = percent;
+      calendar.setWeekendOpacity(percent / 100);
+    }
+
+    function updateEventOpacity(value) {
+      calendar.setMarkedDateOpacity(value / 100);
+    }
+
+    function setEventOpacity(percent) {
+      document.getElementById('eventOpacity').value = percent;
+      calendar.setMarkedDateOpacity(percent / 100);
+    }
+
+    // Navigation
+    function scrollToToday() {
+      calendar.scrollToToday();
+    }
+
+    function scrollToRandomDate() {
+      const start = new Date();
+      start.setDate(start.getDate() - 365);
+      const end = new Date();
+      end.setDate(end.getDate() + 365);
+
+      const randomTime = start.getTime() + Math.random() * (end.getTime() - start.getTime());
+      const randomDate = new Date(randomTime);
+
+      calendar.scrollToDate(randomDate);
+    }
+
+    function scrollToSelectedDate() {
+      const input = document.getElementById('jumpDate');
+      if (input.value) {
+        calendar.scrollToDate(input.value);
+      }
+    }
+
+    // Range selection
+    function toggleRangeSelection(enabled) {
+      if (enabled) {
+        calendar.enableRangeSelection();
+        const info = document.getElementById('rangeInfo');
+        info.className = 'range-info';
+        info.textContent = '🖱️ Click and drag across dates to select a range';
+      } else {
+        calendar.disableRangeSelection();
+        selectedRange = null;
+        const info = document.getElementById('rangeInfo');
+        info.className = 'range-info';
+        info.textContent = 'ℹ️ Click and drag across dates to select a range';
+      }
+    }
+
+    // Marker and emoji selection
+    function selectMarker(marker) {
+      selectedMarker = marker;
+      document.querySelectorAll('.marker-option').forEach(opt => {
+        opt.classList.toggle('selected', opt.dataset.marker === marker);
+      });
+    }
+
+    function selectEmoji(emoji) {
+      selectedEmoji = emoji;
+      document.querySelectorAll('.emoji-option').forEach(opt => {
+        opt.classList.toggle('selected', opt.dataset.emoji === emoji);
+      });
+    }
+
+    // Toggle icon picker visibility
+    document.getElementById('showIcon').addEventListener('change', function (e) {
+      const iconPicker = document.getElementById('iconPickerGroup');
+      iconPicker.style.display = e.target.checked ? 'block' : 'none';
+    });
+
+    // Color picker sync
+    document.getElementById('colorPicker').addEventListener('input', function (e) {
+      document.getElementById('customColor').value = e.target.value;
+    });
+
+    document.getElementById('customColor').addEventListener('input', function (e) {
+      const color = e.target.value;
+      if (/^#[0-9A-Fa-f]{6}$/.test(color)) {
+        document.getElementById('colorPicker').value = color;
+      }
+    });
+
+    // Custom event creation
+    function addCustomEvent() {
+      const color = document.getElementById('customColor').value;
+      const opacity = parseInt(document.getElementById('customOpacity').value) / 100;
+      const showIcon = document.getElementById('showIcon').checked;
+
+      const options = {
+        color: color,
+        opacity: opacity,
+        marker: selectedMarker,
+        showIcon: showIcon
+      };
+
+      if (showIcon) {
+        options.icon = selectedEmoji;
+      }
+
+      // Add to random date or selected range
+      if (selectedRange) {
+        calendar.addEventToRange(selectedRange.start, selectedRange.end, 'custom', options);
+        const info = document.getElementById('rangeInfo');
+        info.className = 'range-info';
+        info.textContent = '✅ Custom event added to range!';
+        setTimeout(() => {
+          info.textContent = 'ℹ️ Click and drag across dates to select a range';
+        }, 3000);
+        selectedRange = null;
+        document.getElementById('rangeToggle').checked = false;
+        calendar.disableRangeSelection();
+      } else {
+        const date = getRandomFutureDate();
+        calendar.addEvent(date, 'custom', options);
+        calendar.scrollToDate(date);
+      }
+
+      updateEventsList();
+    }
+
+    // Add event functions
+    function addHoliday() {
+      const date = getRandomFutureDate();
+      calendar.addEvent(date, 'holiday', { label: 'Public Holiday' });
+      calendar.scrollToDate(date);
+      updateEventsList();
+    }
+
+    function addVacation() {
+      const date = getRandomFutureDate();
+      calendar.addEvent(date, 'vacation', { label: 'Vacation Day' });
+      calendar.scrollToDate(date);
+      updateEventsList();
+    }
+
+    function addNote() {
+      const date = getRandomFutureDate();
+      calendar.addEvent(date, 'note', { label: 'Important Note' });
+      calendar.scrollToDate(date);
+      updateEventsList();
+    }
+
+    function addAppointment() {
+      const date = getRandomFutureDate();
+      calendar.addEvent(date, 'appointment', { label: 'Doctor Appointment' });
+      calendar.scrollToDate(date);
+      updateEventsList();
+    }
+
+    function addMeeting() {
+      const date = getRandomFutureDate();
+      calendar.addEvent(date, 'meeting', { label: 'Team Meeting' });
+      calendar.scrollToDate(date);
+      updateEventsList();
+    }
+
+    function addBirthday() {
+      const date = getRandomFutureDate();
+      calendar.addEvent(date, 'birthday', { label: 'Birthday Party' });
+      calendar.scrollToDate(date);
+      updateEventsList();
+    }
+
+    function clearAll() {
+      if (confirm('Clear all events?')) {
+        calendar.clearAllEvents();
+        updateEventsList();
+      }
+    }
+
+    // Initial render
+    updateEventsList();
+
+    // Demo: Add some sample events
+    setTimeout(() => {
+      const today = new Date();
+
+      // Add varied events
+      calendar.addEvents([
+        { date: new Date(today.getTime() + 2 * 24 * 60 * 60 * 1000), type: 'meeting', label: 'Project Review' },
+        { date: new Date(today.getTime() + 5 * 24 * 60 * 60 * 1000), type: 'appointment', label: 'Dentist' },
+        { date: new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000), type: 'birthday', label: 'Mom\'s Birthday' },
+        { date: new Date(today.getTime() + 10 * 24 * 60 * 60 * 1000), type: 'note', label: 'Project Deadline' },
+        { date: new Date(today.getTime() + 14 * 24 * 60 * 60 * 1000), type: 'vacation', label: 'Start Vacation' },
+        { date: new Date(today.getTime() + 21 * 24 * 60 * 60 * 1000), type: 'holiday', label: 'Public Holiday' }
+      ]);
+
+      updateEventsList();
+    }, 500);
+  </script>
+</body>
+
+</html>

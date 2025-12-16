@@ -1,0 +1,38 @@
+{
+  "name": "@pensine/linear-calendar",
+  "version": "2.1.0",
+  "description": "Infinite scrolling linear calendar with range selection, typed events, full customization, visual markers, and adjustable opacity - inspired by Outlook and Google Calendar",
+  "main": "linear-calendar.js",
+  "style": "linear-calendar.css",
+  "files": [
+    "linear-calendar.js",
+    "linear-calendar.css",
+    "README.md"
+  ],
+  "keywords": [
+    "calendar",
+    "infinite-scroll",
+    "date-picker",
+    "linear-calendar",
+    "week-view",
+    "vanilla-js",
+    "standalone",
+    "lightweight"
+  ],
+  "author": "Stéphane Denis <stephane@denis.dev>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/stephanedenis/pensine-web.git",
+    "directory": "lib/components/linear-calendar"
+  },
+  "bugs": {
+    "url": "https://github.com/stephanedenis/pensine-web/issues"
+  },
+  "homepage": "https://github.com/stephanedenis/pensine-web/tree/main/lib/components/linear-calendar#readme",
+  "engines": {
+    "node": ">=12.0.0"
+  },
+  "devDependencies": {},
+  "dependencies": {}
+}

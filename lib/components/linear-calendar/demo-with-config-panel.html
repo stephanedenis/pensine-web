@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LinearCalendar with ConfigPanel - Demo</title>
+
+  <!-- Calendar Styles -->
+  <link rel="stylesheet" href="linear-calendar.css">
+
+  <!-- ConfigPanel Styles -->
+  <link rel="stylesheet" href="../base/config-panel.css">
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .demo-container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .demo-header {
+      text-align: center;
+      color: white;
+      margin-bottom: 30px;
+    }
+
+    .demo-header h1 {
+      font-size: 32px;
+      margin-bottom: 10px;
+    }
+
+    .demo-header p {
+      font-size: 16px;
+      opacity: 0.9;
+    }
+
+    .demo-content {
+      display: grid;
+      grid-template-columns: 350px 1fr;
+      gap: 20px;
+      align-items: start;
+    }
+
+    #config-panel-container {
+      position: sticky;
+      top: 20px;
+    }
+
+    #calendar-container {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+      overflow: hidden;
+      height: 600px;
+    }
+
+    .status-bar {
+      background: white;
+      border-radius: 8px;
+      padding: 15px;
+      margin-top: 20px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    }
+
+    .status-bar h3 {
+      font-size: 14px;
+      color: #667eea;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .status-info {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      font-size: 14px;
+    }
+
+    .status-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px;
+      background: #f8f9fa;
+      border-radius: 4px;
+    }
+
+    .status-label {
+      color: #6c757d;
+    }
+
+    .status-value {
+      font-weight: 600;
+      color: #333;
+    }
+
+    @media (max-width: 1024px) {
+      .demo-content {
+        grid-template-columns: 1fr;
+      }
+
+      #config-panel-container {
+        position: relative;
+        top: 0;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="demo-container">
+    <div class="demo-header">
+      <h1>⚙️ LinearCalendar with ConfigPanel</h1>
+      <p>Démonstration du système de configuration standardisé</p>
+    </div>
+
+    <div class="demo-content">
+      <!-- Configuration Panel (auto-generated from schema) -->
+      <div id="config-panel-container"></div>
+
+      <!-- Calendar -->
+      <div id="calendar-container"></div>
+    </div>
+
+    <div class="status-bar">
+      <h3>📊 Status</h3>
+      <div class="status-info">
+        <div class="status-item">
+          <span class="status-label">Selected Date:</span>
+          <span class="status-value" id="selected-date">None</span>
+        </div>
+        <div class="status-item">
+          <span class="status-label">Range Selection:</span>
+          <span class="status-value" id="range-status">Disabled</span>
+        </div>
+        <div class="status-item">
+          <span class="status-label">Weeks Loaded:</span>
+          <span class="status-value" id="weeks-loaded">0</span>
+        </div>
+        <div class="status-item">
+          <span class="status-label">Configuration:</span>
+          <span class="status-value" id="config-status">Default</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dependencies -->
+  <script src="../base/configurable-component.js"></script>
+  <script src="../base/config-panel.js"></script>
+  <script src="linear-calendar.js"></script>
+
+  <script>
+    // Initialize calendar with some events
+    const calendar = new LinearCalendar('#calendar-container', {
+      weekStartDay: 1,
+      locale: 'fr-CA',
+      markedDates: ['2025-12-25', '2026-01-01'],
+      onDayClick: (date, events) => {
+        const dateStr = date.toLocaleDateString('fr-CA');
+        document.getElementById('selected-date').textContent = dateStr;
+        console.log('Day clicked:', dateStr, events);
+      },
+      onRangeSelect: (startDate, endDate) => {
+        const start = startDate.toLocaleDateString('fr-CA');
+        const end = endDate.toLocaleDateString('fr-CA');
+        document.getElementById('selected-date').textContent = `${start} → ${end}`;
+        console.log('Range selected:', start, 'to', end);
+      }
+    });
+
+    // Add some sample events
+    calendar.addEvent('2025-12-25', 'holiday', { label: 'Christmas' });
+    calendar.addEvent('2026-01-01', 'holiday', { label: 'New Year' });
+    calendar.addEventToRange('2025-12-20', '2025-12-31', 'vacation', { label: 'Winter Holidays' });
+
+    // Initialize configuration panel (auto-generated UI)
+    const configPanel = new ConfigPanel(calendar, '#config-panel-container', {
+      showExport: true,
+      showImport: true,
+      showReset: true,
+      livePreview: true,
+      collapsible: true
+    });
+
+    // Listen to configuration changes
+    calendar.on('configchange', (data) => {
+      console.log('Configuration changed:', data.changes);
+      document.getElementById('config-status').textContent = 'Custom';
+
+      // Update range status
+      if (data.changes.enableRangeSelection !== undefined) {
+        document.getElementById('range-status').textContent =
+          data.newConfig.enableRangeSelection ? 'Enabled (Shift+Click)' : 'Disabled';
+      }
+
+      // Update weeks loaded
+      if (data.changes.weeksToLoad !== undefined) {
+        document.getElementById('weeks-loaded').textContent = data.newConfig.weeksToLoad;
+      }
+    });
+
+    calendar.on('configreset', () => {
+      console.log('Configuration reset to defaults');
+      document.getElementById('config-status').textContent = 'Default';
+      document.getElementById('range-status').textContent = 'Disabled';
+      document.getElementById('weeks-loaded').textContent = '52';
+    });
+
+    // Initialize status
+    document.getElementById('range-status').textContent =
+      calendar.options.enableRangeSelection ? 'Enabled (Shift+Click)' : 'Disabled';
+    document.getElementById('weeks-loaded').textContent = calendar.options.weeksToLoad;
+
+    // Export demo: Add button to test export
+    console.log('💡 Try these commands in the console:');
+    console.log('calendar.exportConfig() - Export current configuration');
+    console.log('calendar.resetConfig() - Reset to defaults');
+    console.log('calendar.setConfig({weekStartDay: 0}) - Change week start to Sunday');
+    console.log('configPanel.refresh() - Refresh config panel UI');
+  </script>
+</body>
+
+</html>

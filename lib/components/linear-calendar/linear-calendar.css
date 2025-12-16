@@ -1,0 +1,677 @@
+/**
+ * LinearCalendar Component Styles
+ * @version 2.0.0
+ * Standalone CSS with typed events and adjustable opacity
+ */
+
+/* Container */
+.linear-calendar-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+
+  /* 12-color month palette (high contrast between adjacent months) */
+  --month-color-0: #f97316;
+  /* January: Orange */
+  --month-color-1: #2563eb;
+  /* February: Blue */
+  --month-color-2: #dc2626;
+  /* March: Red */
+  --month-color-3: #10b981;
+  /* April: Green */
+  --month-color-4: #ec4899;
+  /* May: Pink */
+  --month-color-5: #3b82f6;
+  /* June: Sky Blue */
+  --month-color-6: #fbbf24;
+  /* July: Yellow */
+  --month-color-7: #4338ca;
+  /* August: Indigo */
+  --month-color-8: #fb923c;
+  /* September: Peach */
+  --month-color-9: #84cc16;
+  /* October: Lime */
+  --month-color-10: #e11d48;
+  /* November: Rose */
+  --month-color-11: #06b6d4;
+  /* December: Cyan */
+
+  /* Theme variables (can be customized) */
+  --calendar-bg: #f9fafb;
+  --calendar-bg-secondary: #ffffff;
+  --calendar-bg-tertiary: #f3f4f6;
+  --calendar-border: #e5e7eb;
+  --calendar-text: #374151;
+  --calendar-text-secondary: #6b7280;
+  --calendar-accent: #0e639c;
+  --calendar-accent-hover: #0a4d7a;
+  --calendar-success: #10b981;
+}
+
+/* Dark theme support */
+@media (prefers-color-scheme: dark) {
+  .linear-calendar-container {
+    --calendar-bg: #1f2937;
+    --calendar-bg-secondary: #111827;
+    --calendar-bg-tertiary: #374151;
+    --calendar-border: #4b5563;
+    --calendar-text: #f3f4f6;
+    --calendar-text-secondary: #9ca3af;
+  }
+}
+
+/* Weekdays Header */
+.linear-calendar-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0;
+  padding: 8px 4px 4px;
+  background: var(--calendar-bg-secondary);
+  border-bottom: 2px solid var(--calendar-border);
+  flex-shrink: 0;
+}
+
+.weekday-cell {
+  text-align: center;
+  font-size: 0.65rem;
+  color: var(--calendar-text-secondary);
+  padding: 4px 2px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+/* Scroll Container */
+.linear-calendar-scroll {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: visible; /* Allow month labels to show in left margin */
+  scrollbar-width: thin;
+  scrollbar-color: var(--calendar-border) var(--calendar-bg-secondary);
+}
+
+.linear-calendar-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.linear-calendar-scroll::-webkit-scrollbar-track {
+  background: var(--calendar-bg-secondary);
+}
+
+.linear-calendar-scroll::-webkit-scrollbar-thumb {
+  background: var(--calendar-border);
+  border-radius: 3px;
+}
+
+.linear-calendar-scroll::-webkit-scrollbar-thumb:hover {
+  background: var(--calendar-text-secondary);
+}
+
+/* Weeks Container */
+.linear-calendar-weeks {
+  padding: 4px 30px 4px 4px; /* Extra right padding for month labels */
+}
+
+/* Week Row */
+.calendar-week {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0;
+  margin-bottom: 0;
+  position: relative;
+  min-height: var(--day-height, 28px);
+  /* Force consistent height regardless of label content */
+}
+
+/* Month Label - Anchored on day cell, floats to the left */
+.calendar-month-label {
+  writing-mode: vertical-lr;
+  transform: rotate(180deg);
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end; /* Justify right */
+  justify-content: center;
+  padding: 4px 2px;
+  background: var(--calendar-bg-secondary);
+  border-radius: 2px;
+  line-height: 1.2;
+  gap: 0; /* No gap to keep on single line */
+  white-space: nowrap; /* Force single line */
+  /* Float in right margin with high z-index */
+  position: absolute;
+  right: -26px;
+  /* In the right margin */
+  top: 0;
+  width: 24px;
+  height: var(--day-height, 28px);
+  z-index: 100;
+  /* Above everything */
+}
+
+/* Month label on month-start weeks - show background */
+.linear-calendar-week.month-start .calendar-month-label {
+  background: var(--calendar-bg-secondary);
+}
+
+/* Full month label (first/last) with name and year */
+.calendar-month-label.full-label {
+  font-size: 0.75rem;
+  padding: 8px 3px;
+  gap: 6px;
+}
+
+.calendar-month-label .month-name {
+  font-weight: 700;
+  letter-spacing: 0.8px;
+}
+
+.calendar-month-label .month-year {
+  font-size: 0.65rem;
+  font-weight: 500;
+  opacity: 0.7;
+  letter-spacing: 0.3px;
+}
+
+/* Month label column inherits month color */
+.calendar-week.month-color-0 .calendar-month-label {
+  color: var(--month-color-0);
+  background: color-mix(in srgb, var(--month-color-0) 8%, var(--calendar-bg-secondary));
+}
+
+.calendar-week.month-color-1 .calendar-month-label {
+  color: var(--month-color-1);
+  background: color-mix(in srgb, var(--month-color-1) 8%, var(--calendar-bg-secondary));
+}
+
+.calendar-week.month-color-2 .calendar-month-label {
+  color: var(--month-color-2);
+  background: color-mix(in srgb, var(--month-color-2) 8%, var(--calendar-bg-secondary));
+}
+
+.calendar-week.month-color-3 .calendar-month-label {
+  color: var(--month-color-3);
+  background: color-mix(in srgb, var(--month-color-3) 8%, var(--calendar-bg-secondary));
+}
+
+.calendar-week.month-color-4 .calendar-month-label {
+  color: var(--month-color-4);
+  background: color-mix(in srgb, var(--month-color-4) 8%, var(--calendar-bg-secondary));
+}
+
+.calendar-week.month-color-5 .calendar-month-label {
+  color: var(--month-color-5);
+  background: color-mix(in srgb, var(--month-color-5) 8%, var(--calendar-bg-secondary));
+}
+
+.calendar-week.month-color-6 .calendar-month-label {
+  color: var(--month-color-6);
+  background: color-mix(in srgb, var(--month-color-6) 8%, var(--calendar-bg-secondary));
+}
+
+.calendar-week.month-color-7 .calendar-month-label {
+  color: var(--month-color-7);
+  background: color-mix(in srgb, var(--month-color-7) 8%, var(--calendar-bg-secondary));
+}
+
+.calendar-week.month-color-8 .calendar-month-label {
+  color: var(--month-color-8);
+  background: color-mix(in srgb, var(--month-color-8) 8%, var(--calendar-bg-secondary));
+}
+
+.calendar-week.month-color-9 .calendar-month-label {
+  color: var(--month-color-9);
+  background: color-mix(in srgb, var(--month-color-9) 8%, var(--calendar-bg-secondary));
+}
+
+.calendar-week.month-color-10 .calendar-month-label {
+  color: var(--month-color-10);
+  background: color-mix(in srgb, var(--month-color-10) 8%, var(--calendar-bg-secondary));
+}
+
+.calendar-week.month-color-11 .calendar-month-label {
+  color: var(--month-color-11);
+  background: color-mix(in srgb, var(--month-color-11) 8%, var(--calendar-bg-secondary));
+}
+
+/* Hide month label text except on first week of month, but keep background color */
+.calendar-week:not(.month-start) .calendar-month-label {
+  color: transparent;
+}
+
+/* Day Cell */
+.calendar-day {
+  height: var(--day-height, 28px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--calendar-bg-secondary);
+  border: 1px solid var(--calendar-border);
+  color: var(--calendar-text-secondary);
+  font-size: 0.7rem;
+  cursor: default;
+  position: relative;
+  border-radius: 0;
+  transition: all 0.15s ease;
+}
+
+/* Month transition borders */
+.calendar-day.month-color-0.month-start-left,
+.calendar-day.month-color-0.month-end-right,
+.calendar-day.month-color-0.month-start-top,
+.calendar-day.month-color-0.month-end-bottom {
+  --border-color: var(--month-color-0);
+}
+
+.calendar-day.month-color-1.month-start-left,
+.calendar-day.month-color-1.month-end-right,
+.calendar-day.month-color-1.month-start-top,
+.calendar-day.month-color-1.month-end-bottom {
+  --border-color: var(--month-color-1);
+}
+
+.calendar-day.month-color-2.month-start-left,
+.calendar-day.month-color-2.month-end-right,
+.calendar-day.month-color-2.month-start-top,
+.calendar-day.month-color-2.month-end-bottom {
+  --border-color: var(--month-color-2);
+}
+
+.calendar-day.month-color-3.month-start-left,
+.calendar-day.month-color-3.month-end-right,
+.calendar-day.month-color-3.month-start-top,
+.calendar-day.month-color-3.month-end-bottom {
+  --border-color: var(--month-color-3);
+}
+
+.calendar-day.month-color-4.month-start-left,
+.calendar-day.month-color-4.month-end-right,
+.calendar-day.month-color-4.month-start-top,
+.calendar-day.month-color-4.month-end-bottom {
+  --border-color: var(--month-color-4);
+}
+
+.calendar-day.month-color-5.month-start-left,
+.calendar-day.month-color-5.month-end-right,
+.calendar-day.month-color-5.month-start-top,
+.calendar-day.month-color-5.month-end-bottom {
+  --border-color: var(--month-color-5);
+}
+
+.calendar-day.month-color-6.month-start-left,
+.calendar-day.month-color-6.month-end-right,
+.calendar-day.month-color-6.month-start-top,
+.calendar-day.month-color-6.month-end-bottom {
+  --border-color: var(--month-color-6);
+}
+
+.calendar-day.month-color-7.month-start-left,
+.calendar-day.month-color-7.month-end-right,
+.calendar-day.month-color-7.month-start-top,
+.calendar-day.month-color-7.month-end-bottom {
+  --border-color: var(--month-color-7);
+}
+
+.calendar-day.month-color-8.month-start-left,
+.calendar-day.month-color-8.month-end-right,
+.calendar-day.month-color-8.month-start-top,
+.calendar-day.month-color-8.month-end-bottom {
+  --border-color: var(--month-color-8);
+}
+
+.calendar-day.month-color-9.month-start-left,
+.calendar-day.month-color-9.month-end-right,
+.calendar-day.month-color-9.month-start-top,
+.calendar-day.month-color-9.month-end-bottom {
+  --border-color: var(--month-color-9);
+}
+
+.calendar-day.month-color-10.month-start-left,
+.calendar-day.month-color-10.month-end-right,
+.calendar-day.month-color-10.month-start-top,
+.calendar-day.month-color-10.month-end-bottom {
+  --border-color: var(--month-color-10);
+}
+
+.calendar-day.month-color-11.month-start-left,
+.calendar-day.month-color-11.month-end-right,
+.calendar-day.month-color-11.month-start-top,
+.calendar-day.month-color-11.month-end-bottom {
+  --border-color: var(--month-color-11);
+}
+
+/* Day's own month color for borders (overrides week month color) */
+.calendar-day.day-month-color-0.month-start-left,
+.calendar-day.day-month-color-0.month-end-right,
+.calendar-day.day-month-color-0.month-start-top,
+.calendar-day.day-month-color-0.month-end-bottom {
+  --border-color: var(--month-color-0);
+}
+
+.calendar-day.day-month-color-1.month-start-left,
+.calendar-day.day-month-color-1.month-end-right,
+.calendar-day.day-month-color-1.month-start-top,
+.calendar-day.day-month-color-1.month-end-bottom {
+  --border-color: var(--month-color-1);
+}
+
+.calendar-day.day-month-color-2.month-start-left,
+.calendar-day.day-month-color-2.month-end-right,
+.calendar-day.day-month-color-2.month-start-top,
+.calendar-day.day-month-color-2.month-end-bottom {
+  --border-color: var(--month-color-2);
+}
+
+.calendar-day.day-month-color-3.month-start-left,
+.calendar-day.day-month-color-3.month-end-right,
+.calendar-day.day-month-color-3.month-start-top,
+.calendar-day.day-month-color-3.month-end-bottom {
+  --border-color: var(--month-color-3);
+}
+
+.calendar-day.day-month-color-4.month-start-left,
+.calendar-day.day-month-color-4.month-end-right,
+.calendar-day.day-month-color-4.month-start-top,
+.calendar-day.day-month-color-4.month-end-bottom {
+  --border-color: var(--month-color-4);
+}
+
+.calendar-day.day-month-color-5.month-start-left,
+.calendar-day.day-month-color-5.month-end-right,
+.calendar-day.day-month-color-5.month-start-top,
+.calendar-day.day-month-color-5.month-end-bottom {
+  --border-color: var(--month-color-5);
+}
+
+.calendar-day.day-month-color-6.month-start-left,
+.calendar-day.day-month-color-6.month-end-right,
+.calendar-day.day-month-color-6.month-start-top,
+.calendar-day.day-month-color-6.month-end-bottom {
+  --border-color: var(--month-color-6);
+}
+
+.calendar-day.day-month-color-7.month-start-left,
+.calendar-day.day-month-color-7.month-end-right,
+.calendar-day.day-month-color-7.month-start-top,
+.calendar-day.day-month-color-7.month-end-bottom {
+  --border-color: var(--month-color-7);
+}
+
+.calendar-day.day-month-color-8.month-start-left,
+.calendar-day.day-month-color-8.month-end-right,
+.calendar-day.day-month-color-8.month-start-top,
+.calendar-day.day-month-color-8.month-end-bottom {
+  --border-color: var(--month-color-8);
+}
+
+.calendar-day.day-month-color-9.month-start-left,
+.calendar-day.day-month-color-9.month-end-right,
+.calendar-day.day-month-color-9.month-start-top,
+.calendar-day.day-month-color-9.month-end-bottom {
+  --border-color: var(--month-color-9);
+}
+
+.calendar-day.day-month-color-10.month-start-left,
+.calendar-day.day-month-color-10.month-end-right,
+.calendar-day.day-month-color-10.month-start-top,
+.calendar-day.day-month-color-10.month-end-bottom {
+  --border-color: var(--month-color-10);
+}
+
+.calendar-day.day-month-color-11.month-start-left,
+.calendar-day.day-month-color-11.month-end-right,
+.calendar-day.day-month-color-11.month-start-top,
+.calendar-day.day-month-color-11.month-end-bottom {
+  --border-color: var(--month-color-11);
+}
+
+.calendar-day.month-start-left {
+  border-left: 4px solid var(--border-color, var(--calendar-accent));
+}
+
+.calendar-day.month-end-right {
+  border-right: 4px solid var(--border-color, var(--calendar-accent));
+}
+
+.calendar-day.month-start-top {
+  border-top: 4px solid var(--border-color, var(--calendar-accent));
+}
+
+.calendar-day.month-end-bottom {
+  border-bottom: 4px solid var(--border-color, var(--calendar-accent));
+}
+
+/* Day number position variants */
+.day-number-top-left .calendar-day {
+  align-items: flex-start;
+  justify-content: flex-start;
+  padding: 2px 4px;
+}
+
+.day-number-top-left .calendar-day-number {
+  font-weight: 600;
+}
+
+.day-number-top-left .event-indicators {
+  position: absolute;
+  bottom: 2px;
+  left: 2px;
+  right: 2px;
+  display: flex;
+  gap: 2px;
+  flex-wrap: wrap;
+}
+
+/* Weekend tint (solid color with adjustable opacity via CSS variable) */
+.calendar-day.weekend {
+  --weekend-opacity: 0.15;
+  /* Default, can be overridden */
+}
+
+.calendar-day.weekend.month-color-0 {
+  background: color-mix(in srgb, var(--month-color-0) calc(var(--weekend-opacity) * 100%), var(--calendar-bg-secondary));
+}
+
+.calendar-day.weekend.month-color-1 {
+  background: color-mix(in srgb, var(--month-color-1) calc(var(--weekend-opacity) * 100%), var(--calendar-bg-secondary));
+}
+
+.calendar-day.weekend.month-color-2 {
+  background: color-mix(in srgb, var(--month-color-2) calc(var(--weekend-opacity) * 100%), var(--calendar-bg-secondary));
+}
+
+.calendar-day.weekend.month-color-3 {
+  background: color-mix(in srgb, var(--month-color-3) calc(var(--weekend-opacity) * 100%), var(--calendar-bg-secondary));
+}
+
+.calendar-day.weekend.month-color-4 {
+  background: color-mix(in srgb, var(--month-color-4) calc(var(--weekend-opacity) * 100%), var(--calendar-bg-secondary));
+}
+
+.calendar-day.weekend.month-color-5 {
+  background: color-mix(in srgb, var(--month-color-5) calc(var(--weekend-opacity) * 100%), var(--calendar-bg-secondary));
+}
+
+.calendar-day.weekend.month-color-6 {
+  background: color-mix(in srgb, var(--month-color-6) calc(var(--weekend-opacity) * 100%), var(--calendar-bg-secondary));
+}
+
+.calendar-day.weekend.month-color-7 {
+  background: color-mix(in srgb, var(--month-color-7) calc(var(--weekend-opacity) * 100%), var(--calendar-bg-secondary));
+}
+
+.calendar-day.weekend.month-color-8 {
+  background: color-mix(in srgb, var(--month-color-8) calc(var(--weekend-opacity) * 100%), var(--calendar-bg-secondary));
+}
+
+.calendar-day.weekend.month-color-9 {
+  background: color-mix(in srgb, var(--month-color-9) calc(var(--weekend-opacity) * 100%), var(--calendar-bg-secondary));
+}
+
+.calendar-day.weekend.month-color-10 {
+  background: color-mix(in srgb, var(--month-color-10) calc(var(--weekend-opacity) * 100%), var(--calendar-bg-secondary));
+}
+
+.calendar-day.weekend.month-color-11 {
+  background: color-mix(in srgb, var(--month-color-11) calc(var(--weekend-opacity) * 100%), var(--calendar-bg-secondary));
+}
+
+/* Today */
+.calendar-day.today {
+  background: var(--calendar-accent);
+  color: white;
+  font-weight: 700;
+  box-shadow: 0 0 0 2px var(--calendar-accent-hover);
+}
+
+/* Current week highlight */
+.calendar-week.current-week {
+  background: rgba(14, 99, 156, 0.08);
+  border-radius: 3px;
+  padding: 1px;
+}
+
+/* Marked date (legacy support - simple dot) */
+.calendar-day.marked {
+  background: var(--calendar-bg-tertiary);
+  color: var(--calendar-text);
+  font-weight: 600;
+}
+
+.calendar-day.marked::after {
+  content: '';
+  position: absolute;
+  bottom: 3px;
+  width: 4px;
+  height: 4px;
+  background: var(--calendar-success);
+  border-radius: 50%;
+}
+
+.calendar-day.marked:hover {
+  background: var(--calendar-accent);
+  color: white;
+  transform: scale(1.05);
+}
+
+.calendar-day.marked.today::after {
+  background: white;
+}
+
+/* Days with events (typed events) */
+.calendar-day.has-events {
+  --marked-opacity: 0.25;
+  /* Default, can be overridden */
+  position: relative;
+}
+
+.calendar-day.has-events:hover {
+  background: var(--calendar-accent);
+  color: white;
+  transform: scale(1.05);
+}
+
+.calendar-day.has-events:hover .event-indicators {
+  opacity: 0.9;
+}
+
+/* Day number styling */
+.calendar-day-number {
+  position: relative;
+  z-index: 1;
+}
+
+/* Event indicators container */
+.event-indicators {
+  position: absolute;
+  bottom: 2px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 2px;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+}
+
+/* Event indicator types */
+
+/* Dot markers (small circles at bottom) */
+.event-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* Bar markers (vertical bars on left side) */
+.event-bar {
+  position: absolute;
+  left: 1px;
+  top: 2px;
+  bottom: 2px;
+  width: 3px;
+  border-radius: 2px;
+}
+
+/* Badge markers (icon badges with emoji) */
+.event-badge {
+  font-size: 10px;
+  line-height: 1;
+  padding: 1px 2px;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 12px;
+  height: 12px;
+}
+
+/* Multiple bars stacked */
+.event-indicators .event-bar:nth-child(1) {
+  left: 1px;
+}
+
+.event-indicators .event-bar:nth-child(2) {
+  left: 5px;
+}
+
+.event-indicators .event-bar:nth-child(3) {
+  left: 9px;
+}
+
+/* Limit visible indicators to avoid overflow */
+.event-indicators .event-dot:nth-child(n+5),
+.event-indicators .event-badge:nth-child(n+4) {
+  display: none;
+}
+
+/* More indicator when too many events */
+.event-indicators::after {
+  content: attr(data-count);
+  display: none;
+  font-size: 8px;
+  font-weight: 700;
+  color: var(--calendar-text-secondary);
+  margin-left: 2px;
+}
+
+/* Range selection */
+.calendar-day.range-selecting {
+  background: rgba(14, 99, 156, 0.25) !important;
+  border: 2px solid var(--calendar-accent) !important;
+  z-index: 10;
+}
+
+.calendar-day.range-selecting.today {
+  background: var(--calendar-accent) !important;
+}
+
+/* Range selection cursor */
+.linear-calendar-container[data-range-mode="true"] .calendar-day {
+  cursor: crosshair !important;
+}
