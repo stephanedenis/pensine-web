@@ -6,32 +6,29 @@
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    /* 12 couleurs avec contraste maximal entre mois adjacents */
-    --month-color-0: #f97316;  /* Janvier: Orange vif */
-    --month-color-1: #2563eb;  /* Février: Bleu royal (froid) */
-    --month-color-2: #dc2626;  /* Mars: Rouge */
-    --month-color-3: #10b981;  /* Avril: Vert émeraude */
-    --month-color-4: #ec4899;  /* Mai: Rose magenta */
-    --month-color-5: #3b82f6;  /* Juin: Bleu ciel */
-    --month-color-6: #fbbf24;  /* Juillet: Jaune doré */
-    --month-color-7: #4338ca;  /* Août: Indigo profond */
-    --month-color-8: #fb923c;  /* Septembre: Orange pêche */
-    --month-color-9: #84cc16;  /* Octobre: Vert lime */
-    --month-color-10: #e11d48; /* Novembre: Rouge rose */
-    --month-color-11: #06b6d4; /* Décembre: Cyan */
 }
 
 #calendar-container.hidden {
     display: none;
 }
 
+#linear-calendar {
+    flex: 1;
+    overflow: hidden;
+}
+
 .calendar-header {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
     padding: 12px 8px;
     border-bottom: 1px solid var(--border);
     flex-shrink: 0;
+}
+
+.calendar-nav {
+    display: flex;
+    gap: 8px;
 }
 
 .calendar-header h3 {
@@ -93,18 +90,21 @@
     flex: 1;
     overflow-y: auto;
     overflow-x: hidden;
-    scrollbar-width: none; /* Firefox */
-    -ms-overflow-style: none; /* IE/Edge */
+    scrollbar-width: none;
+    /* Firefox */
+    -ms-overflow-style: none;
+    /* IE/Edge */
 }
 
 #calendar-scroll-container::-webkit-scrollbar {
-    display: none; /* Chrome/Safari/Opera */
+    display: none;
+    /* Chrome/Safari/Opera */
 }
 
 /* Weekdays Header - Fixed at top */
 .calendar-weekdays-header {
     display: grid;
-    grid-template-columns: 24px repeat(7, 1fr);
+    grid-template-columns: repeat(7, 1fr);
     gap: 1px;
     padding: 8px 4px 4px;
     background: var(--bg-secondary);
@@ -114,7 +114,7 @@
     border-bottom: 2px solid var(--border);
 }
 
-.calendar-weekdays-header > div {
+.calendar-weekdays-header>div {
     text-align: center;
     font-size: 0.65rem;
     color: var(--text-secondary);
@@ -122,11 +122,6 @@
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.3px;
-}
-
-.calendar-weekdays-header > div:first-child {
-    /* Empty space for month column */
-    background: transparent;
 }
 
 /* Weeks Container */
@@ -137,13 +132,13 @@
 /* Single Week Row */
 .calendar-week {
     display: grid;
-    grid-template-columns: 24px repeat(7, 1fr);
+    grid-template-columns: repeat(7, 1fr);
     gap: 1px;
     margin-bottom: 1px;
     position: relative;
 }
 
-/* Month Label - Vertical on left */
+/* Month Label - Anchored on day cell, floats to the left */
 .calendar-month-label {
     writing-mode: vertical-lr;
     transform: rotate(180deg);
@@ -152,26 +147,97 @@
     text-transform: uppercase;
     letter-spacing: 0.5px;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 2px 1px;
-    background: var(--bg-secondary);
+    padding: 4px 2px;
+    background: var(--bg-hover);
     border-radius: 2px;
-    line-height: 1;
+    line-height: 1.2;
+    gap: 2px;
+    border-right: 1px solid var(--border);
+    /* Float in margin with high z-index */
+    position: absolute;
+    left: -26px;
+    /* In the left margin */
+    top: 0;
+    width: 24px;
+    height: 28px;
+    z-index: 100;
+    /* Above everything */
 }
 
-.calendar-week.month-color-0 .calendar-month-label { color: var(--month-color-0); }
-.calendar-week.month-color-1 .calendar-month-label { color: var(--month-color-1); }
-.calendar-week.month-color-2 .calendar-month-label { color: var(--month-color-2); }
-.calendar-week.month-color-3 .calendar-month-label { color: var(--month-color-3); }
-.calendar-week.month-color-4 .calendar-month-label { color: var(--month-color-4); }
-.calendar-week.month-color-5 .calendar-month-label { color: var(--month-color-5); }
-.calendar-week.month-color-6 .calendar-month-label { color: var(--month-color-6); }
-.calendar-week.month-color-7 .calendar-month-label { color: var(--month-color-7); }
-.calendar-week.month-color-8 .calendar-month-label { color: var(--month-color-8); }
-.calendar-week.month-color-9 .calendar-month-label { color: var(--month-color-9); }
-.calendar-week.month-color-10 .calendar-month-label { color: var(--month-color-10); }
-.calendar-week.month-color-11 .calendar-month-label { color: var(--month-color-11); }
+/* Month label on month-start weeks - show background */
+.calendar-week.month-start .calendar-month-label {
+    background: var(--bg-secondary);
+}
+
+/* Full month label (first/last) with name and year */
+.calendar-month-label.full-label {
+    font-size: 0.75rem;
+    padding: 8px 3px;
+    gap: 6px;
+}
+
+.calendar-month-label .month-name {
+    font-weight: 700;
+    letter-spacing: 0.8px;
+}
+
+.calendar-month-label .month-year {
+    font-size: 0.65rem;
+    font-weight: 500;
+    opacity: 0.7;
+    letter-spacing: 0.3px;
+}
+
+.calendar-week.month-color-0 .calendar-month-label {
+    color: var(--month-color-0);
+}
+
+.calendar-week.month-color-1 .calendar-month-label {
+    color: var(--month-color-1);
+}
+
+.calendar-week.month-color-2 .calendar-month-label {
+    color: var(--month-color-2);
+}
+
+.calendar-week.month-color-3 .calendar-month-label {
+    color: var(--month-color-3);
+}
+
+.calendar-week.month-color-4 .calendar-month-label {
+    color: var(--month-color-4);
+}
+
+.calendar-week.month-color-5 .calendar-month-label {
+    color: var(--month-color-5);
+}
+
+.calendar-week.month-color-6 .calendar-month-label {
+    color: var(--month-color-6);
+}
+
+.calendar-week.month-color-7 .calendar-month-label {
+    color: var(--month-color-7);
+}
+
+.calendar-week.month-color-8 .calendar-month-label {
+    color: var(--month-color-8);
+}
+
+.calendar-week.month-color-9 .calendar-month-label {
+    color: var(--month-color-9);
+}
+
+.calendar-week.month-color-10 .calendar-month-label {
+    color: var(--month-color-10);
+}
+
+.calendar-week.month-color-11 .calendar-month-label {
+    color: var(--month-color-11);
+}
 
 /* Month label only on first week of month */
 .calendar-week:not(.month-start) .calendar-month-label {
@@ -195,52 +261,87 @@
 }
 
 /* Month transition borders - create visual continuity */
-.calendar-day.month-color-0.month-start-left, .calendar-day.month-color-0.month-end-right,
-.calendar-day.month-color-0.month-start-top, .calendar-day.month-color-0.month-end-bottom {
+.calendar-day.month-color-0.month-start-left,
+.calendar-day.month-color-0.month-end-right,
+.calendar-day.month-color-0.month-start-top,
+.calendar-day.month-color-0.month-end-bottom {
     --border-color: var(--month-color-0);
 }
-.calendar-day.month-color-1.month-start-left, .calendar-day.month-color-1.month-end-right,
-.calendar-day.month-color-1.month-start-top, .calendar-day.month-color-1.month-end-bottom {
+
+.calendar-day.month-color-1.month-start-left,
+.calendar-day.month-color-1.month-end-right,
+.calendar-day.month-color-1.month-start-top,
+.calendar-day.month-color-1.month-end-bottom {
     --border-color: var(--month-color-1);
 }
-.calendar-day.month-color-2.month-start-left, .calendar-day.month-color-2.month-end-right,
-.calendar-day.month-color-2.month-start-top, .calendar-day.month-color-2.month-end-bottom {
+
+.calendar-day.month-color-2.month-start-left,
+.calendar-day.month-color-2.month-end-right,
+.calendar-day.month-color-2.month-start-top,
+.calendar-day.month-color-2.month-end-bottom {
     --border-color: var(--month-color-2);
 }
-.calendar-day.month-color-3.month-start-left, .calendar-day.month-color-3.month-end-right,
-.calendar-day.month-color-3.month-start-top, .calendar-day.month-color-3.month-end-bottom {
+
+.calendar-day.month-color-3.month-start-left,
+.calendar-day.month-color-3.month-end-right,
+.calendar-day.month-color-3.month-start-top,
+.calendar-day.month-color-3.month-end-bottom {
     --border-color: var(--month-color-3);
 }
-.calendar-day.month-color-4.month-start-left, .calendar-day.month-color-4.month-end-right,
-.calendar-day.month-color-4.month-start-top, .calendar-day.month-color-4.month-end-bottom {
+
+.calendar-day.month-color-4.month-start-left,
+.calendar-day.month-color-4.month-end-right,
+.calendar-day.month-color-4.month-start-top,
+.calendar-day.month-color-4.month-end-bottom {
     --border-color: var(--month-color-4);
 }
-.calendar-day.month-color-5.month-start-left, .calendar-day.month-color-5.month-end-right,
-.calendar-day.month-color-5.month-start-top, .calendar-day.month-color-5.month-end-bottom {
+
+.calendar-day.month-color-5.month-start-left,
+.calendar-day.month-color-5.month-end-right,
+.calendar-day.month-color-5.month-start-top,
+.calendar-day.month-color-5.month-end-bottom {
     --border-color: var(--month-color-5);
 }
-.calendar-day.month-color-6.month-start-left, .calendar-day.month-color-6.month-end-right,
-.calendar-day.month-color-6.month-start-top, .calendar-day.month-color-6.month-end-bottom {
+
+.calendar-day.month-color-6.month-start-left,
+.calendar-day.month-color-6.month-end-right,
+.calendar-day.month-color-6.month-start-top,
+.calendar-day.month-color-6.month-end-bottom {
     --border-color: var(--month-color-6);
 }
-.calendar-day.month-color-7.month-start-left, .calendar-day.month-color-7.month-end-right,
-.calendar-day.month-color-7.month-start-top, .calendar-day.month-color-7.month-end-bottom {
+
+.calendar-day.month-color-7.month-start-left,
+.calendar-day.month-color-7.month-end-right,
+.calendar-day.month-color-7.month-start-top,
+.calendar-day.month-color-7.month-end-bottom {
     --border-color: var(--month-color-7);
 }
-.calendar-day.month-color-8.month-start-left, .calendar-day.month-color-8.month-end-right,
-.calendar-day.month-color-8.month-start-top, .calendar-day.month-color-8.month-end-bottom {
+
+.calendar-day.month-color-8.month-start-left,
+.calendar-day.month-color-8.month-end-right,
+.calendar-day.month-color-8.month-start-top,
+.calendar-day.month-color-8.month-end-bottom {
     --border-color: var(--month-color-8);
 }
-.calendar-day.month-color-9.month-start-left, .calendar-day.month-color-9.month-end-right,
-.calendar-day.month-color-9.month-start-top, .calendar-day.month-color-9.month-end-bottom {
+
+.calendar-day.month-color-9.month-start-left,
+.calendar-day.month-color-9.month-end-right,
+.calendar-day.month-color-9.month-start-top,
+.calendar-day.month-color-9.month-end-bottom {
     --border-color: var(--month-color-9);
 }
-.calendar-day.month-color-10.month-start-left, .calendar-day.month-color-10.month-end-right,
-.calendar-day.month-color-10.month-start-top, .calendar-day.month-color-10.month-end-bottom {
+
+.calendar-day.month-color-10.month-start-left,
+.calendar-day.month-color-10.month-end-right,
+.calendar-day.month-color-10.month-start-top,
+.calendar-day.month-color-10.month-end-bottom {
     --border-color: var(--month-color-10);
 }
-.calendar-day.month-color-11.month-start-left, .calendar-day.month-color-11.month-end-right,
-.calendar-day.month-color-11.month-start-top, .calendar-day.month-color-11.month-end-bottom {
+
+.calendar-day.month-color-11.month-start-left,
+.calendar-day.month-color-11.month-end-right,
+.calendar-day.month-color-11.month-start-top,
+.calendar-day.month-color-11.month-end-bottom {
     --border-color: var(--month-color-11);
 }
 
@@ -261,18 +362,53 @@
 }
 
 /* Weekend tint - harmonized with month color */
-.calendar-day.weekend.month-color-0 { background: linear-gradient(135deg, var(--bg-secondary) 0%, color-mix(in srgb, var(--month-color-0) 15%, var(--bg-secondary)) 100%); }
-.calendar-day.weekend.month-color-1 { background: linear-gradient(135deg, var(--bg-secondary) 0%, color-mix(in srgb, var(--month-color-1) 15%, var(--bg-secondary)) 100%); }
-.calendar-day.weekend.month-color-2 { background: linear-gradient(135deg, var(--bg-secondary) 0%, color-mix(in srgb, var(--month-color-2) 15%, var(--bg-secondary)) 100%); }
-.calendar-day.weekend.month-color-3 { background: linear-gradient(135deg, var(--bg-secondary) 0%, color-mix(in srgb, var(--month-color-3) 15%, var(--bg-secondary)) 100%); }
-.calendar-day.weekend.month-color-4 { background: linear-gradient(135deg, var(--bg-secondary) 0%, color-mix(in srgb, var(--month-color-4) 15%, var(--bg-secondary)) 100%); }
-.calendar-day.weekend.month-color-5 { background: linear-gradient(135deg, var(--bg-secondary) 0%, color-mix(in srgb, var(--month-color-5) 15%, var(--bg-secondary)) 100%); }
-.calendar-day.weekend.month-color-6 { background: linear-gradient(135deg, var(--bg-secondary) 0%, color-mix(in srgb, var(--month-color-6) 15%, var(--bg-secondary)) 100%); }
-.calendar-day.weekend.month-color-7 { background: linear-gradient(135deg, var(--bg-secondary) 0%, color-mix(in srgb, var(--month-color-7) 15%, var(--bg-secondary)) 100%); }
-.calendar-day.weekend.month-color-8 { background: linear-gradient(135deg, var(--bg-secondary) 0%, color-mix(in srgb, var(--month-color-8) 15%, var(--bg-secondary)) 100%); }
-.calendar-day.weekend.month-color-9 { background: linear-gradient(135deg, var(--bg-secondary) 0%, color-mix(in srgb, var(--month-color-9) 15%, var(--bg-secondary)) 100%); }
-.calendar-day.weekend.month-color-10 { background: linear-gradient(135deg, var(--bg-secondary) 0%, color-mix(in srgb, var(--month-color-10) 15%, var(--bg-secondary)) 100%); }
-.calendar-day.weekend.month-color-11 { background: linear-gradient(135deg, var(--bg-secondary) 0%, color-mix(in srgb, var(--month-color-11) 15%, var(--bg-secondary)) 100%); }
+.calendar-day.weekend.month-color-0 {
+    background: linear-gradient(135deg, var(--bg-secondary) 0%, color-mix(in srgb, var(--month-color-0) 15%, var(--bg-secondary)) 100%);
+}
+
+.calendar-day.weekend.month-color-1 {
+    background: linear-gradient(135deg, var(--bg-secondary) 0%, color-mix(in srgb, var(--month-color-1) 15%, var(--bg-secondary)) 100%);
+}
+
+.calendar-day.weekend.month-color-2 {
+    background: linear-gradient(135deg, var(--bg-secondary) 0%, color-mix(in srgb, var(--month-color-2) 15%, var(--bg-secondary)) 100%);
+}
+
+.calendar-day.weekend.month-color-3 {
+    background: linear-gradient(135deg, var(--bg-secondary) 0%, color-mix(in srgb, var(--month-color-3) 15%, var(--bg-secondary)) 100%);
+}
+
+.calendar-day.weekend.month-color-4 {
+    background: linear-gradient(135deg, var(--bg-secondary) 0%, color-mix(in srgb, var(--month-color-4) 15%, var(--bg-secondary)) 100%);
+}
+
+.calendar-day.weekend.month-color-5 {
+    background: linear-gradient(135deg, var(--bg-secondary) 0%, color-mix(in srgb, var(--month-color-5) 15%, var(--bg-secondary)) 100%);
+}
+
+.calendar-day.weekend.month-color-6 {
+    background: linear-gradient(135deg, var(--bg-secondary) 0%, color-mix(in srgb, var(--month-color-6) 15%, var(--bg-secondary)) 100%);
+}
+
+.calendar-day.weekend.month-color-7 {
+    background: linear-gradient(135deg, var(--bg-secondary) 0%, color-mix(in srgb, var(--month-color-7) 15%, var(--bg-secondary)) 100%);
+}
+
+.calendar-day.weekend.month-color-8 {
+    background: linear-gradient(135deg, var(--bg-secondary) 0%, color-mix(in srgb, var(--month-color-8) 15%, var(--bg-secondary)) 100%);
+}
+
+.calendar-day.weekend.month-color-9 {
+    background: linear-gradient(135deg, var(--bg-secondary) 0%, color-mix(in srgb, var(--month-color-9) 15%, var(--bg-secondary)) 100%);
+}
+
+.calendar-day.weekend.month-color-10 {
+    background: linear-gradient(135deg, var(--bg-secondary) 0%, color-mix(in srgb, var(--month-color-10) 15%, var(--bg-secondary)) 100%);
+}
+
+.calendar-day.weekend.month-color-11 {
+    background: linear-gradient(135deg, var(--bg-secondary) 0%, color-mix(in srgb, var(--month-color-11) 15%, var(--bg-secondary)) 100%);
+}
 
 /* Today */
 .calendar-day.today {
@@ -334,4 +470,3 @@
 #calendar-scroll-container::-webkit-scrollbar-thumb:hover {
     background: var(--text-secondary);
 }
-

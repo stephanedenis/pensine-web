@@ -22,12 +22,12 @@ class ConfigManager {
         try {
             const { config, sha } = await githubAdapter.getConfig();
             this.configSha = sha;
-            
+
             // Update localStorage cache
             Object.entries(config).forEach(([key, value]) => {
                 localStorage.setItem(key, String(value));
             });
-            
+
             return config;
         } catch (error) {
             console.warn('Could not load config from GitHub, using localStorage:', error);
@@ -42,22 +42,22 @@ class ConfigManager {
      */
     async saveToGitHub(key, value) {
         if (this.syncInProgress) return;
-        
+
         try {
             this.syncInProgress = true;
-            
+
             // Update localStorage immediately for responsiveness
             localStorage.setItem(key, String(value));
-            
+
             // Load current config from GitHub
             const { config, sha } = await githubAdapter.getConfig();
-            
+
             // Update the specific key
             config[key] = value;
-            
+
             // Save back to GitHub
             this.configSha = await githubAdapter.updateConfig(config, sha || this.configSha);
-            
+
             console.log(`✓ Configuration synced: ${key} = ${value}`);
         } catch (error) {
             console.error('Could not save config to GitHub:', error);
@@ -114,14 +114,14 @@ class PensineApp {
         this.currentDate = new Date();
         this.editor = null;
         this.parser = new MarkdownParser();
-        
+
         // Editor state
         this.currentFile = null;
         this.currentContent = '';
         this.currentFileType = null;
         this.currentViewMode = VIEW_MODES.RICH;
         this.hasUnsavedChanges = false;
-        
+
         this.init();
     }
 
@@ -159,7 +159,7 @@ class PensineApp {
             } catch (error) {
                 console.error('Token invalide:', error);
                 this.showError('Token GitHub invalide ou expiré. Veuillez le reconfigurer.');
-                
+
                 // Show wizard if available, otherwise settings
                 if (window.configWizard) {
                     configWizard.show();
@@ -168,7 +168,7 @@ class PensineApp {
                 }
             }
         }
-        
+
         // Hide loading indicator
         document.getElementById('loading').classList.add('hidden');
     }
@@ -176,7 +176,7 @@ class PensineApp {
     async restorePanelStates() {
         // Load configuration from GitHub (with localStorage as fallback)
         const config = await configManager.loadFromGitHub();
-        
+
         // Restore calendar visibility
         if (config.calendarVisible) {
             const nav = document.querySelector('#sidebar nav');
@@ -188,7 +188,7 @@ class PensineApp {
             document.getElementById('calendar-container').classList.add('hidden');
             document.getElementById('recent-pages').classList.remove('hidden');
         }
-        
+
         // Restore history panel state
         if (config.historyVisible) {
             document.getElementById('history-sidebar').classList.add('open');
@@ -217,73 +217,92 @@ class PensineApp {
         });
 
         // Journal navigation
-        document.getElementById('prev-day').addEventListener('click', () => {
-            this.navigateDay(-1);
-        });
-        document.getElementById('next-day').addEventListener('click', () => {
-            this.navigateDay(1);
-        });
-        document.getElementById('today-btn').addEventListener('click', async () => {
-            this.currentDate = new Date();
-            await this.loadJournal();
-        });
+        const prevDayBtn = document.getElementById('prev-day');
+        if (prevDayBtn) {
+            prevDayBtn.addEventListener('click', () => {
+                this.navigateDay(-1);
+            });
+        }
+
+        const nextDayBtn = document.getElementById('next-day');
+        if (nextDayBtn) {
+            nextDayBtn.addEventListener('click', () => {
+                this.navigateDay(1);
+            });
+        }
+
+        const todayBtn = document.getElementById('today-btn');
+        if (todayBtn) {
+            todayBtn.addEventListener('click', async () => {
+                this.currentDate = new Date();
+                await this.loadJournal();
+            });
+        }
 
         // Settings - Now opens config in editor
-        document.getElementById('settings-btn').addEventListener('click', () => {
-            this.showSettings();
-        });
+        const settingsBtn = document.getElementById('settings-btn');
+        if (settingsBtn) {
+            settingsBtn.addEventListener('click', () => {
+                this.showSettings();
+            });
+        }
 
         // Sync
-        document.getElementById('sync-btn').addEventListener('click', () => {
-            this.manualSync();
-        });
+        const syncBtn = document.getElementById('sync-btn');
+        if (syncBtn) {
+            syncBtn.addEventListener('click', () => {
+                this.manualSync();
+            });
+        }
 
         // History panel toggle
-        document.getElementById('history-btn').addEventListener('click', () => {
-            this.toggleHistory();
-        });
-        document.getElementById('close-history').addEventListener('click', () => {
-            this.closeHistory();
-        });
+        const historyBtn = document.getElementById('history-btn');
+        if (historyBtn) {
+            historyBtn.addEventListener('click', () => {
+                this.toggleHistory();
+            });
+        }
+
+        const closeHistoryBtn = document.getElementById('close-history');
+        if (closeHistoryBtn) {
+            closeHistoryBtn.addEventListener('click', () => {
+                this.closeHistory();
+            });
+        }
 
         // Calendar panel toggle
-        document.getElementById('calendar-btn').addEventListener('click', () => {
-            this.toggleCalendar();
-        });
-        
-        // Calendar navigation
-        document.getElementById('calendar-prev').addEventListener('click', () => {
-            this.loadMoreWeeks('past');
-        });
-        document.getElementById('calendar-next').addEventListener('click', () => {
-            this.loadMoreWeeks('future');
-        });
-        document.getElementById('calendar-today').addEventListener('click', () => {
-            this.scrollToCurrentWeek();
-        });
-        
+        const calendarBtn = document.getElementById('calendar-btn');
+        if (calendarBtn) {
+            calendarBtn.addEventListener('click', () => {
+                this.toggleCalendar();
+            });
+        }
+
         // Scroll-based lazy loading
-        document.getElementById('calendar-scroll-container').addEventListener('scroll', (e) => {
-            const container = e.target;
-            const scrollTop = container.scrollTop;
-            const scrollHeight = container.scrollHeight;
-            const clientHeight = container.clientHeight;
-            
-            // Load more weeks when near top (200px threshold)
-            if (scrollTop < 200 && this.calendarState && !this.calendarState.isLoading) {
-                this.loadMoreWeeks('past');
-            }
-            
-            // Load more weeks when near bottom (200px threshold)
-            if (scrollHeight - scrollTop - clientHeight < 200 && this.calendarState && !this.calendarState.isLoading) {
-                this.loadMoreWeeks('future');
-            }
-        });
+        const calendarScrollContainer = document.getElementById('calendar-scroll-container');
+        if (calendarScrollContainer) {
+            calendarScrollContainer.addEventListener('scroll', (e) => {
+                const container = e.target;
+                const scrollTop = container.scrollTop;
+                const scrollHeight = container.scrollHeight;
+                const clientHeight = container.clientHeight;
+
+                // Load more weeks when near top (200px threshold)
+                if (scrollTop < 200 && this.calendarState && !this.calendarState.isLoading) {
+                    this.loadMoreWeeks('past');
+                }
+
+                // Load more weeks when near bottom (200px threshold)
+                if (scrollHeight - scrollTop - clientHeight < 200 && this.calendarState && !this.calendarState.isLoading) {
+                    this.loadMoreWeeks('future');
+                }
+            });
+        }
 
         // ========================================
         // Unified Editor Controls
         // ========================================
-        
+
         // View mode switching
         document.querySelectorAll('.view-mode-btn').forEach(btn => {
             btn.addEventListener('click', () => {
@@ -291,39 +310,58 @@ class PensineApp {
                 this.switchEditorMode(mode);
             });
         });
-        
+
         // Save button
-        document.getElementById('editor-save-btn').addEventListener('click', async () => {
-            await this.saveCurrentFile();
-        });
-        
+        const editorSaveBtn = document.getElementById('editor-save-btn');
+        if (editorSaveBtn) {
+            editorSaveBtn.addEventListener('click', async () => {
+                await this.saveCurrentFile();
+            });
+        }
+
         // Close button
-        document.getElementById('editor-close-btn').addEventListener('click', () => {
-            this.closeEditor();
-        });
-        
+        const editorCloseBtn = document.getElementById('editor-close-btn');
+        if (editorCloseBtn) {
+            editorCloseBtn.addEventListener('click', () => {
+                this.closeEditor();
+            });
+        }
+
         // Code textarea input (for auto-save or dirty state detection)
-        document.getElementById('editor-code-textarea').addEventListener('input', () => {
-            this.hasUnsavedChanges = true;
-            document.getElementById('editor-save-btn').disabled = false;
-        });
-        
-        // Keyboard shortcuts
-        document.getElementById('editor-code-textarea').addEventListener('keydown', (e) => {
-            // Ctrl+S to save
-            if (e.ctrlKey && e.key === 's') {
-                e.preventDefault();
-                this.saveCurrentFile();
-            }
-        });
+        const editorCodeTextarea = document.getElementById('editor-code-textarea');
+        if (editorCodeTextarea) {
+            editorCodeTextarea.addEventListener('input', () => {
+                this.hasUnsavedChanges = true;
+                const saveBtn = document.getElementById('editor-save-btn');
+                if (saveBtn) {
+                    saveBtn.disabled = false;
+                }
+            });
+
+            // Keyboard shortcuts
+            editorCodeTextarea.addEventListener('keydown', (e) => {
+                // Ctrl+S to save
+                if (e.ctrlKey && e.key === 's') {
+                    e.preventDefault();
+                    this.saveCurrentFile();
+                }
+            });
+        }
 
         // Remote change notification handlers
-        document.getElementById('reload-file-btn').addEventListener('click', async () => {
-            await this.reloadCurrentFile();
-        });
-        document.getElementById('ignore-changes-btn').addEventListener('click', () => {
-            this.dismissRemoteChangeNotification();
-        });
+        const reloadFileBtn = document.getElementById('reload-file-btn');
+        if (reloadFileBtn) {
+            reloadFileBtn.addEventListener('click', async () => {
+                await this.reloadCurrentFile();
+            });
+        }
+
+        const ignoreChangesBtn = document.getElementById('ignore-changes-btn');
+        if (ignoreChangesBtn) {
+            ignoreChangesBtn.addEventListener('click', () => {
+                this.dismissRemoteChangeNotification();
+            });
+        }
 
         // Keyboard shortcuts
         document.addEventListener('keydown', (e) => {
@@ -373,7 +411,7 @@ class PensineApp {
             // Try to load today's journal
             const path = MarkdownParser.getJournalPath(this.currentDate);
             let content = '';
-            
+
             try {
                 const file = await githubAdapter.getFile(path);
                 content = file.content;
@@ -406,7 +444,7 @@ class PensineApp {
         const month = String(date.getMonth() + 1).padStart(2, '0');
         const day = String(date.getDate()).padStart(2, '0');
         const dayName = date.toLocaleDateString('fr-CA', { weekday: 'long' });
-        
+
         return `- ${dayName} ${day}/${month}/${year}\n\n`;
     }
 
@@ -426,11 +464,11 @@ class PensineApp {
             }
 
             // Fetch file sizes for all commits in parallel
-            const sizePromises = commits.map(commit => 
+            const sizePromises = commits.map(commit =>
                 githubAdapter.getFileSizeAtCommit(path, commit.sha)
             );
             const sizes = await Promise.all(sizePromises);
-            
+
             // Create size lookup map
             const sizeBySha = {};
             commits.forEach((commit, index) => {
@@ -441,12 +479,12 @@ class PensineApp {
             const groupedByDate = {};
             commits.forEach(commit => {
                 const date = new Date(commit.commit.author.date);
-                const dateKey = date.toLocaleDateString('fr-CA', { 
+                const dateKey = date.toLocaleDateString('fr-CA', {
                     year: 'numeric',
-                    month: 'short', 
+                    month: 'short',
                     day: 'numeric'
                 });
-                
+
                 if (!groupedByDate[dateKey]) {
                     groupedByDate[dateKey] = [];
                 }
@@ -465,18 +503,18 @@ class PensineApp {
                 commits.forEach(commit => {
                     const li = document.createElement('li');
                     li.className = 'history-item';
-                    
+
                     const date = new Date(commit.commit.author.date);
-                    const timeStr = date.toLocaleTimeString('fr-CA', { 
+                    const timeStr = date.toLocaleTimeString('fr-CA', {
                         hour: '2-digit',
                         minute: '2-digit'
                     }).replace(/\s/g, ''); // Retirer tous les espaces: "10h30" au lieu de "10 h 30"
-                    
+
                     const message = commit.commit.message.split('\n')[0]; // First line only
                     const shortSha = commit.sha.substring(0, 7);
                     const size = sizeBySha[commit.sha];
                     const sizeStr = size >= 1000 ? `${(size / 1000).toFixed(1)}k` : `${size}c`;
-                    
+
                     li.innerHTML = `
                         <div class="history-time">${timeStr}</div>
                         <div class="history-actions">
@@ -486,7 +524,7 @@ class PensineApp {
                             <span class="history-size">${sizeStr}</span>
                         </div>
                     `;
-                    
+
                     historyList.appendChild(li);
                 });
             });
@@ -516,11 +554,11 @@ class PensineApp {
             // Open historical version in editor (read-only visualization)
             const fileName = `${path} @ ${sha.substring(0, 7)}`;
             await this.openInEditor(fileName, content);
-            
+
             // Add a badge to show it's a historical version
             const fileNameEl = document.getElementById('editor-file-name');
             fileNameEl.innerHTML = `${path} <span style="color: var(--accent-color);">@ ${sha.substring(0, 7)}</span>`;
-            
+
             // Disable save for historical versions
             const saveBtn = document.getElementById('editor-save-btn');
             saveBtn.disabled = true;
@@ -560,7 +598,7 @@ class PensineApp {
             this.updateSyncStatus('syncing');
             const files = await githubAdapter.listDirectory('pages');
             const pagesList = document.getElementById('pages-list');
-            
+
             if (files.length === 0) {
                 pagesList.innerHTML = '<li class="empty">Aucune page trouvée</li>';
             } else {
@@ -590,18 +628,18 @@ class PensineApp {
     async manualSync() {
         try {
             this.updateSyncStatus('syncing');
-            
+
             // Check if we have a pending conflict
             const hasConflict = document.getElementById('sync-status').classList.contains('conflict');
-            
+
             // Check if editor has unsaved changes before saving
             const hadLocalChanges = this.editor.isDirty;
-            
+
             // Force save if there's a conflict marker
             await this.editor.save(hasConflict);
-            
+
             this.updateSyncStatus('synced');
-            
+
             // Only reload if we're viewing a journal AND we didn't just save user changes
             // This prevents erasing user edits, but still allows syncing remote changes when no local edits
             if (this.currentView === 'journal' && !hadLocalChanges) {
@@ -620,7 +658,7 @@ class PensineApp {
     }
 
     // Settings - Open config file in editor instead of modal
-    
+
     async showSettings() {
         // Open .pensine-config.json in the unified editor
         await this.openConfigFileInEditor();
@@ -654,7 +692,7 @@ class PensineApp {
     async reloadCurrentFile() {
         const banner = document.getElementById('remote-change-banner');
         banner.classList.add('hidden');
-        
+
         if (this.editor.isDirty) {
             const confirmed = confirm(
                 'Vous avez des modifications non sauvegardées.\n\n' +
@@ -665,7 +703,7 @@ class PensineApp {
                 return;
             }
         }
-        
+
         githubAdapter.clearCache();
         if (this.currentView === 'journal') {
             await this.loadJournal();
@@ -675,7 +713,7 @@ class PensineApp {
     dismissRemoteChangeNotification() {
         const banner = document.getElementById('remote-change-banner');
         banner.classList.add('hidden');
-        
+
         // Restart change detection
         this.editor.startChangeDetection();
     }
@@ -683,7 +721,7 @@ class PensineApp {
     async toggleHistory() {
         const sidebar = document.getElementById('history-sidebar');
         sidebar.classList.toggle('open');
-        
+
         // Save state to localStorage and GitHub
         const isOpen = sidebar.classList.contains('open');
         await configManager.saveToGitHub('historyVisible', isOpen);
@@ -695,11 +733,122 @@ class PensineApp {
         await configManager.saveToGitHub('historyVisible', false);
     }
 
+    showCalendarConfig() {
+        if (!this.linearCalendar) {
+            console.error('Calendar not initialized');
+            return;
+        }
+
+        // Create config panel overlay
+        const overlay = document.createElement('div');
+        overlay.className = 'config-overlay';
+        overlay.innerHTML = `
+            <div class="config-panel">
+                <div class="config-header">
+                    <h3>⚙️ Configuration du Calendrier</h3>
+                    <button class="close-btn" onclick="this.closest('.config-overlay').remove()">✕</button>
+                </div>
+                <div class="config-content">
+                    <div class="config-section">
+                        <label>
+                            Premier jour de la semaine
+                            <select id="config-weekStartDay">
+                                <option value="0">Dimanche</option>
+                                <option value="1">Lundi</option>
+                            </select>
+                        </label>
+                    </div>
+                    <div class="config-section">
+                        <label>
+                            Format des mois
+                            <select id="config-monthFormat">
+                                <option value="short">Court (Jan, Fév)</option>
+                                <option value="long">Long (Janvier, Février)</option>
+                            </select>
+                        </label>
+                    </div>
+                    <div class="config-section">
+                        <label>
+                            Position du numéro du jour
+                            <select id="config-dayNumberPosition">
+                                <option value="center">Centré</option>
+                                <option value="top-left">Haut-gauche</option>
+                            </select>
+                        </label>
+                    </div>
+                    <div class="config-section">
+                        <label>
+                            Hauteur des jours (px)
+                            <input type="number" id="config-dayHeight" min="24" max="80" value="28">
+                        </label>
+                    </div>
+                    <div class="config-section">
+                        <label>
+                            <input type="checkbox" id="config-monthColors" checked>
+                            Couleurs par mois
+                        </label>
+                    </div>
+                </div>
+                <div class="config-footer">
+                    <button class="btn-primary" onclick="pensineApp.applyCalendarConfig()">Appliquer</button>
+                    <button class="btn-secondary" onclick="this.closest('.config-overlay').remove()">Annuler</button>
+                </div>
+            </div>
+        `;
+
+        // Set current values
+        const weekStartDay = this.linearCalendar.getConfig('weekStartDay');
+        const monthFormat = this.linearCalendar.getConfig('monthFormat');
+        const dayNumberPosition = this.linearCalendar.getConfig('dayNumberPosition');
+        const dayHeight = this.linearCalendar.getConfig('dayHeight');
+        const monthColors = this.linearCalendar.getConfig('monthColors');
+
+        document.body.appendChild(overlay);
+
+        // Wait for DOM to be ready
+        setTimeout(() => {
+            document.getElementById('config-weekStartDay').value = weekStartDay;
+            document.getElementById('config-monthFormat').value = monthFormat;
+            document.getElementById('config-dayNumberPosition').value = dayNumberPosition;
+            document.getElementById('config-dayHeight').value = dayHeight;
+            document.getElementById('config-monthColors').checked = monthColors;
+        }, 0);
+    }
+
+    async applyCalendarConfig() {
+        if (!this.linearCalendar) return;
+
+        const weekStartDay = parseInt(document.getElementById('config-weekStartDay').value);
+        const monthFormat = document.getElementById('config-monthFormat').value;
+        const dayNumberPosition = document.getElementById('config-dayNumberPosition').value;
+        const dayHeight = parseInt(document.getElementById('config-dayHeight').value);
+        const monthColors = document.getElementById('config-monthColors').checked;
+
+        // Update calendar
+        this.linearCalendar.updateConfig({
+            weekStartDay,
+            monthFormat,
+            dayNumberPosition,
+            dayHeight,
+            monthColors
+        });
+
+        // Save to localStorage
+        localStorage.setItem('weekStartDay', weekStartDay);
+        localStorage.setItem('monthFormat', monthFormat);
+        localStorage.setItem('dayNumberPosition', dayNumberPosition);
+        localStorage.setItem('dayHeight', dayHeight);
+        localStorage.setItem('monthColors', monthColors);
+
+        // Close overlay
+        document.querySelector('.config-overlay')?.remove();
+    }
+
     async toggleCalendar() {
         const container = document.getElementById('calendar-container');
         const recentPages = document.getElementById('recent-pages');
         const nav = document.querySelector('#sidebar nav');
-        
+
         if (container.classList.contains('hidden')) {
             // Show calendar, hide recent pages and nav
             container.classList.remove('hidden');
@@ -708,7 +857,7 @@ class PensineApp {
                 nav.classList.add('hidden');
             }
             await configManager.saveToGitHub('calendarVisible', true);
-            
+
             // Initialize calendar if not already done
             if (!this.calendarState) {
                 await this.initCalendar();
@@ -737,282 +886,84 @@ class PensineApp {
     }
 
     async initCalendar() {
-        const weekStartDay = parseInt(localStorage.getItem('weekStartDay') || '0');
-        
-        // Initialize calendar state
-        this.calendarState = {
-            weekStartDay,
-            journalDates: new Set(),
-            weeksLoaded: {
-                earliest: null,
-                latest: null
-            },
-            isLoading: false
-        };
+        const container = document.getElementById('linear-calendar');
+        if (!container) {
+            console.error('Calendar container not found');
+            return;
+        }
 
-        // Setup weekday headers
-        this.setupWeekdayHeaders(weekStartDay);
-
-        // Load journal files list
+        // Load journal files to mark dates
+        const markedDates = [];
         try {
             const journalFiles = await this.getJournalFiles();
-            this.calendarState.journalDates = new Set(journalFiles.map(file => {
+            journalFiles.forEach(file => {
                 const match = file.match(/(\d{4})_(\d{2})_(\d{2})\.md$/);
                 if (match) {
-                    return `${match[1]}-${match[2]}-${match[3]}`;
+                    const year = match[1];
+                    const month = match[2];
+                    const day = match[3];
+                    markedDates.push({
+                        date: `${year}-${month}-${day}`,
+                        markerType: 'dot',
+                        color: 'var(--calendar-accent)',
+                        opacity: 0.5
+                    });
                 }
-                return null;
-            }).filter(Boolean));
+            });
         } catch (error) {
             console.error('Error loading journal files:', error);
         }
 
-        // Load initial weeks (26 past + current + 25 future = 52 weeks / 1 year)
-        await this.loadInitialWeeks();
-    }
+        // Get calendar config from localStorage or use defaults
+        const weekStartDay = parseInt(localStorage.getItem('weekStartDay') || '1'); // Lundi par défaut
+        const monthFormat = localStorage.getItem('monthFormat') || 'short';
+        const dayNumberPosition = localStorage.getItem('dayNumberPosition') || 'center';
+        const dayHeight = parseInt(localStorage.getItem('dayHeight') || '28');
 
-    setupWeekdayHeaders(weekStartDay) {
-        const header = document.querySelector('.calendar-weekdays-header');
-        const dayNames = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'];
-        
-        // Rotate array based on week start day
-        const rotatedDayNames = [
-            ...dayNames.slice(weekStartDay),
-            ...dayNames.slice(0, weekStartDay)
-        ];
-        
-        header.innerHTML = '<div></div>'; // Empty space for month column
-        rotatedDayNames.forEach(day => {
-            const dayHeader = document.createElement('div');
-            dayHeader.textContent = day;
-            header.appendChild(dayHeader);
+        // Initialize LinearCalendar
+        this.linearCalendar = new LinearCalendar(container, {
+            weekStartDay,
+            weeksToShow: 52,
+            markedDates,
+            monthFormat,
+            monthColors: true,
+            dayNumberPosition,
+            dayHeight,
+            onDayClick: (dateStr, event) => {
+                // Parse dateStr (YYYY-MM-DD format)
+                const [year, month, day] = dateStr.split('-').map(Number);
+                const date = new Date(year, month - 1, day);
+                this.loadJournalByDate(date);
+            }
         });
-    }
 
-    async loadInitialWeeks() {
-        const weeksContainer = document.getElementById('calendar-weeks');
-        weeksContainer.innerHTML = '';
-
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-
-        // Find the start of current week
-        const currentWeekStart = this.getWeekStart(today);
-        
-        // Load 26 weeks before and 25 weeks after (52 total = 1 year)
-        const startDate = new Date(currentWeekStart);
-        startDate.setDate(startDate.getDate() - (26 * 7));
-        
-        this.calendarState.weeksLoaded.earliest = new Date(startDate);
-        
-        for (let i = 0; i < 52; i++) {
-            const weekStart = new Date(startDate);
-            weekStart.setDate(weekStart.getDate() + (i * 7));
-            
-            const weekElement = this.generateWeekRow(weekStart);
-            weeksContainer.appendChild(weekElement);
-            
-            this.calendarState.weeksLoaded.latest = new Date(weekStart);
+        // Setup config button listener
+        const configBtn = document.getElementById('calendar-config-btn');
+        if (configBtn) {
+            configBtn.addEventListener('click', () => {
+                this.showCalendarConfig();
+            });
         }
 
-        // Scroll to current week
-        setTimeout(() => this.scrollToCurrentWeek(), 100);
-    }
-
-    getWeekStart(date) {
-        const weekStartDay = this.calendarState.weekStartDay;
-        const d = new Date(date);
-        const day = d.getDay();
-        const diff = (day - weekStartDay + 7) % 7;
-        d.setDate(d.getDate() - diff);
-        d.setHours(0, 0, 0, 0);
-        return d;
-    }
-
-    generateWeekRow(weekStart) {
-        const weekDiv = document.createElement('div');
-        weekDiv.className = 'calendar-week';
-        weekDiv.dataset.weekStart = weekStart.toISOString();
-
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const currentWeekStart = this.getWeekStart(today);
-
-        // Check if this is the current week
-        if (weekStart.getTime() === currentWeekStart.getTime()) {
-            weekDiv.classList.add('current-week');
-            weekDiv.id = 'current-week';
-        }
-
-        // Check if this is the first week of a month
-        const isMonthStart = weekStart.getDate() <= 7;
-        if (isMonthStart) {
-            weekDiv.classList.add('month-start');
-        }
-
-        // Add month color class based on month number (12 distinct colors)
-        const monthColorIndex = weekStart.getMonth();
-        weekDiv.classList.add(`month-color-${monthColorIndex}`);
-
-        // Month label
-        const monthLabel = document.createElement('div');
-        monthLabel.className = 'calendar-month-label';
-        monthLabel.textContent = weekStart.toLocaleDateString('fr-CA', { month: 'short' });
-        weekDiv.appendChild(monthLabel);
-
-        // Generate 7 days
-        for (let i = 0; i < 7; i++) {
-            const dayDate = new Date(weekStart);
-            dayDate.setDate(dayDate.getDate() + i);
-            
-            const dayDiv = document.createElement('div');
-            dayDiv.className = 'calendar-day';
-            dayDiv.textContent = dayDate.getDate();
-
-            const dayMonth = dayDate.getMonth();
-            const dayYear = dayDate.getFullYear();
-            const weekMonth = weekStart.getMonth();
-            const dayOfWeek = dayDate.getDay();
-            
-            // Add month color class based on THIS day's month (12 distinct colors)
-            const monthColorIndex = dayMonth;
-            dayDiv.classList.add(`month-color-${monthColorIndex}`);
-            
-            // Add weekend class for Saturday (6) and Sunday (0)
-            if (dayOfWeek === 0 || dayOfWeek === 6) {
-                dayDiv.classList.add('weekend');
-            }
-            
-            // Check if this day is in a different month than the week start
-            if (dayMonth !== weekMonth) {
-                dayDiv.classList.add('other-month');
-            }
-
-            // Detect month transitions for borders
-            const prevDay = new Date(dayDate);
-            prevDay.setDate(prevDay.getDate() - 1);
-            const nextDay = new Date(dayDate);
-            nextDay.setDate(nextDay.getDate() + 1);
-            
-            // First day of month - left border
-            if (dayDate.getDate() === 1) {
-                dayDiv.classList.add('month-start-left');
-            }
-            
-            // Last day of month - right border
-            const lastDayOfMonth = new Date(dayYear, dayMonth + 1, 0).getDate();
-            if (dayDate.getDate() === lastDayOfMonth) {
-                dayDiv.classList.add('month-end-right');
-            }
-            
-            // Simple border logic: top border on first 7 days, bottom border on last 7 days
-            const dayOfMonth = dayDate.getDate();
-            
-            // Top border: days 1-7 of the month
-            if (dayOfMonth <= 7) {
-                dayDiv.classList.add('month-start-top');
-            }
-            
-            // Bottom border: last 7 days of the month
-            if (dayOfMonth > lastDayOfMonth - 7) {
-                dayDiv.classList.add('month-end-bottom');
-            }
-            if (dayOfMonth > lastDayOfMonth - 7) {
-                dayDiv.classList.add('month-end-bottom');
-            }
-
-            // Check if today
-            const checkDate = new Date(dayDate);
-            checkDate.setHours(0, 0, 0, 0);
-            if (checkDate.getTime() === today.getTime()) {
-                dayDiv.classList.add('today');
-            }
-
-            // Check if journal entry exists
-            const dateStr = this.formatDateForLookup(dayDate);
-            if (this.calendarState.journalDates.has(dateStr)) {
-                dayDiv.classList.add('has-entry');
-                dayDiv.addEventListener('click', () => {
-                    this.loadJournalByDate(dayDate);
-                });
-            }
-
-            weekDiv.appendChild(dayDiv);
-        }
-
-        return weekDiv;
-    }
-
-    formatDateForLookup(date) {
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const day = String(date.getDate()).padStart(2, '0');
-        return `${year}-${month}-${day}`;
-    }
-
-    async loadMoreWeeks(direction) {
-        if (this.calendarState.isLoading) return;
-        
-        this.calendarState.isLoading = true;
-        const weeksContainer = document.getElementById('calendar-weeks');
-        const weeksToAdd = 4; // Add 4 weeks at a time
-
-        if (direction === 'past') {
-            // Add weeks before the earliest
-            const startDate = new Date(this.calendarState.weeksLoaded.earliest);
-            const fragment = document.createDocumentFragment();
-
-            for (let i = weeksToAdd; i > 0; i--) {
-                const weekStart = new Date(startDate);
-                weekStart.setDate(weekStart.getDate() - (i * 7));
-                
-                const weekElement = this.generateWeekRow(weekStart);
-                fragment.appendChild(weekElement);
-                
-                if (i === weeksToAdd) {
-                    this.calendarState.weeksLoaded.earliest = new Date(weekStart);
+        // Setup today button
+        const todayBtn = document.getElementById('calendar-today');
+        if (todayBtn) {
+            todayBtn.addEventListener('click', () => {
+                if (this.linearCalendar) {
+                    this.linearCalendar.scrollToToday();
                 }
-            }
-
-            weeksContainer.insertBefore(fragment, weeksContainer.firstChild);
-        } else {
-            // Add weeks after the latest
-            const startDate = new Date(this.calendarState.weeksLoaded.latest);
-
-            for (let i = 1; i <= weeksToAdd; i++) {
-                const weekStart = new Date(startDate);
-                weekStart.setDate(weekStart.getDate() + (i * 7));
-                
-                const weekElement = this.generateWeekRow(weekStart);
-                weeksContainer.appendChild(weekElement);
-                
-                if (i === weeksToAdd) {
-                    this.calendarState.weeksLoaded.latest = new Date(weekStart);
-                }
-            }
-        }
-
-        this.calendarState.isLoading = false;
-    }
-
-    scrollToCurrentWeek() {
-        const currentWeek = document.getElementById('current-week');
-        if (currentWeek) {
-            const container = document.getElementById('calendar-scroll-container');
-            const containerRect = container.getBoundingClientRect();
-            const weekRect = currentWeek.getBoundingClientRect();
-            
-            // Scroll so current week is at top of visible area
-            container.scrollTop = currentWeek.offsetTop - container.offsetTop - 10;
+            });
         }
     }
+
+
 
     async getJournalFiles() {
         try {
             const response = await githubAdapter.request(
                 `/repos/${githubAdapter.owner}/${githubAdapter.repo}/contents/journals`
             );
-            
+
             if (Array.isArray(response)) {
                 return response
                     .filter(item => item.type === 'file' && item.name.endsWith('.md'))
@@ -1028,10 +979,10 @@ class PensineApp {
     async loadJournalByDate(date) {
         this.currentDate = date;
         await this.closeCalendar();
-        
+
         // Open journal file in editor
         const fileName = `journals/${this.formatDate(date)}.md`;
-        
+
         try {
             // Try to fetch existing file
             const { content } = await githubAdapter.getFile(fileName);
@@ -1098,10 +1049,10 @@ class PensineApp {
             case FILE_TYPES.JOURNAL:
             case FILE_TYPES.MARKDOWN:
                 return this.renderMarkdown(content);
-            
+
             case FILE_TYPES.CONFIG:
                 return this.renderConfigForm(content);
-            
+
             case FILE_TYPES.JSON:
                 try {
                     const json = JSON.parse(content);
@@ -1109,7 +1060,7 @@ class PensineApp {
                 } catch (e) {
                     return `<pre class="code-view">${this.escapeHtml(content)}</pre>`;
                 }
-            
+
             default:
                 return `<pre class="code-view">${this.escapeHtml(content)}</pre>`;
         }
@@ -1137,26 +1088,26 @@ class PensineApp {
             const html = markdownRenderer.render(markdown);
             return `<div class="markdown-content">${html}</div>`;
         }
-        
+
         // Fallback to basic rendering
         let html = this.escapeHtml(markdown);
-        
+
         // Headers
         html = html.replace(/^# (.+)$/gm, '<h1>$1</h1>');
         html = html.replace(/^## (.+)$/gm, '<h2>$1</h2>');
         html = html.replace(/^### (.+)$/gm, '<h3>$1</h3>');
-        
+
         // Bold and italic
         html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
         html = html.replace(/\*(.+?)\*/g, '<em>$1</em>');
-        
+
         // Links
         html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>');
-        
+
         // Paragraphs
         html = html.replace(/\n\n/g, '</p><p>');
         html = '<p>' + html + '</p>';
-        
+
         return `<div class="markdown-content">${html}</div>`;
     }
 
@@ -1168,44 +1119,44 @@ class PensineApp {
     renderConfigForm(jsonContent) {
         try {
             const config = JSON.parse(jsonContent);
-            
+
             let formHtml = '<form class="config-form" id="config-editor-form">';
             formHtml += '<h3 class="config-form-title">Configuration</h3>';
-            
+
             for (const [key, value] of Object.entries(config)) {
                 let inputHtml = '';
                 const safeKey = key.replace(/[^a-zA-Z0-9]/g, '-');
-                
+
                 if (typeof value === 'boolean') {
                     inputHtml = `
-                        <input 
-                            type="checkbox" 
-                            id="config-${safeKey}" 
-                            name="${key}" 
+                        <input
+                            type="checkbox"
+                            id="config-${safeKey}"
+                            name="${key}"
                             ${value ? 'checked' : ''}
                         />
                     `;
                 } else if (typeof value === 'number') {
                     inputHtml = `
-                        <input 
-                            type="number" 
-                            id="config-${safeKey}" 
-                            name="${key}" 
+                        <input
+                            type="number"
+                            id="config-${safeKey}"
+                            name="${key}"
                             value="${value}"
                         />
                     `;
                 } else {
                     // String or other
                     inputHtml = `
-                        <input 
-                            type="text" 
-                            id="config-${safeKey}" 
-                            name="${key}" 
+                        <input
+                            type="text"
+                            id="config-${safeKey}"
+                            name="${key}"
                             value="${this.escapeHtml(String(value))}"
                         />
                     `;
                 }
-                
+
                 formHtml += `
                     <div class="config-field ${typeof value === 'boolean' ? 'config-field-checkbox' : ''}">
                         <label for="config-${safeKey}">${key}</label>
@@ -1214,26 +1165,26 @@ class PensineApp {
                     </div>
                 `;
             }
-            
-        formHtml += '</form>';
-        
-        // Attach input change handlers to update code and enable save
-        setTimeout(() => {
-            const form = document.getElementById('config-editor-form');
-            if (form) {
-                // Listen to all input changes
-                form.addEventListener('input', () => {
-                    this.updateConfigFromForm(config);
-                });
-                
-                // Listen to checkbox changes
-                form.addEventListener('change', () => {
-                    this.updateConfigFromForm(config);
-                });
-            }
-        }, 100);
-        
-        return formHtml;
+
+            formHtml += '</form>';
+
+            // Attach input change handlers to update code and enable save
+            setTimeout(() => {
+                const form = document.getElementById('config-editor-form');
+                if (form) {
+                    // Listen to all input changes
+                    form.addEventListener('input', () => {
+                        this.updateConfigFromForm(config);
+                    });
+
+                    // Listen to checkbox changes
+                    form.addEventListener('change', () => {
+                        this.updateConfigFromForm(config);
+                    });
+                }
+            }, 100);
+
+            return formHtml;
         } catch (e) {
             return `<div class="error">Invalid JSON: ${e.message}</div>`;
         }
@@ -1247,12 +1198,12 @@ class PensineApp {
         try {
             const form = document.getElementById('config-editor-form');
             const formData = new FormData(form);
-            
+
             // Rebuild config object preserving types
             const newConfig = {};
             for (const [key, originalValue] of Object.entries(originalConfig)) {
                 const value = formData.get(key);
-                
+
                 if (typeof originalValue === 'boolean') {
                     newConfig[key] = value === 'on' || value === 'true';
                 } else if (typeof originalValue === 'number') {
@@ -1261,16 +1212,16 @@ class PensineApp {
                     newConfig[key] = value || '';
                 }
             }
-            
+
             // Update code textarea with new JSON
             const codeTextarea = document.getElementById('editor-code-textarea');
             const newJsonContent = JSON.stringify(newConfig, null, 2);
             codeTextarea.value = newJsonContent;
-            
+
             // Mark as dirty and enable save button
             this.hasUnsavedChanges = true;
             document.getElementById('editor-save-btn').disabled = false;
-            
+
         } catch (error) {
             console.error('Error updating config from form:', error);
         }
@@ -1284,12 +1235,12 @@ class PensineApp {
         try {
             const form = document.getElementById('config-editor-form');
             const formData = new FormData(form);
-            
+
             // Rebuild config object preserving types
             const newConfig = {};
             for (const [key, originalValue] of Object.entries(originalConfig)) {
                 const value = formData.get(key);
-                
+
                 if (typeof originalValue === 'boolean') {
                     newConfig[key] = value === 'on' || value === 'true';
                 } else if (typeof originalValue === 'number') {
@@ -1298,19 +1249,19 @@ class PensineApp {
                     newConfig[key] = value || '';
                 }
             }
-            
+
             // Update code textarea with new JSON
             const codeTextarea = document.getElementById('editor-code-textarea');
             const newJsonContent = JSON.stringify(newConfig, null, 2);
             codeTextarea.value = newJsonContent;
-            
+
             // Mark as dirty and trigger save
             this.hasUnsavedChanges = true;
             document.getElementById('editor-save-btn').disabled = false;
-            
+
             // Auto-save
             await this.saveCurrentFile();
-            
+
         } catch (error) {
             console.error('Error saving config from form:', error);
             this.showError('Erreur lors de la sauvegarde: ' + error.message);
@@ -1352,10 +1303,10 @@ class PensineApp {
 
         // Show editor container
         editorContainer.classList.remove('hidden');
-        
+
         // Hide legacy views
         document.getElementById('journal-view').classList.remove('active');
-        
+
         // Apply saved view mode or default to rich
         // For CONFIG files, always start in RICH mode to show the form
         let initialMode;
@@ -1376,10 +1327,10 @@ class PensineApp {
      */
     switchEditorMode(mode) {
         this.currentViewMode = mode;
-        
+
         const editorContainer = document.getElementById('editor-container');
         const buttons = document.querySelectorAll('.view-mode-btn');
-        
+
         // Update active button
         buttons.forEach(btn => {
             if (btn.dataset.mode === mode) {
@@ -1388,13 +1339,13 @@ class PensineApp {
                 btn.classList.remove('active');
             }
         });
-        
+
         // Update editor container data attribute for CSS
         editorContainer.setAttribute('data-mode', mode);
-        
+
         // Save preference
         localStorage.setItem('editorViewMode', mode);
-        
+
         // Update rich view if needed
         if (mode === VIEW_MODES.RICH || mode === VIEW_MODES.SPLIT) {
             const codeTextarea = document.getElementById('editor-code-textarea');
@@ -1414,20 +1365,20 @@ class PensineApp {
         try {
             const codeTextarea = document.getElementById('editor-code-textarea');
             const content = codeTextarea.value;
-            
+
             // Save to GitHub
             await githubAdapter.updateFile(this.currentFile, content);
-            
+
             // Update state
             this.currentContent = content;
             this.hasUnsavedChanges = false;
-            
+
             // Disable save button
             document.getElementById('editor-save-btn').disabled = true;
-            
+
             // Show success message
             this.showSuccess('✅ Fichier sauvegardé');
-            
+
             // Update rich view if visible
             if (this.currentViewMode === VIEW_MODES.RICH || this.currentViewMode === VIEW_MODES.SPLIT) {
                 const richContent = document.getElementById('editor-rich-content');
@@ -1452,10 +1403,10 @@ class PensineApp {
 
         // Hide editor
         document.getElementById('editor-container').classList.add('hidden');
-        
+
         // Show legacy view
         document.getElementById('journal-view').classList.add('active');
-        
+
         // Reset state
         this.currentFile = null;
         this.currentContent = '';
@@ -1479,10 +1430,10 @@ class PensineApp {
         try {
             // Close settings modal
             this.hideSettings();
-            
+
             const configPath = '.pensine-config.json';
             let content;
-            
+
             // Try to load from localStorage first
             const localSettings = storageManager.getSettings();
             if (localSettings) {
@@ -1506,7 +1457,7 @@ class PensineApp {
                     return;
                 }
             }
-            
+
             // Open in editor
             await this.openInEditor(configPath, content);
         } catch (error) {
@@ -1519,4 +1470,5 @@ class PensineApp {
 // Initialize app when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
     window.app = new PensineApp();
+    window.pensineApp = window.app; // Alias pour les callbacks du panneau de config
 });

@@ -674,3 +674,143 @@ button:hover {
 #clear-settings:hover {
     background: #d66a55;
 }
+
+/* Calendar Config Panel */
+.config-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+}
+
+.config-panel {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    width: 500px;
+    max-width: 90%;
+    max-height: 80vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.config-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg-tertiary);
+}
+
+.config-header h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    color: var(--text-primary);
+}
+
+.config-header .close-btn {
+    background: transparent;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--text-secondary);
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+}
+
+.config-header .close-btn:hover {
+    background: var(--error);
+    color: var(--text-primary);
+}
+
+.config-content {
+    padding: 20px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.config-section {
+    margin-bottom: 20px;
+}
+
+.config-section label {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    color: var(--text-primary);
+    font-size: 0.9rem;
+}
+
+.config-section select,
+.config-section input[type="number"] {
+    padding: 8px 12px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--text-primary);
+    font-size: 0.9rem;
+}
+
+.config-section select:focus,
+.config-section input[type="number"]:focus {
+    outline: none;
+    border-color: var(--accent);
+}
+
+.config-section input[type="checkbox"] {
+    margin-right: 8px;
+}
+
+.config-section label:has(input[type="checkbox"]) {
+    flex-direction: row;
+    align-items: center;
+}
+
+.config-footer {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    padding: 15px 20px;
+    border-top: 1px solid var(--border);
+    background: var(--bg-tertiary);
+}
+
+.config-footer button {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+.config-footer .btn-primary {
+    background: var(--accent);
+    color: var(--text-primary);
+}
+
+.config-footer .btn-primary:hover {
+    background: var(--accent-hover);
+}
+
+.config-footer .btn-secondary {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    color: var(--text-primary);
+}
+
+.config-footer .btn-secondary:hover {
+    background: var(--bg-tertiary);
+}

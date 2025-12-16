@@ -1,22 +1,29 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pensine - Knowledge Management</title>
     <link rel="stylesheet" href="styles/main.css">
     <link rel="stylesheet" href="styles/calendar.css">
+    <link rel="stylesheet" href="lib/components/linear-calendar/linear-calendar.css">
     <link rel="stylesheet" href="styles/editor.css">
     <link rel="stylesheet" href="styles/wizard.css">
-    
+
     <!-- MarkdownIt + Extensions -->
     <script src="https://cdn.jsdelivr.net/npm/markdown-it@14.0.0/dist/markdown-it.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/markdown-it-anchor@9.0.1/dist/markdownItAnchor.umd.min.js"></script>
-    
+
     <!-- Highlight.js for code syntax -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/styles/github-dark.min.css">
     <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/es/highlight.min.js"></script>
+
+    <!-- isomorphic-git + LightningFS for Local Git mode -->
+    <script src="https://unpkg.com/@isomorphic-git/lightning-fs"></script>
+    <script src="https://unpkg.com/isomorphic-git"></script>
 </head>
+
 <body>
     <div id="app">
         <!-- Header -->
@@ -42,21 +49,17 @@
                     <li><a href="#" data-view="search">🔍 Recherche</a></li>
                 </ul>
             </nav>
-            
+
             <div id="calendar-container">
                 <div class="calendar-header">
                     <div class="calendar-nav">
-                        <button id="calendar-prev" title="Semaines précédentes">▲</button>
                         <button id="calendar-today" title="Aujourd'hui">●</button>
-                        <button id="calendar-next" title="Semaines suivantes">▼</button>
+                        <button id="calendar-config-btn" title="Configuration calendrier">⚙️</button>
                     </div>
                 </div>
-                <div class="calendar-weekdays-header"></div>
-                <div id="calendar-scroll-container">
-                    <div id="calendar-weeks"></div>
-                </div>
+                <div id="linear-calendar"></div>
             </div>
-            
+
             <div id="recent-pages" class="hidden">
                 <h3>Pages Récentes</h3>
                 <ul id="recent-list"></ul>
@@ -73,10 +76,10 @@
                     <button id="ignore-changes-btn" class="btn-ignore">❌ Ignorer</button>
                 </div>
             </div>
-            
+
             <div id="loading" class="loading">Chargement...</div>
             <div id="error" class="error hidden"></div>
-            
+
             <!-- Unified Editor (for journals, pages, config, etc.) -->
             <div id="editor-container" class="hidden">
                 <!-- Editor Header with View Mode Controls -->
@@ -90,7 +93,8 @@
                             <button id="view-mode-code" class="view-mode-btn" data-mode="code" title="Vue Code">
                                 &lt;/&gt;
                             </button>
-                            <button id="view-mode-rich" class="view-mode-btn active" data-mode="rich" title="Vue Enrichie">
+                            <button id="view-mode-rich" class="view-mode-btn active" data-mode="rich"
+                                title="Vue Enrichie">
                                 👁️
                             </button>
                             <button id="view-mode-split" class="view-mode-btn" data-mode="split" title="Side-by-side">
@@ -110,7 +114,7 @@
                 <div class="editor-content">
                     <!-- Code View (always present, shown/hidden) -->
                     <div id="editor-code-view" class="editor-pane">
-                        <textarea id="editor-code-textarea" class="code-editor"></textarea>
+                        <textarea id="editor-code-textarea" class="code-editor" aria-label="Éditeur de code"></textarea>
                     </div>
 
                     <!-- Rich View (rendered content) -->
@@ -119,7 +123,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <!-- Journal View (legacy, will integrate with editor) -->
             <div id="journal-view" class="view active">
                 <div class="journal-header">
@@ -174,7 +178,26 @@
 
     <!-- Scripts -->
     <script src="config.js"></script>
+
+    <!-- Storage Adapters (nouveaux modes multi-storage) -->
+    <script src="lib/storage-adapter-base.js"></script>
+    <script src="lib/local-storage-adapter.js"></script>
+    <script src="lib/local-git-adapter.js"></script>
+    <script src="lib/github-storage-adapter.js"></script>
+    <script src="lib/storage-manager-unified.js"></script>
+
+    <!-- OAuth (si utilisé) -->
+    <script src="lib/github-oauth.js"></script>
+    <script src="lib/migrate-to-oauth.js"></script>
+
+    <!-- Legacy GitHub adapter (rétrocompatibilité) -->
     <script src="lib/github-adapter.js"></script>
+
+    <!-- LinearCalendar Component -->
+    <script src="lib/components/base/configurable-component.js"></script>
+    <script src="lib/components/linear-calendar/linear-calendar.js"></script>
+
+    <!-- Core -->
     <script src="lib/config-wizard.js"></script>
     <script src="lib/markdown-renderer.js"></script>
     <script src="lib/markdown-parser.js"></script>
@@ -182,4 +205,5 @@
     <script src="lib/editor.js"></script>
     <script src="app.js"></script>
 </body>
+
 </html>
