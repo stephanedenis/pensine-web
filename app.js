@@ -145,6 +145,7 @@ class PensineApp {
         // Check if we have a valid configuration
         if (!githubAdapter.isConfigured()) {
             // No config - show wizard
+            // No config - show wizard
             if (window.configWizard) {
                 configWizard.show();
             } else {
