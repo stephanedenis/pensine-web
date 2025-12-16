@@ -3,7 +3,7 @@ import { firefox } from 'playwright';
 /**
  * Test complet du wizard avec vraies credentials GitHub
  * Ce test crée réellement la configuration sur GitHub
- * 
+ *
  * Usage:
  *   export GITHUB_TEST_TOKEN="ghp_your_token"
  *   export GITHUB_TEST_OWNER="your_username"
@@ -25,11 +25,11 @@ async function testWizardCompleteFlow() {
     process.exit(1);
   }
 
-  const browser = await firefox.launch({ 
-    headless: false, 
-    slowMo: 500 
+  const browser = await firefox.launch({
+    headless: false,
+    slowMo: 500
   });
-  
+
   const context = await browser.newContext();
   const page = await context.newPage();
 
@@ -106,7 +106,7 @@ async function testWizardCompleteFlow() {
         } else {
           // Text input - use real credentials for GitHub fields
           let value = 'test-value';
-          
+
           if (id && id.includes('token')) {
             value = GITHUB_TOKEN;
           } else if (id && id.includes('owner')) {
@@ -135,16 +135,16 @@ async function testWizardCompleteFlow() {
         console.log('   ✅ Found finish button!');
         const buttonText = await finishButton.textContent();
         console.log(`   📍 Button text: "${buttonText}"`);
-        
+
         console.log('   🎉 Clicking finish button...');
         await finishButton.click();
-        
+
         // Wait for either:
         // 1. Page reload (new navigation)
         // 2. Wizard to hide
         // 3. Success message
         console.log('   ⏳ Waiting for configuration to complete...');
-        
+
         try {
           // Wait for wizard to disappear OR page to reload
           await Promise.race([
@@ -155,14 +155,14 @@ async function testWizardCompleteFlow() {
           console.log('   ✅ Configuration completed successfully!');
         } catch (error) {
           console.log('   ⚠️  Timeout waiting for completion, checking status...');
-          
+
           // Check if wizard is still visible
           const wizardVisible = await page.isVisible('#config-wizard');
           if (!wizardVisible) {
             console.log('   ✅ Wizard is hidden - configuration likely succeeded');
           } else {
             console.log('   ❌ Wizard still visible - may have error');
-            
+
             // Look for error messages
             const errorMsg = await page.$('.error-message, .alert-error');
             if (errorMsg) {
@@ -171,12 +171,12 @@ async function testWizardCompleteFlow() {
             }
           }
         }
-        
+
         break;
       } else if (nextButton) {
         const isDisabled = await nextButton.isDisabled();
         console.log(`   ▶️  Found button: "Suivant →" ${isDisabled ? '(disabled)' : ''}`);
-        
+
         if (!isDisabled) {
           console.log('   ⏭️  Clicking next...\n');
           await nextButton.click();
@@ -218,15 +218,24 @@ async function testWizardCompleteFlow() {
         hasConfig: !!localStorage.getItem('pensine-config'),
         hasEncryptedToken: !!localStorage.getItem('pensine-encrypted-token'),
         hasOwner: !!localStorage.getItem('github-owner'),
-        hasRepo: !!localStorage.getItem('github-repo')
+        hasRepo: !!localStorage.getItem('github-repo'),
+        // Debug: get actual values
+        config: localStorage.getItem('pensine-config'),
+        owner: localStorage.getItem('github-owner'),
+        repo: localStorage.getItem('github-repo')
       };
     });
 
     console.log('\n💾 LocalStorage:');
     console.log(`   Config: ${localStorageData.hasConfig ? '✅ saved' : '❌ missing'}`);
     console.log(`   Token: ${localStorageData.hasEncryptedToken ? '✅ saved (encrypted)' : '❌ missing'}`);
-    console.log(`   Owner: ${localStorageData.hasOwner ? '✅ saved' : '❌ missing'}`);
-    console.log(`   Repo: ${localStorageData.hasRepo ? '✅ saved' : '❌ missing'}`);
+    console.log(`   Owner: ${localStorageData.hasOwner ? '✅ saved' : '❌ missing'} (${localStorageData.owner})`);
+    console.log(`   Repo: ${localStorageData.hasRepo ? '✅ saved' : '❌ missing'} (${localStorageData.repo})`);
+    
+    // Check console logs for configuration check
+    console.log('\n📋 Recent console messages (last 10):');
+    const recentLogs = consoleMessages.slice(-10);
+    recentLogs.forEach(msg => console.log(`   ${msg}`));
 
   } catch (error) {
     console.error('\n❌ Test failed:', error.message);

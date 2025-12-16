@@ -1,7 +1,7 @@
 # Journal de Bord - Chiffrement des tokens GitHub
 
-**Date**: 2025-12-16  
-**Auteur**: Stéphane Denis  
+**Date**: 2025-12-16
+**Auteur**: Stéphane Denis
 **Contexte**: Migration des tokens GitHub du stockage en clair vers un stockage chiffré
 
 ## 🎯 Objectif
@@ -34,24 +34,24 @@ class TokenStorage {
   async saveToken(token) {
     // Génération clé AES-GCM 256-bit si nécessaire
     const key = await this.getOrCreateKey();
-    
+
     // IV aléatoire unique par chiffrement (12 bytes)
     const iv = crypto.getRandomValues(new Uint8Array(12));
-    
+
     // Chiffrement AES-GCM avec authentification
     const encrypted = await crypto.subtle.encrypt(
       { name: 'AES-GCM', iv },
       key,
       encoder.encode(token)
     );
-    
+
     // Stockage en base64 avec IV
     localStorage.setItem('pensine-encrypted-token', JSON.stringify({
       iv: this.arrayBufferToBase64(iv),
       data: this.arrayBufferToBase64(encrypted)
     }));
   }
-  
+
   async getToken() {
     // Récupération et déchiffrement
     const stored = JSON.parse(localStorage.getItem('pensine-encrypted-token'));
@@ -122,17 +122,17 @@ await githubAdapter.saveFile('.pensine-config.json', configContent);  // ✅ San
 ```javascript
 async migrateOldTokens() {
   const oldToken = localStorage.getItem('github-token');
-  
+
   if (oldToken) {
     console.log('🔄 Migration du token vers le stockage chiffré...');
-    
+
     try {
       // Chiffrer et stocker
       await window.tokenStorage.saveToken(oldToken);
-      
+
       // Supprimer l'ancien
       localStorage.removeItem('github-token');
-      
+
       console.log('✅ Token migré avec succès');
     } catch (error) {
       console.error('❌ Erreur migration:', error);
@@ -357,6 +357,6 @@ Cette implémentation utilise le **même principe que les gestionnaires de mots 
 
 ---
 
-**Commit associé** : À créer après validation finale  
-**Tests effectués** : Syntaxe validée, grep de sécurité OK  
+**Commit associé** : À créer après validation finale
+**Tests effectués** : Syntaxe validée, grep de sécurité OK
 **État** : ✅ Implémentation complète, prête à tester en conditions réelles

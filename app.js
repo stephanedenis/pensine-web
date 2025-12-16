@@ -130,17 +130,17 @@ class PensineApp {
      */
     async migrateOldTokens() {
         const oldToken = localStorage.getItem('github-token');
-        
+
         if (oldToken) {
             console.log('🔄 Migration du token vers le stockage chiffré...');
-            
+
             try {
                 // Chiffrer et stocker le token
                 await window.tokenStorage.saveToken(oldToken);
-                
+
                 // Supprimer l'ancien token en clair
                 localStorage.removeItem('github-token');
-                
+
                 console.log('✅ Token migré avec succès vers le stockage chiffré');
             } catch (error) {
                 console.error('❌ Erreur lors de la migration du token:', error);
@@ -158,9 +158,9 @@ class PensineApp {
         const hasToken = !!localStorage.getItem('pensine-encrypted-token');
         const hasOwner = !!localStorage.getItem('github-owner');
         const hasRepo = !!localStorage.getItem('github-repo');
-        
+
         console.log('🔍 Configuration check:', { hasConfig, hasToken, hasOwner, hasRepo });
-        
+
         return hasConfig && hasToken && hasOwner && hasRepo;
     }
 
@@ -186,7 +186,7 @@ class PensineApp {
 
         // Check if we have a valid configuration
         const hasConfig = await this.hasValidConfiguration();
-        
+
         if (!hasConfig) {
             // No config - show wizard
             if (window.configWizard) {
