@@ -56,7 +56,7 @@ import { chromium } from 'playwright';
       });
       console.log('  First label styles:', styles);
       console.log('  First label bounding box:', box);
-      
+
       // Check column widths consistency
       console.log('\n📐 Checking column widths consistency...');
       const firstWeek = await page.locator('.calendar-week, .linear-calendar-week').first();
@@ -88,7 +88,7 @@ import { chromium } from 'playwright';
       } else {
         console.log('  ❌ Columns have inconsistent widths!');
       }
-      
+
       // Check row heights consistency
       console.log('\n📏 Checking row heights consistency...');
       const allWeeks = await page.locator('.calendar-week, .linear-calendar-week').all();
