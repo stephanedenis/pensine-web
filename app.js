@@ -149,6 +149,21 @@ class PensineApp {
         }
     }
 
+    /**
+     * Vérifier si une configuration valide existe
+     */
+    async hasValidConfiguration() {
+        // Check localStorage for basic config
+        const hasConfig = !!localStorage.getItem('pensine-config');
+        const hasToken = !!localStorage.getItem('pensine-encrypted-token');
+        const hasOwner = !!localStorage.getItem('github-owner');
+        const hasRepo = !!localStorage.getItem('github-repo');
+        
+        console.log('🔍 Configuration check:', { hasConfig, hasToken, hasOwner, hasRepo });
+        
+        return hasConfig && hasToken && hasOwner && hasRepo;
+    }
+
     async init() {
         // Initialize storage
         await storageManager.initialize();
@@ -170,8 +185,9 @@ class PensineApp {
         this.restorePanelStates();
 
         // Check if we have a valid configuration
-        if (!githubAdapter.isConfigured()) {
-            // No config - show wizard
+        const hasConfig = await this.hasValidConfiguration();
+        
+        if (!hasConfig) {
             // No config - show wizard
             if (window.configWizard) {
                 configWizard.show();
@@ -180,7 +196,7 @@ class PensineApp {
                 this.showSettings();
             }
         } else {
-            // Have config - validate token
+            // Have config - validate and load
             try {
                 await this.validateToken();
                 await this.loadJournal();
