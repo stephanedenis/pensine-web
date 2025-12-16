@@ -1,0 +1,24 @@
+name = "pensine-oauth-worker"
+main = "oauth.js"
+compatibility_date = "2024-12-14"
+
+# Variables d'environnement
+# À configurer via : wrangler secret put <NAME>
+
+# GITHUB_CLIENT_ID : Client ID de votre GitHub OAuth App
+# GITHUB_CLIENT_SECRET : Client Secret de votre GitHub OAuth App
+
+# KV Namespace pour stocker les refresh tokens
+kv_namespaces = [
+    { binding = "OAUTH_TOKENS", id = "your-kv-namespace-id" }
+]
+
+# Routes pour le worker
+routes = [
+    { pattern = "pensine.dev/api/oauth/*", zone_name = "pensine.dev" },
+    { pattern = "localhost:8001/api/oauth/*" }
+]
+
+# Configuration CORS (optionnel)
+[vars]
+ALLOWED_ORIGINS = "https://pensine.dev,http://localhost:8001"

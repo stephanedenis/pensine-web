@@ -125,9 +125,36 @@ class PensineApp {
         this.init();
     }
 
+    /**
+     * Migrer les anciens tokens en clair vers le stockage chiffré
+     */
+    async migrateOldTokens() {
+        const oldToken = localStorage.getItem('github-token');
+        
+        if (oldToken) {
+            console.log('🔄 Migration du token vers le stockage chiffré...');
+            
+            try {
+                // Chiffrer et stocker le token
+                await window.tokenStorage.saveToken(oldToken);
+                
+                // Supprimer l'ancien token en clair
+                localStorage.removeItem('github-token');
+                
+                console.log('✅ Token migré avec succès vers le stockage chiffré');
+            } catch (error) {
+                console.error('❌ Erreur lors de la migration du token:', error);
+                // En cas d'erreur, on laisse l'ancien token pour ne pas perdre les données
+            }
+        }
+    }
+
     async init() {
         // Initialize storage
         await storageManager.initialize();
+
+        // Migrer les anciens tokens en clair vers le stockage chiffré
+        await this.migrateOldTokens();
 
         // Setup editor
         const editorElement = document.getElementById('journal-content');

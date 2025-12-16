@@ -1,0 +1,354 @@
+/**
+ * ConfigPanel Styles
+ * Consistent styling for automatically generated configuration panels
+ */
+
+.pensine-config-panel {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+/* Header */
+.config-header {
+  padding: 16px 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.config-header h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+/* Groups Container */
+.config-groups {
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+/* Configuration Group */
+.config-group {
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.config-group:last-child {
+  border-bottom: none;
+}
+
+.config-group-header {
+  display: flex;
+  align-items: center;
+  padding: 12px 20px;
+  background: #f8f9fa;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.2s;
+}
+
+.config-group-header:hover {
+  background: #e9ecef;
+}
+
+.config-group.expanded .config-group-header {
+  background: #e9ecef;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.group-icon {
+  font-size: 20px;
+  margin-right: 12px;
+}
+
+.config-group-header h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  flex: 1;
+}
+
+.group-toggle {
+  font-size: 12px;
+  color: #6c757d;
+  transition: transform 0.2s;
+}
+
+.group-description {
+  padding: 8px 20px;
+  margin: 0;
+  font-size: 14px;
+  color: #6c757d;
+  background: #f8f9fa;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.config-group-content {
+  padding: 16px 20px;
+}
+
+/* Property */
+.config-property {
+  margin-bottom: 20px;
+}
+
+.config-property:last-child {
+  margin-bottom: 0;
+}
+
+.property-label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 8px;
+  color: #333;
+}
+
+.property-label .required {
+  color: #dc3545;
+  margin-left: 4px;
+}
+
+.property-description {
+  margin: 0 0 8px 0;
+  font-size: 13px;
+  color: #6c757d;
+}
+
+.property-control {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.property-help {
+  font-size: 12px;
+  color: #6c757d;
+}
+
+/* Toggle Switch */
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 28px;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: 0.3s;
+  border-radius: 28px;
+}
+
+.toggle-slider:before {
+  position: absolute;
+  content: "";
+  height: 20px;
+  width: 20px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  transition: 0.3s;
+  border-radius: 50%;
+}
+
+.toggle-switch input:checked+.toggle-slider {
+  background-color: #667eea;
+}
+
+.toggle-switch input:checked+.toggle-slider:before {
+  transform: translateX(22px);
+}
+
+/* Number Control */
+.number-control {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.number-control input[type="range"] {
+  flex: 1;
+  height: 6px;
+  border-radius: 3px;
+  background: #e0e0e0;
+  outline: none;
+  -webkit-appearance: none;
+}
+
+.number-control input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #667eea;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.number-control input[type="range"]::-webkit-slider-thumb:hover {
+  background: #764ba2;
+}
+
+.number-control input[type="range"]::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #667eea;
+  cursor: pointer;
+  border: none;
+  transition: background 0.2s;
+}
+
+.number-control input[type="range"]::-moz-range-thumb:hover {
+  background: #764ba2;
+}
+
+.number-control input[type="number"] {
+  width: 80px;
+  padding: 6px 10px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.number-control .unit {
+  font-size: 14px;
+  color: #6c757d;
+  min-width: 30px;
+}
+
+/* Text Input */
+input[type="text"],
+input[type="date"],
+select {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  font-size: 14px;
+  transition: border-color 0.2s;
+}
+
+input[type="text"]:focus,
+input[type="date"]:focus,
+select:focus {
+  outline: none;
+  border-color: #667eea;
+}
+
+/* Color Control */
+.color-control {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.color-control input[type="color"] {
+  width: 50px;
+  height: 38px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  cursor: pointer;
+  padding: 2px;
+}
+
+.color-control input[type="text"] {
+  flex: 1;
+}
+
+/* Actions */
+.config-actions {
+  display: flex;
+  gap: 10px;
+  padding: 16px 20px;
+  background: #f8f9fa;
+  border-top: 1px solid #e0e0e0;
+}
+
+.action-btn {
+  flex: 1;
+  padding: 10px 16px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  background: white;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.action-btn:hover {
+  background: #f8f9fa;
+  border-color: #667eea;
+  color: #667eea;
+}
+
+.action-btn:active {
+  transform: scale(0.98);
+}
+
+/* Validation */
+.config-property.error input,
+.config-property.error select {
+  border-color: #dc3545;
+}
+
+.config-error {
+  color: #dc3545;
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+/* Scrollbar */
+.config-groups::-webkit-scrollbar {
+  width: 8px;
+}
+
+.config-groups::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.config-groups::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+.config-groups::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .pensine-config-panel {
+    border-radius: 0;
+  }
+
+  .config-header,
+  .config-group-header,
+  .config-group-content,
+  .config-actions {
+    padding: 12px 16px;
+  }
+
+  .number-control input[type="number"] {
+    width: 60px;
+  }
+}
