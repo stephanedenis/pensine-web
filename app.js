@@ -307,7 +307,7 @@ class PensineApp {
     setupPanelResize() {
         const handle = document.getElementById('sidebar-resize-handle');
         const sidebar = document.getElementById('sidebar');
-        
+
         if (!handle || !sidebar) return;
 
         let isResizing = false;
@@ -335,7 +335,7 @@ class PensineApp {
 
             const deltaX = e.clientX - startX;
             const newWidth = Math.max(200, Math.min(600, startWidth + deltaX));
-            
+
             document.documentElement.style.setProperty('--sidebar-width', newWidth + 'px');
         });
 
@@ -345,7 +345,7 @@ class PensineApp {
                 handle.classList.remove('resizing');
                 document.body.style.cursor = '';
                 document.body.style.userSelect = '';
-                
+
                 // Save width to localStorage
                 const currentWidth = sidebar.offsetWidth;
                 localStorage.setItem('sidebar-width', currentWidth);
@@ -1503,9 +1503,8 @@ class PensineApp {
                 } catch (githubError) {
                     // No config anywhere - show wizard
                     console.log('⚠️ No config found, showing wizard');
-                    if (window.ConfigWizard) {
-                        const wizard = new ConfigWizard();
-                        wizard.show();
+                    if (window.configWizard) {
+                        configWizard.show();
                     } else {
                         this.showError('Configuration introuvable. Veuillez créer une configuration.');
                     }
