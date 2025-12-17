@@ -140,7 +140,7 @@
   align-items: center;
   justify-content: center;
   padding: 2px 1px;
-  background: var(--calendar-bg-secondary);
+  background: transparent;
   border-radius: 2px;
   line-height: 1;
   gap: 0;
@@ -152,17 +152,13 @@
   top: 0;
   width: 24px;
   height: var(--day-height, 28px);
+  z-index: 10;
 }
 
 /* Hide empty month labels (not needed with flexbox) */
 .calendar-month-label:empty,
 .calendar-month-label-empty {
   display: none;
-}
-
-/* Month label on month-start weeks - show background */
-.calendar-week.month-start .calendar-month-label {
-  background: var(--calendar-bg-secondary);
 }
 
 /* Full month label (first/last) with name and year */
@@ -590,7 +586,6 @@
 .calendar-week.current-week {
   background: rgba(14, 99, 156, 0.08);
   border-radius: 3px;
-  padding: 1px;
 }
 
 /* Marked date (legacy support - simple dot) */
