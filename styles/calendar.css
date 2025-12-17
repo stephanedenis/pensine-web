@@ -138,33 +138,12 @@
     position: relative;
 }
 
-/* Month Label - Anchored on day cell, floats to the left */
+/* Month Label - Styles now defined in linear-calendar-v2.css */
+/* Keeping only color overrides here */
 .calendar-month-label {
-    writing-mode: vertical-lr;
-    transform: rotate(180deg);
-    font-size: 0.65rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 4px 2px;
+    /* Color override for old calendar style */
     background: var(--bg-hover);
-    border-radius: 2px;
-    line-height: 1.2;
-    gap: 2px;
     border-right: 1px solid var(--border);
-    /* Float in margin with high z-index */
-    position: absolute;
-    left: -26px;
-    /* In the left margin */
-    top: 0;
-    width: 24px;
-    height: 28px;
-    z-index: 100;
-    /* Above everything */
 }
 
 /* Month label on month-start weeks - show background */

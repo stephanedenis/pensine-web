@@ -66,7 +66,8 @@
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   gap: 0;
-  padding: 8px 4px 4px;
+  padding: 8px 10px 4px 4px;
+  /* Extra right padding (10px = 4px base + 6px scrollbar) */
   background: var(--calendar-bg-secondary);
   border-bottom: 2px solid var(--calendar-border);
   flex-shrink: 0;
@@ -86,8 +87,7 @@
 .linear-calendar-scroll {
   flex: 1;
   overflow-y: auto;
-  overflow-x: visible;
-  /* Allow month labels to show in left margin */
+  overflow-x: hidden;
   scrollbar-width: thin;
   scrollbar-color: var(--calendar-border) var(--calendar-bg-secondary);
 }
@@ -111,22 +111,20 @@
 
 /* Weeks Container */
 .linear-calendar-weeks {
-  padding: 4px 30px 4px 4px;
-  /* Extra right padding for month labels */
+  padding: 4px 10px 4px 4px;
+  /* Right padding for scrollbar (10px = 4px + 6px scrollbar) */
 }
 
 /* Week Row */
 .calendar-week {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
+  display: flex;
   gap: 0;
   margin-bottom: 0;
   position: relative;
   min-height: var(--day-height, 28px);
-  /* Force consistent height regardless of label content */
 }
 
-/* Month Label - Anchored on day cell, floats to the left */
+/* Month Label - Last flex item with fixed width */
 .calendar-month-label {
   writing-mode: vertical-lr;
   transform: rotate(180deg);
@@ -136,30 +134,30 @@
   letter-spacing: 0.5px;
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
-  /* Justify right */
+  align-items: center;
   justify-content: center;
   padding: 4px 2px;
   background: var(--calendar-bg-secondary);
   border-radius: 2px;
   line-height: 1.2;
   gap: 0;
-  /* No gap to keep on single line */
   white-space: nowrap;
-  /* Force single line */
-  /* Float in right margin with high z-index */
-  position: absolute;
-  right: -26px;
-  /* In the right margin */
-  top: 0;
+  /* Fixed width flex item that stretches to row height */
+  flex: 0 0 24px;
+  width: 24px;
+  align-self: stretch;  /* Stretch to match day cells height */
+  margin-left: 2px;
+}
+
+/* Empty cell for weeks without month labels (maintains grid structure) */
+.calendar-month-label-empty {
+  /* Auto-placed as 8th grid child */
   width: 24px;
   height: var(--day-height, 28px);
-  z-index: 100;
-  /* Above everything */
 }
 
 /* Month label on month-start weeks - show background */
-.linear-calendar-week.month-start .calendar-month-label {
+.calendar-week.month-start .calendar-month-label {
   background: var(--calendar-bg-secondary);
 }
 
@@ -250,6 +248,8 @@
 
 /* Day Cell */
 .calendar-day {
+  flex: 1 1 0;
+  min-width: 0;
   height: var(--day-height, 28px);
   display: flex;
   align-items: center;
