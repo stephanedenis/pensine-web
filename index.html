@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="lib/components/linear-calendar/linear-calendar-v2.css">
     <link rel="stylesheet" href="styles/editor.css">
     <link rel="stylesheet" href="styles/wizard.css">
+    <link rel="stylesheet" href="styles/settings.css">
 
     <!-- MarkdownIt + Extensions -->
     <script src="https://cdn.jsdelivr.net/npm/markdown-it@14.0.0/dist/markdown-it.min.js"></script>
@@ -219,6 +220,14 @@
     <script src="lib/markdown-parser.js"></script>
     <script src="lib/storage.js"></script>
     <script src="lib/editor.js"></script>
+    
+    <!-- Modern Config System (modules ES6) -->
+    <script type="module" src="core/config-manager.js"></script>
+    <script type="module" src="lib/json-schema-form-builder.js"></script>
+    <script type="module" src="views/settings-view.js"></script>
+    <script type="module" src="lib/settings-integration.js"></script>
+    
+    <!-- Main App -->
     <script src="app.js"></script>
 </body>
 
