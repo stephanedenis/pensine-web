@@ -20,28 +20,28 @@ Dans la méthode `init()` de `PensineApp`, après l'initialisation du storage :
 ```javascript
 async init() {
     // ... initialisation existante (storage, editor, etc.)
-    
+
     // Initialiser le système de plugins (si pas déjà fait)
     if (!window.pluginSystem) {
         const { default: EventBus } = await import('./core/event-bus.js');
         const { default: PluginSystem } = await import('./core/plugin-system.js');
-        
+
         window.eventBus = new EventBus();
         window.pluginSystem = new PluginSystem(window.eventBus, storageManager);
         await window.pluginSystem.init();
     }
-    
+
     // Initialiser le système de configuration moderne
     const { configManager, settingsView } = await initializeModernConfig(
         storageManager,
         window.eventBus,
         window.pluginSystem
     );
-    
+
     // Stocker les références
     this.configManager = configManager;
     this.settingsView = settingsView;
-    
+
     // ... reste de l'initialisation
 }
 ```
@@ -79,7 +79,7 @@ Le bouton settings dans `index.html` ou l'event listener dans `app.js` :
 ```javascript
 setupEventListeners() {
     // ... autres listeners
-    
+
     // Bouton settings - déjà connecté, juste s'assurer qu'il appelle this.showSettings()
     const settingsBtn = document.getElementById('settings-btn');
     if (settingsBtn) {
@@ -98,7 +98,7 @@ Exemple avec le plugin calendar :
 async loadPlugins() {
     // Import du plugin calendar
     const { default: CalendarPlugin } = await import('./plugins/pensine-plugin-calendar/calendar-plugin.js');
-    
+
     // Créer le contexte du plugin
     const context = {
         storage: storageManager,
@@ -106,7 +106,7 @@ async loadPlugins() {
         router: window.router || null,
         config: this.configManager  // IMPORTANT: passer le ConfigManager
     };
-    
+
     // Instancier et enregistrer le plugin
     await window.pluginSystem.register(CalendarPlugin, {
         id: 'calendar',
@@ -115,7 +115,7 @@ async loadPlugins() {
         icon: '📅',
         description: 'Linear calendar view'
     });
-    
+
     // Activer le plugin
     await window.pluginSystem.enable('calendar', context);
 }
@@ -136,24 +136,24 @@ Créer `lib/init-modern-config.js` :
     while (!window.storageManager) {
         await new Promise(resolve => setTimeout(resolve, 100));
     }
-    
+
     // Importer et initialiser
     const { initializeModernConfig } = await import('./settings-integration.js');
-    
+
     const { default: EventBus } = await import('../core/event-bus.js');
     const { default: PluginSystem } = await import('../core/plugin-system.js');
-    
+
     window.eventBus = window.eventBus || new EventBus();
     window.pluginSystem = window.pluginSystem || new PluginSystem(window.eventBus, window.storageManager);
-    
+
     await window.pluginSystem.init();
-    
+
     await initializeModernConfig(
         window.storageManager,
         window.eventBus,
         window.pluginSystem
     );
-    
+
     console.log('✅ Modern config system initialized');
 })();
 ```
@@ -172,12 +172,12 @@ Sans modifier `app.js`, juste intercepter le clic :
 // Dans un script global ou dans index.html
 document.addEventListener('DOMContentLoaded', () => {
     const settingsBtn = document.getElementById('settings-btn');
-    
+
     if (settingsBtn) {
         // Retirer les anciens listeners
         const newBtn = settingsBtn.cloneNode(true);
         settingsBtn.parentNode.replaceChild(newBtn, settingsBtn);
-        
+
         // Ajouter le nouveau listener
         newBtn.addEventListener('click', () => {
             if (window.settingsView) {

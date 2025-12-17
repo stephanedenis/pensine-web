@@ -509,15 +509,15 @@ Total : ~2777 lignes
 - 531d8b8 - feat: Add plugin submodules (pensine-web)
 - 6789e6a - docs: Journal session submodules setup
 
-**Phase 2 : Calendar migration** 
+**Phase 2 : Calendar migration**
 - f3d0308 - feat: Migrate LinearCalendar component to plugin
-- 23eb3c0 - docs: Add migration documentation  
+- 23eb3c0 - docs: Add migration documentation
 - f8fc60a - chore: Update calendar plugin submodule to f3d0308
 - a987d53 - chore: Update calendar plugin to 23eb3c0
 
 ---
 
-**Statut** : ✅ Submodules configurés + Calendar migré  
-**Prochaine session** : Intégration plugin system dans app.js  
-**Durée session** : ~90 minutes  
+**Statut** : ✅ Submodules configurés + Calendar migré
+**Prochaine session** : Intégration plugin system dans app.js
+**Durée session** : ~90 minutes
 **Lignes code** : +4020 lignes (4 repos + migration + docs)

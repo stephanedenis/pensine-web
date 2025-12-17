@@ -1,12 +1,12 @@
 /**
  * SettingsView - Interface utilisateur pour la configuration par plugin
- * 
+ *
  * Affiche un panneau avec onglets par plugin permettant de:
  * - Visualiser et éditer la configuration de chaque plugin
  * - Génération automatique de formulaires basés sur JSON Schema
  * - Validation et sauvegarde des modifications
  * - Export/Import de la configuration
- * 
+ *
  * @version 1.0.0
  */
 
@@ -23,7 +23,7 @@ export default class SettingsView {
     this.pluginSystem = pluginSystem;
     this.eventBus = eventBus;
     this.formBuilder = new JSONSchemaFormBuilder();
-    
+
     this.container = null;
     this.currentTab = 'core';
     this.forms = new Map(); // pluginId -> form element
@@ -46,7 +46,7 @@ export default class SettingsView {
 
     // Afficher
     this.container.classList.add('visible');
-    
+
     // Émettre événement
     this.eventBus.emit('settings:opened');
   }
@@ -116,8 +116,8 @@ export default class SettingsView {
 
     // Onglet Core (config globale)
     html += `
-      <button 
-        class="settings-tab ${this.currentTab === 'core' ? 'active' : ''}" 
+      <button
+        class="settings-tab ${this.currentTab === 'core' ? 'active' : ''}"
         data-tab="core"
       >
         <span class="tab-icon">⚙️</span>
@@ -131,8 +131,8 @@ export default class SettingsView {
       const isActive = this.currentTab === plugin.id;
 
       html += `
-        <button 
-          class="settings-tab ${isActive ? 'active' : ''} ${!hasConfig ? 'no-config' : ''}" 
+        <button
+          class="settings-tab ${isActive ? 'active' : ''} ${!hasConfig ? 'no-config' : ''}"
           data-tab="${plugin.id}"
           ${!hasConfig ? 'disabled' : ''}
         >
@@ -163,13 +163,13 @@ export default class SettingsView {
       const isActive = this.currentTab === plugin.id;
 
       html += `<div class="settings-tab-content ${isActive ? 'active' : ''}" data-tab-content="${plugin.id}">`;
-      
+
       if (hasConfig) {
         html += await this.renderPluginSettings(plugin);
       } else {
         html += this.renderNoConfig(plugin);
       }
-      
+
       html += '</div>';
     }
 
@@ -181,7 +181,7 @@ export default class SettingsView {
    */
   async renderCoreSettings() {
     const coreConfig = this.configManager.getCoreConfig();
-    
+
     const coreSchema = {
       title: 'Core Configuration',
       description: 'Global application settings',
@@ -305,7 +305,7 @@ export default class SettingsView {
 
       // Attacher les listeners du form builder
       this.formBuilder.attachEventListeners(form);
-      
+
       // Stocker la référence
       const formId = form.id.replace('form-', '');
       this.forms.set(formId, form);
@@ -365,7 +365,7 @@ export default class SettingsView {
 
     try {
       let success;
-      
+
       if (formId === 'core') {
         success = await this.configManager.setCoreConfig(data);
       } else {
@@ -394,7 +394,7 @@ export default class SettingsView {
 
     try {
       const success = await this.configManager.resetPluginConfig(pluginId);
-      
+
       if (success) {
         this.showNotification('Configuration reset successfully', 'success');
         // Re-render le contenu
@@ -414,17 +414,17 @@ export default class SettingsView {
   handleExport() {
     const config = this.configManager.getAll();
     const json = JSON.stringify(config, null, 2);
-    
+
     const blob = new Blob([json], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
-    
+
     const a = document.createElement('a');
     a.href = url;
     a.download = `pensine-config-${new Date().toISOString().split('T')[0]}.json`;
     a.click();
-    
+
     URL.revokeObjectURL(url);
-    
+
     this.showNotification('Configuration exported', 'success');
   }
 
@@ -435,26 +435,26 @@ export default class SettingsView {
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = '.json';
-    
+
     input.addEventListener('change', async (e) => {
       const file = e.target.files[0];
       if (!file) return;
-      
+
       try {
         const text = await file.text();
         const config = JSON.parse(text);
-        
+
         // Valider et sauvegarder
         if (config.core) {
           await this.configManager.setCoreConfig(config.core, false);
         }
-        
+
         if (config.plugins) {
           for (const [pluginId, pluginConfig] of Object.entries(config.plugins)) {
             await this.configManager.setPluginConfig(pluginId, pluginConfig, false);
           }
         }
-        
+
         this.showNotification('Configuration imported successfully', 'success');
         await this.render();
       } catch (error) {
@@ -462,7 +462,7 @@ export default class SettingsView {
         this.showNotification(`Import failed: ${error.message}`, 'error');
       }
     });
-    
+
     input.click();
   }
 
@@ -477,13 +477,13 @@ export default class SettingsView {
       try {
         const data = this.formBuilder.extractData(form);
         let success;
-        
+
         if (formId === 'core') {
           success = await this.configManager.setCoreConfig(data);
         } else {
           success = await this.configManager.setPluginConfig(formId, data);
         }
-        
+
         if (success) {
           successCount++;
         } else {
@@ -513,12 +513,12 @@ export default class SettingsView {
     const toast = document.createElement('div');
     toast.className = `notification notification-${type}`;
     toast.textContent = message;
-    
+
     document.body.appendChild(toast);
-    
+
     // Afficher
     setTimeout(() => toast.classList.add('visible'), 10);
-    
+
     // Masquer et retirer
     setTimeout(() => {
       toast.classList.remove('visible');
@@ -534,7 +534,7 @@ export default class SettingsView {
       this.container.remove();
       this.container = null;
     }
-    
+
     this.forms.clear();
   }
 }

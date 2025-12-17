@@ -132,7 +132,7 @@ async enable() {
     CalendarPlugin.getConfigSchema(),
     CalendarPlugin.getDefaultConfig()
   );
-  
+
   this.config = await this.context.config.getPluginConfig(this.id);
 }
 ```
@@ -186,23 +186,23 @@ Ajout des nouveaux fichiers :
 
 2. Enregistrement du schéma
    └─> context.config.registerPluginSchema(id, schema, defaults)
-   
+
 3. Chargement de la config
    └─> config = context.config.getPluginConfig(id)
-   
+
 4. Utilisateur ouvre Settings
    └─> window.showModernSettings()
-   
+
 5. SettingsView affiche le panneau
    └─> Onglets générés (Core + plugins)
    └─> Formulaire généré depuis le schéma
-   
+
 6. Utilisateur édite et sauvegarde
    └─> configManager.setPluginConfig(id, newConfig)
    └─> Validation selon le schéma
    └─> Sauvegarde dans .pensine-config.json
    └─> Émission événement config:plugin-updated
-   
+
 7. Plugin réagit au changement
    └─> Écoute config:plugin-updated
    └─> Applique la nouvelle config
@@ -444,9 +444,95 @@ git add docs/journal-de-bord/2025-12-17_systeme-configuration-plugin.md
 git commit -m "docs: Add session journal for config system implementation"
 ```
 
+## 🔌 Intégration dans app.js (Réalisée)
+
+**Date** : 17 décembre 2025 (même session)
+
+Intégration du système de configuration dans `app.js` selon **Option A** du guide d'intégration :
+
+### Modifications apportées
+
+1. **Import du module d'intégration** (ligne 6) :
+```javascript
+import { initializeModernConfig } from './lib/settings-integration.js';
+```
+
+2. **Initialisation dans `init()`** (après ligne 171) :
+```javascript
+// Initialize modern configuration system
+try {
+    const { default: EventBus } = await import('./core/event-bus.js');
+    const { default: PluginSystem } = await import('./core/plugin-system.js');
+    
+    window.eventBus = window.eventBus || new EventBus();
+    window.pluginSystem = window.pluginSystem || new PluginSystem(window.eventBus, storageManager);
+    
+    await window.pluginSystem.init();
+    
+    const { configManager: modernConfigManager, settingsView } = await initializeModernConfig(
+        storageManager,
+        window.eventBus,
+        window.pluginSystem
+    );
+    
+    this.modernConfigManager = modernConfigManager;
+    this.settingsView = settingsView;
+    
+    console.log('✅ Modern configuration system initialized');
+} catch (error) {
+    console.warn('⚠️ Could not initialize modern config system:', error);
+    // Continue without it - fallback to old config editor
+}
+```
+
+3. **Remplacement de `showSettings()`** (ligne 795) :
+```javascript
+async showSettings() {
+    // Try to use modern settings view if available
+    if (this.settingsView) {
+        this.settingsView.show();
+    } else {
+        // Fallback: Open .pensine-config.json in the unified editor
+        console.log('⚠️ Modern settings view not available, falling back to config editor');
+        await this.openConfigFileInEditor();
+    }
+}
+```
+
+### Points clés de l'intégration
+
+- ✅ **Graceful degradation** : Si l'init échoue, fallback vers l'ancien éditeur JSON
+- ✅ **Zero breaking changes** : L'ancien système reste opérationnel en fallback
+- ✅ **Module ES6** : Import dynamique pour éviter les dépendances circulaires
+- ✅ **Try-catch** : Erreurs attrapées, application continue de fonctionner
+- ✅ **Références stockées** : `this.modernConfigManager` et `this.settingsView` accessibles partout dans PensineApp
+
+### Validation
+
+- ✅ Syntaxe JavaScript valide (`node -c app.js`)
+- ✅ Tous les modules de config valides
+- ⏳ Tests manuels en attente (voir `MANUAL_TEST_CONFIG.md`)
+
+### Commit
+
+```bash
+git commit -m "feat(config): Integrate modern configuration system into app.js
+
+- Import settings-integration.js module
+- Initialize PluginSystem, EventBus, and modern ConfigManager in init()
+- Store references to modernConfigManager and settingsView in PensineApp
+- Update showSettings() to use modern settings panel with fallback
+- Graceful degradation if modern system fails to initialize
+
+Integration completes the configuration system (3367 lines) created in previous commits.
+Follows Option A from docs/INTEGRATION_CONFIG.md."
+```
+
+**Hash du commit** : 6ef0bfb
+
 ## 🏁 Conclusion
 
-Le système de configuration par plugin est maintenant **complet et prêt à l'intégration**. Tous les composants sont en place :
+Le système de configuration par plugin est maintenant **complètement intégré et prêt pour les tests**. Tous les composants sont en place :
 
 - ✅ Backend (ConfigManager, validation)
 - ✅ Frontend (SettingsView, form builder)
@@ -454,14 +540,15 @@ Le système de configuration par plugin est maintenant **complet et prêt à l'i
 - ✅ Styles (settings.css)
 - ✅ Documentation (guides complets)
 - ✅ Exemple (calendar plugin)
+- ✅ **Intégration dans app.js** (Option A)
 
-**Total de la session** : 2946 lignes de code + documentation
+**Total de la session** : 3367 lignes de code + documentation + intégration
 
-**Temps estimé restant** : 45 minutes pour intégration complète et tests
+**Prochaine étape** : Tests manuels selon `MANUAL_TEST_CONFIG.md` (10 tests, ~15 minutes)
 
 ---
 
-**Version** : v0.1.0  
-**Date** : 17 décembre 2025  
-**Auteur** : Stéphane Denis (@stephanedenis)  
-**Status** : ✅ Implémentation complète, en attente d'intégration
+**Version** : v0.2.0 (integrated)
+**Date** : 17 décembre 2025
+**Auteur** : Stéphane Denis (@stephanedenis)
+**Status** : ✅ Implémentation et intégration complètes, en attente de tests

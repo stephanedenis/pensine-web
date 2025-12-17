@@ -111,7 +111,7 @@ async enable() {
 
   // Charger la configuration
   this.config = await this.context.config.getPluginConfig(this.id);
-  
+
   console.log('[MyPlugin] Configuration loaded:', this.config);
 }
 ```
@@ -373,7 +373,7 @@ async setPluginConfig(pluginId, config) {
   if (config.maxItems > 1000) {
     throw new Error('maxItems cannot exceed 1000');
   }
-  
+
   return await this.context.config.setPluginConfig(pluginId, config);
 }
 ```
@@ -442,7 +442,7 @@ async enable() {
     MyPlugin.getConfigSchema(),
     MyPlugin.getDefaultConfig()
   );
-  
+
   this.config = await this.context.config.getPluginConfig(this.id);
 }
 
