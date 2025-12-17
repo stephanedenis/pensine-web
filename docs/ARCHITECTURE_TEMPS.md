@@ -414,7 +414,7 @@ class EventBus {
   off(event, callback) {
     const listeners = this.listeners.get(event);
     if (listeners) {
-      this.listeners.set(event, 
+      this.listeners.set(event,
         listeners.filter(l => l.callback !== callback)
       );
     }
@@ -428,17 +428,17 @@ const EVENTS = {
   'calendar:event-create': { event: Object },
   'calendar:event-update': { event: Object },
   'calendar:event-delete': { eventId: String },
-  
+
   // Inbox
   'inbox:item-captured': { item: Object },
   'inbox:task-scheduled': { task: Object },
   'inbox:task-complete': { taskId: String },
-  
+
   // Journal
   'journal:entry-open': { date: Date, entry: Object },
   'journal:entry-save': { date: Date, content: String },
   'journal:tag-added': { tag: String, entry: Object },
-  
+
   // Reflection
   'reflection:note-create': { note: Object },
   'reflection:link-create': { from: String, to: String },
@@ -494,24 +494,24 @@ const PensineUI = {
   Panel: class { },
   Modal: class { },
   Toast: class { },
-  
+
   // Forms
   Input: class { },
   Select: class { },
   DatePicker: class { },
   TagInput: class { },
-  
+
   // Data display
   Card: class { },
   List: class { },
   Table: class { },
   Timeline: class { },
-  
+
   // Navigation
   Tabs: class { },
   Menu: class { },
   Breadcrumb: class { },
-  
+
   // Feedback
   Spinner: class { },
   Progress: class { },
@@ -625,7 +625,7 @@ pensine-web/
 
 ---
 
-**Version**: 1.0  
-**Date**: 2025-12-17  
-**Status**: Draft - En cours de validation  
+**Version**: 1.0
+**Date**: 2025-12-17
+**Status**: Draft - En cours de validation
 **Auteur**: Stéphane Denis (@stephanedenis)

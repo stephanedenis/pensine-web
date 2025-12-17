@@ -63,12 +63,12 @@ cd /home/stephane/GitHub/pensine-web
 # Pour chaque plugin
 for plugin in calendar inbox journal reflection; do
   mkdir -p "plugins/pensine-plugin-${plugin}"/{views,components,adapters,styles}
-  
+
   cd "plugins/pensine-plugin-${plugin}"
-  
+
   # Clone le repo vide
   git clone "git@github.com:stephanedenis/pensine-plugin-${plugin}.git" .
-  
+
   # Créer plugin.json
   cat > plugin.json << EOF
 {
@@ -93,7 +93,7 @@ EOF
 
   # Créer fichier principal
   touch "${plugin}-plugin.js"
-  
+
   # Créer .gitignore
   cat > .gitignore << EOF
 node_modules/
@@ -106,7 +106,7 @@ EOF
   git add .
   git commit -m "chore: Initial plugin structure"
   git push origin main
-  
+
   cd ../..
 done
 ```

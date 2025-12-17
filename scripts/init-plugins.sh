@@ -41,7 +41,7 @@ echo "📦 Étape 1/4: Création des repositories GitHub"
 echo "---------------------------------------------"
 for plugin in "${PLUGINS[@]}"; do
   repo_name="pensine-plugin-${plugin}"
-  
+
   # Vérifier si le repo existe déjà
   if gh repo view "${GITHUB_USER}/${repo_name}" &> /dev/null; then
     echo "⚠️  Repository ${repo_name} existe déjà, skip"
@@ -51,14 +51,14 @@ for plugin in "${PLUGINS[@]}"; do
       --public \
       --description "Plugin ${plugin^} pour Pensine - 3e hémisphère du cerveau" \
       --add-readme
-    
+
     # Ajouter topics
     gh repo edit "${GITHUB_USER}/${repo_name}" \
       --add-topic "pensine" \
       --add-topic "pensine-plugin" \
       --add-topic "knowledge-management" \
       --add-topic "time-management"
-    
+
     echo "✅ ${repo_name} créé"
   fi
 done
@@ -69,21 +69,21 @@ echo "🏗️  Étape 2/4: Initialisation locale des plugins"
 echo "----------------------------------------------"
 for plugin in "${PLUGINS[@]}"; do
   plugin_dir="plugins/pensine-plugin-${plugin}"
-  
+
   if [ -d "${plugin_dir}" ]; then
     echo "⚠️  ${plugin_dir} existe déjà, skip"
     continue
   fi
-  
+
   echo "📁 Création de ${plugin_dir}..."
   mkdir -p "${plugin_dir}"/{views,components,adapters,styles}
-  
+
   cd "${plugin_dir}"
-  
+
   # Init git
   git init
   git branch -M main
-  
+
   # plugin.json
   cat > plugin.json << EOF
 {
@@ -124,10 +124,10 @@ class PLUGIN_CLASS {
    */
   async enable() {
     console.log(`✅ ${this.manifest.name} enabled`);
-    
+
     // Register routes
     // this.registerRoutes();
-    
+
     // Listen to events
     // this.setupEventListeners();
   }
@@ -146,7 +146,7 @@ EOF
   # Replace placeholders
   sed -i "s/PLUGIN_NAME/${plugin^}/g" "${plugin}-plugin.js"
   sed -i "s/PLUGIN_CLASS/${plugin^}Plugin/g" "${plugin}-plugin.js"
-  
+
   # README.md
   cat > README.md << EOF
 # Pensine Plugin - ${plugin^}
@@ -214,12 +214,12 @@ EOF
   # Initial commit
   git add .
   git commit -m "chore: Initial plugin structure"
-  
+
   # Ajouter remote
   git remote add origin "git@github.com:${GITHUB_USER}/pensine-plugin-${plugin}.git"
-  
+
   echo "✅ ${plugin} initialisé localement"
-  
+
   cd ../..
 done
 echo ""
@@ -229,16 +229,16 @@ echo "⬆️  Étape 3/4: Push des plugins vers GitHub"
 echo "----------------------------------------"
 for plugin in "${PLUGINS[@]}"; do
   plugin_dir="plugins/pensine-plugin-${plugin}"
-  
+
   cd "${plugin_dir}"
-  
+
   echo "📤 Push de pensine-plugin-${plugin}..."
   if git push -u origin main 2>/dev/null; then
     echo "✅ pensine-plugin-${plugin} pushed"
   else
     echo "⚠️  Push failed (peut-être déjà fait?)"
   fi
-  
+
   cd ../..
 done
 echo ""

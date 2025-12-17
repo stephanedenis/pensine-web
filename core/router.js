@@ -11,7 +11,7 @@ class Router {
     this.routes = new Map();
     this.currentRoute = null;
     this.defaultRoute = '/';
-    
+
     // Initialiser navigation
     this.initNavigation();
   }
@@ -45,7 +45,7 @@ class Router {
     }
 
     const pattern = this.pathToRegex(path);
-    
+
     this.routes.set(path, {
       path,
       pattern,
@@ -101,13 +101,13 @@ class Router {
    */
   async handleRouteChange() {
     const path = this.getCurrentPath();
-    
+
     console.log(`🛣️ Route change: ${path}`);
 
     // Émettre événement before
-    this.eventBus.emit(EVENTS['route:before'], { 
-      from: this.currentRoute, 
-      to: path 
+    this.eventBus.emit(EVENTS['route:before'], {
+      from: this.currentRoute,
+      to: path
     }, 'core');
 
     // Trouver route correspondante
@@ -130,7 +130,7 @@ class Router {
       this.currentRoute = path;
 
       // Émettre événement after
-      this.eventBus.emit(EVENTS['route:after'], { 
+      this.eventBus.emit(EVENTS['route:after'], {
         path,
         params: match ? match.params : {},
         route: match ? match.route : null
@@ -138,10 +138,10 @@ class Router {
 
     } catch (error) {
       console.error('❌ Error loading route:', error);
-      this.eventBus.emit(EVENTS['app:error'], { 
+      this.eventBus.emit(EVENTS['app:error'], {
         type: 'route',
         path,
-        error 
+        error
       }, 'core');
     }
   }
@@ -154,7 +154,7 @@ class Router {
   matchRoute(path) {
     for (const route of this.routes.values()) {
       const matches = path.match(route.pattern);
-      
+
       if (matches) {
         // Extraire paramètres
         const params = {};
@@ -198,7 +198,7 @@ class Router {
    */
   async renderComponent(Component, params) {
     const container = document.querySelector('#main-content') || document.body;
-    
+
     if (typeof Component === 'function') {
       const instance = new Component(params);
       if (instance.render) {
@@ -216,7 +216,7 @@ class Router {
    */
   async renderView(view, params) {
     const container = document.querySelector('#main-content') || document.body;
-    
+
     if (typeof view === 'string') {
       container.innerHTML = view;
     } else if (view instanceof HTMLElement) {
@@ -261,7 +261,7 @@ class Router {
    */
   unregisterPlugin(pluginId) {
     const toRemove = [];
-    
+
     this.routes.forEach((route, path) => {
       if (route.handler.plugin === pluginId) {
         toRemove.push(path);
@@ -269,7 +269,7 @@ class Router {
     });
 
     toRemove.forEach(path => this.unregister(path));
-    
+
     if (toRemove.length > 0) {
       console.log(`🛣️ Unregistered ${toRemove.length} routes from ${pluginId}`);
     }

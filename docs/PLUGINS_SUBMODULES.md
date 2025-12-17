@@ -61,13 +61,13 @@ mkdir -p plugins
 for plugin in calendar inbox journal reflection; do
   mkdir -p "plugins/pensine-plugin-${plugin}"
   cd "plugins/pensine-plugin-${plugin}"
-  
+
   # Init git
   git init
-  
+
   # Créer structure de base
   mkdir -p {views,components,adapters,styles}
-  
+
   # Créer fichiers de base
   cat > plugin.json << 'EOF'
 {
@@ -86,7 +86,7 @@ for plugin in calendar inbox journal reflection; do
   "routes": []
 }
 EOF
-  
+
   # README
   cat > README.md << 'EOF'
 # Pensine Plugin - PLUGIN_NAME
@@ -106,21 +106,21 @@ npm test
 
 MIT
 EOF
-  
+
   # .gitignore
   cat > .gitignore << 'EOF'
 node_modules/
 .DS_Store
 *.log
 EOF
-  
+
   # Initial commit
   git add .
   git commit -m "chore: Initial plugin structure"
-  
+
   # Ajouter remote
   git remote add origin "git@github.com:stephanedenis/pensine-plugin-${plugin}.git"
-  
+
   cd ../..
 done
 ```

@@ -3,6 +3,9 @@
  * Zero-install, GitHub-direct knowledge management
  */
 
+// Import modern configuration system
+import { initializeModernConfig } from './lib/settings-integration.js';
+
 /**
  * Configuration Manager - Syncs localStorage with GitHub
  * localStorage is used as a cache for performance
@@ -170,6 +173,31 @@ class PensineApp {
 
         // Migrer les anciens tokens en clair vers le stockage chiffré
         await this.migrateOldTokens();
+
+        // Initialize modern configuration system
+        try {
+            const { default: EventBus } = await import('./core/event-bus.js');
+            const { default: PluginSystem } = await import('./core/plugin-system.js');
+            
+            window.eventBus = window.eventBus || new EventBus();
+            window.pluginSystem = window.pluginSystem || new PluginSystem(window.eventBus, storageManager);
+            
+            await window.pluginSystem.init();
+            
+            const { configManager: modernConfigManager, settingsView } = await initializeModernConfig(
+                storageManager,
+                window.eventBus,
+                window.pluginSystem
+            );
+            
+            this.modernConfigManager = modernConfigManager;
+            this.settingsView = settingsView;
+            
+            console.log('✅ Modern configuration system initialized');
+        } catch (error) {
+            console.warn('⚠️ Could not initialize modern config system:', error);
+            // Continue without it - fallback to old config editor
+        }
 
         // Setup editor
         const editorElement = document.getElementById('journal-content');
@@ -762,11 +790,17 @@ class PensineApp {
         }
     }
 
-    // Settings - Open config file in editor instead of modal
+    // Settings - Use modern configuration UI or fallback to config editor
 
     async showSettings() {
-        // Open .pensine-config.json in the unified editor
-        await this.openConfigFileInEditor();
+        // Try to use modern settings view if available
+        if (this.settingsView) {
+            this.settingsView.show();
+        } else {
+            // Fallback: Open .pensine-config.json in the unified editor
+            console.log('⚠️ Modern settings view not available, falling back to config editor');
+            await this.openConfigFileInEditor();
+        }
     }
 
     hideSettings() {
@@ -1564,7 +1598,7 @@ class PensineApp {
                         "calendar": {
                             "firstDayOfWeek": 1,
                             "startDate": new Date().toISOString().split('T')[0],
-                            "endDate": new Date(Date.now() + 365*24*60*60*1000).toISOString().split('T')[0]
+                            "endDate": new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
                         }
                     }, null, 2);
                 }

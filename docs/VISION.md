@@ -153,7 +153,7 @@ plugin-api/
 
 **Actuels**:
 - ✅ GitHub (PAT)
-- ✅ GitHub (OAuth) 
+- ✅ GitHub (OAuth)
 - ✅ Local Storage
 - 🚧 Local Git
 
@@ -294,6 +294,6 @@ Pensine est:
 
 ---
 
-**Version**: 1.0  
-**Date**: 2025-12-17  
+**Version**: 1.0
+**Date**: 2025-12-17
 **Auteur**: Stéphane Denis (@stephanedenis)

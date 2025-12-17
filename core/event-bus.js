@@ -19,7 +19,7 @@ class EventBus {
     if (!this.listeners.has(event)) {
       this.listeners.set(event, []);
     }
-    
+
     this.listeners.get(event).push({
       callback,
       pluginId,
@@ -119,11 +119,11 @@ class EventBus {
    */
   removeAllListeners(pluginId) {
     let removed = 0;
-    
+
     this.listeners.forEach((listeners, event) => {
       const filtered = listeners.filter(l => l.pluginId !== pluginId);
       removed += listeners.length - filtered.length;
-      
+
       if (filtered.length === 0) {
         this.listeners.delete(event);
       } else {
@@ -157,7 +157,7 @@ class EventBus {
 
     this.listeners.forEach(listeners => {
       stats.totalListeners += listeners.length;
-      
+
       listeners.forEach(({ pluginId }) => {
         stats.byPlugin[pluginId] = (stats.byPlugin[pluginId] || 0) + 1;
       });

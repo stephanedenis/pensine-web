@@ -25,7 +25,7 @@ class PluginSystem {
     }
 
     console.log('🔌 Initializing plugin system...');
-    
+
     // Charger config plugins depuis storage
     try {
       const config = await this.loadPluginConfigs();
@@ -97,10 +97,10 @@ class PluginSystem {
   createPluginContext(pluginId) {
     return {
       pluginId,
-      
+
       // Storage API
       storage: this.createStorageAPI(pluginId),
-      
+
       // Event Bus API
       events: {
         on: (event, callback) => {
@@ -249,9 +249,9 @@ class PluginSystem {
     this.activePlugins.add(pluginId);
     pluginData.enabled = true;
 
-    this.eventBus.emit(EVENTS['plugin:enabled'], { 
-      id: pluginId, 
-      name: pluginData.manifest.name 
+    this.eventBus.emit(EVENTS['plugin:enabled'], {
+      id: pluginId,
+      name: pluginData.manifest.name
     }, 'core');
   }
 
@@ -283,9 +283,9 @@ class PluginSystem {
     this.activePlugins.delete(pluginId);
     pluginData.enabled = false;
 
-    this.eventBus.emit(EVENTS['plugin:disabled'], { 
-      id: pluginId, 
-      name: pluginData.manifest.name 
+    this.eventBus.emit(EVENTS['plugin:disabled'], {
+      id: pluginId,
+      name: pluginData.manifest.name
     }, 'core');
   }
 
@@ -341,7 +341,7 @@ class PluginSystem {
   async savePluginConfigs() {
     try {
       const configPath = '.pensine-config.json';
-      
+
       // Lire config existante
       let config = {};
       try {
