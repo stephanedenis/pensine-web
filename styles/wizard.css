@@ -179,6 +179,25 @@
     font-size: 14px;
 }
 
+.wizard-platform-url {
+    font-size: 12px;
+    color: var(--text-secondary);
+    opacity: 0.8;
+}
+
+.wizard-platform-description {
+    font-size: 11px;
+    color: var(--text-secondary);
+    text-align: center;
+    margin-top: 4px;
+    opacity: 0.7;
+}
+
+.wizard-platform-option.selected .wizard-platform-description,
+.wizard-platform-option.selected .wizard-platform-url {
+    color: rgba(255, 255, 255, 0.9);
+}
+
 .wizard-info-box {
     background: var(--bg-secondary);
     border-left: 4px solid var(--accent-primary);
