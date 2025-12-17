@@ -145,13 +145,15 @@
   line-height: 1;
   gap: 0;
   white-space: nowrap;
-  overflow: hidden;
+  overflow: visible;
   /* Position absolutely in the reserved padding space */
   position: absolute;
   right: 2px;
   top: 0;
   width: 24px;
-  height: var(--day-height, 28px);
+  /* Allow labels to expand vertically to fit text */
+  height: auto;
+  min-height: var(--day-height, 28px);
   z-index: 10;
 }
 
