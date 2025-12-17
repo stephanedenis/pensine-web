@@ -1,7 +1,8 @@
 # Session de développement - 17 décembre 2025
 
-## 🎯 Objectif
-Configuration des plugins comme submodules Git indépendants pour architecture modulaire et extensible.
+## 🎯 Objectifs
+1. Configuration des plugins comme submodules Git indépendants ✅
+2. Migration du composant LinearCalendar vers le plugin calendar ✅
 
 ## 📋 Contexte
 Suite à la création du système de plugins core (event-bus, plugin-system, router) et de la documentation (ARCHITECTURE_TEMPS.md), passage à la phase de configuration des repos GitHub pour chaque plugin.
@@ -11,7 +12,7 @@ Suite à la création du système de plugins core (event-bus, plugin-system, rou
 ### 1. Création des repositories GitHub
 Création de 4 repositories publics sur GitHub :
 
-1. **pensine-plugin-calendar** 
+1. **pensine-plugin-calendar**
    - URL: https://github.com/stephanedenis/pensine-plugin-calendar
    - Description: Plugin Calendrier pour Pensine - 3e hémisphère du cerveau
    - Commit initial: 007acae
@@ -200,7 +201,7 @@ pensine-web/
 **Impact** : Aucun - automated script `scripts/init-plugins.sh` inutilisé mais workflow manuel efficace
 
 ### 2. Git submodule sur repo vide
-**Symptôme** : 
+**Symptôme** :
 ```
 fatal: You are on a branch yet to be born
 fatal: unable to checkout submodule
@@ -208,7 +209,7 @@ fatal: unable to checkout submodule
 
 **Cause** : Repos GitHub créés sans commit initial
 
-**Solution** : 
+**Solution** :
 1. Clone chaque repo en /tmp
 2. Créer structure de base (README, plugin.json, plugin.js)
 3. Commit et push vers main
@@ -225,9 +226,26 @@ fatal: unable to checkout submodule
 
 **Action** : Ignoré - JSON fonctionnel confirmé
 
+### 4. Migration du calendrier - Dépendances de chargement
+**Contexte** : LinearCalendar dépend de ConfigurableComponent
+
+**Solution** : Chargement séquentiel dans `loadDependencies()` :
+1. configurable-component.js (base)
+2. linear-calendar.js (dépend de #1)
+3. calendar-view.js (dépend de #2)
+
+**Code** :
+```javascript
+await this.loadScript('components/configurable-component.js');
+await this.loadScript('components/linear-calendar.js');
+await this.loadScript('components/calendar-view.js');
+```
+
+**Résultat** : Pas d'erreurs `undefined`, composants chargés correctement
+
 ## 📈 Métriques
 
-### Code écrit
+### Code écrit - Phase 1 (Submodules)
 - **4 fichiers plugin.js** : 941 lignes total
   - calendar-plugin.js : 137 lignes
   - inbox-plugin.js : 180 lignes
@@ -235,37 +253,172 @@ fatal: unable to checkout submodule
   - reflection-plugin.js : 205 lignes
 - **4 fichiers plugin.json** : 80 lignes total
 - **4 README.md** : 200 lignes total
-- **Total session** : ~1220 lignes code + docs
+- **Docs submodules** : ~600 lignes (PLUGINS_*.md)
+- **Subtotal Phase 1** : ~1820 lignes
+
+### Code écrit - Phase 2 (Calendar migration)
+- **components/linear-calendar.js** : 1310 lignes (copie)
+- **components/configurable-component.js** : ~100 lignes (copie)
+- **styles/calendar.css** : 732 lignes (copie)
+- **views/calendar-view.js** : 175 lignes (nouveau)
+- **calendar-plugin.js** : +~100 lignes (mise à jour)
+- **MIGRATION.md** : 230 lignes (nouveau)
+- **Subtotal Phase 2** : ~2650 lignes
+
+### Total session
+- **Total lignes** : ~4470 lignes (code + docs)
+- **Commits** : 11 commits (4 repos externes + 7 pensine-web)
 
 ### Repos GitHub
-- **4 repos créés** avec 5 commits initiaux
+- **4 repos créés** avec structure initiale
+- **pensine-plugin-calendar** : 3 commits (initial, migration, docs)
 - **4 submodules** configurés dans pensine-web
-- **1 commit** pensine-web avec intégration submodules
 
 ### Temps estimé
-- Création manuelle repos : ~5 min
-- Initialisation structure : ~15 min
-- Configuration submodules : ~5 min
-- Documentation session : ~10 min
-- **Total** : ~35 minutes
+- Phase 1 (Submodules) : ~35 min
+- Phase 2 (Migration) : ~55 min
+- **Total** : ~90 minutes
 
-## 🔄 Prochaines étapes
+## 🔄 Phase 2 : Migration du calendrier
+
+### 4. Migration du composant LinearCalendar
+
+**Source** : `lib/components/linear-calendar/`
+**Destination** : `plugins/pensine-plugin-calendar/`
+
+#### Fichiers copiés
+1. **linear-calendar.js** (1310 lignes) → `components/linear-calendar.js`
+   - Calendrier linéaire avec scroll infini
+   - 12 couleurs mensuelles
+   - Marquage de dates
+   - Gestion des événements
+
+2. **linear-calendar-v2.css** (732 lignes) → `styles/calendar.css`
+   - Styles complets
+   - Système de couleurs
+   - Responsive design
+
+3. **configurable-component.js** (~100 lignes) → `components/configurable-component.js`
+   - Classe de base pour components configurables
+   - Dépendance de LinearCalendar
+
+#### Nouveaux fichiers créés
+
+1. **views/calendar-view.js** (175 lignes)
+   - Wrapper autour de LinearCalendar
+   - Intégration avec l'API plugin (context)
+   - Méthodes principales :
+     * `render()` - Instancier et render le calendrier
+     * `loadMarkedDates()` - Charger dates depuis storage
+     * `handleDayClick()` - Clic → navigation vers journal
+     * `handleWeekLoad()` - Infinite scroll
+     * `updateMarkedDates()` - Refresh après changements
+   - Événements émis : `calendar:day-click`, `calendar:week-load`
+
+2. **calendar-plugin.js** (mis à jour, ~200 lignes)
+   - `loadDependencies()` - Chargement CSS + JS séquentiel
+   - `loadScript(src)` - Helper pour charger scripts dynamiquement
+   - `enable()` - Charge dépendances avant activation
+   - `disable()` - Cleanup CalendarView
+   - `renderCalendarView()` - Instancie CalendarView
+   - `handleEventCreate()` - Sauvegarde événements
+   - `handleEventUpdate()` - Mise à jour dates marquées
+   - `handleJournalEntrySaved()` - Écoute événements journal
+
+3. **MIGRATION.md** (230 lignes)
+   - Documentation complète migration
+   - Architecture avant/après
+   - Context API utilisé
+   - Événements émis/écoutés
+   - Checklist tests
+   - Configuration mapping
+   - Points d'attention
+
+#### Intégration avec le plugin system
+
+**Context API utilisé** :
+```javascript
+context = {
+  storage: { list(), readJSON(), writeJSON() },
+  events: { emit(), on(), off() },
+  router: { navigate(), register() },
+  config: { get(), set() }
+}
+```
+
+**Flux de données** :
+```
+1. Plugin activé → loadDependencies()
+2. CSS chargé → styles/calendar.css
+3. Scripts chargés → configurable-component.js, linear-calendar.js, calendar-view.js
+4. Route /calendar → renderCalendarView()
+5. CalendarView instanciée → loadMarkedDates() depuis storage
+6. LinearCalendar rendu → affichage visuel
+7. Clic sur jour → emit('calendar:day-click') → navigate('/journal/date')
+8. Journal sauvegardé → emit('journal:entry-saved') → markDate(date)
+```
+
+**Événements inter-plugins** :
+- **Émis** : `calendar:day-click`, `calendar:week-load`, `calendar:event-created`
+- **Écoutés** : `calendar:event-create`, `calendar:event-update`, `journal:entry-saved`
+
+#### Structure finale du plugin
+```
+pensine-plugin-calendar/
+├── calendar-plugin.js         (200 lignes - orchestration)
+├── plugin.json                (30 lignes - manifeste)
+├── README.md                  (documentation utilisateur)
+├── MIGRATION.md               (230 lignes - doc migration)
+├── components/
+│   ├── configurable-component.js   (100 lignes - base class)
+│   └── linear-calendar.js          (1310 lignes - calendrier)
+├── styles/
+│   └── calendar.css                (732 lignes - styles)
+└── views/
+    └── calendar-view.js            (175 lignes - wrapper)
+
+Total : ~2777 lignes
+```
+
+#### Commits de migration
+- **f3d0308** - feat: Migrate LinearCalendar component to plugin
+- **23eb3c0** - docs: Add migration documentation
+- **f8fc60a** - chore: Update calendar plugin submodule to f3d0308 (pensine-web)
+- **a987d53** - chore: Update calendar plugin to 23eb3c0 (pensine-web)
+
+### 5. Fonctionnalités préservées
+
+✅ Toutes les fonctionnalités du LinearCalendar original :
+- Scroll infini vertical
+- Système 12 couleurs mensuelles
+- Jour de début de semaine configurable
+- Marquage de dates
+- Handlers de clic
+- Détection weekends
+- Bordures transitions mois
+- Design responsive
+- Configuration standardisée
+
+### 6. Fonctionnalités ajoutées
+
+✅ Nouvelles capacités grâce à l'intégration plugin :
+- Chargement automatique dates marquées depuis storage
+- Navigation vers journal au clic (route `/journal/YYYY-MM-DD`)
+- Communication avec autres plugins via EventBus
+- Configuration centralisée via plugin.json
+- Lifecycle propre (enable/disable avec cleanup)
+- Chargement dynamique des dépendances
+
+## 📋 Prochaines étapes
 
 ### Phase immédiate (0-2 jours)
-1. **Migrer calendar component** ✅ PRIORITÉ #1
-   - Source : `lib/components/linear-calendar/` (1311 JS + 731 CSS)
-   - Target : `plugins/pensine-plugin-calendar/`
-   - Fichiers :
-     - `linear-calendar.js` → `views/linear-view.js`
-     - `linear-calendar-v2.css` → `styles/calendar.css`
-     - Wrapper dans `calendar-plugin.js`
-   - Tests : Vérifier fonctionnalité identique
-
-2. **Intégrer plugin system dans app.js**
-   - Import `PluginSystem`, `EventBus`, `Router`
-   - Initialiser avec `StorageManager`
-   - Register les 4 plugins
+1. ✅ **Migrer calendar component** - COMPLÉTÉ
+2. **Intégrer plugin system dans app.js** - PRIORITÉ #1
+   - Import PluginSystem, EventBus, Router
+   - Initialiser avec StorageManager
+   - Register CalendarPlugin
    - Load config depuis `.pensine-config.json`
+   - Tester route `/calendar`
 
 3. **Créer .pensine-config.json template**
    - Config par défaut pour chaque plugin
@@ -346,12 +499,25 @@ fatal: unable to checkout submodule
 - [docs/PLUGINS_MANUAL_SETUP.md](../PLUGINS_MANUAL_SETUP.md) - Setup manuel
 
 ### Commits clés
-- 531d8b8 - feat: Add plugin submodules (pensine-web)
+
+**Phase 1 : Submodules setup**
 - e125fad - docs: Guide manuel création plugins
+- 007acae - chore: Initial calendar plugin structure (repo externe)
+- 6231125 - chore: Initial inbox plugin structure (repo externe)
+- d4a9d59 - chore: Initial journal plugin structure (repo externe)
+- c477833 - chore: Initial reflection plugin structure (repo externe)
+- 531d8b8 - feat: Add plugin submodules (pensine-web)
+- 6789e6a - docs: Journal session submodules setup
+
+**Phase 2 : Calendar migration** 
+- f3d0308 - feat: Migrate LinearCalendar component to plugin
+- 23eb3c0 - docs: Add migration documentation  
+- f8fc60a - chore: Update calendar plugin submodule to f3d0308
+- a987d53 - chore: Update calendar plugin to 23eb3c0
 
 ---
 
-**Statut** : ✅ Submodules configurés et opérationnels  
-**Prochaine session** : Migration du calendrier vers plugin  
-**Durée session** : ~35 minutes  
-**Lignes code** : +1220 lignes (4 repos + docs)
+**Statut** : ✅ Submodules configurés + Calendar migré  
+**Prochaine session** : Intégration plugin system dans app.js  
+**Durée session** : ~90 minutes  
+**Lignes code** : +4020 lignes (4 repos + migration + docs)
