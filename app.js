@@ -1551,14 +1551,22 @@ class PensineApp {
                     content = result.content;
                     console.log('📋 Config loaded from GitHub');
                 } catch (githubError) {
-                    // No config anywhere - show wizard
-                    console.log('⚠️ No config found, showing wizard');
-                    if (window.configWizard) {
-                        configWizard.show();
-                    } else {
-                        this.showError('Configuration introuvable. Veuillez créer une configuration.');
-                    }
-                    return;
+                    // No config anywhere - create template
+                    console.log('⚠️ No config found, creating template');
+                    content = JSON.stringify({
+                        "storageMode": "github",
+                        "github": {
+                            "owner": "",
+                            "repo": "",
+                            "branch": "main",
+                            "token": ""
+                        },
+                        "calendar": {
+                            "firstDayOfWeek": 1,
+                            "startDate": new Date().toISOString().split('T')[0],
+                            "endDate": new Date(Date.now() + 365*24*60*60*1000).toISOString().split('T')[0]
+                        }
+                    }, null, 2);
                 }
             }
 
