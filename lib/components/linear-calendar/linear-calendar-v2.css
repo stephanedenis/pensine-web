@@ -63,24 +63,25 @@
 
 /* Weekdays Header */
 .linear-calendar-weekdays {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
+  display: flex;
   gap: 0;
-  padding: 8px 10px 4px 4px;
-  /* Extra right padding (10px = 4px base + 6px scrollbar) */
+  padding: 8px 36px 4px 4px;
+  /* Match weeks container padding: 4px left, 10px + 26px (label space) = 36px right */
   background: var(--calendar-bg-secondary);
   border-bottom: 2px solid var(--calendar-border);
   flex-shrink: 0;
 }
 
 .weekday-cell {
+  flex: 1 1 0;
+  min-width: 0;
   text-align: center;
   font-size: 0.65rem;
-  color: var(--calendar-text-secondary);
-  padding: 4px 2px;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.3px;
+  letter-spacing: 0.5px;
+  color: var(--calendar-text-secondary);
+  padding: 4px 2px;
 }
 
 /* Scroll Container */
@@ -111,8 +112,8 @@
 
 /* Weeks Container */
 .linear-calendar-weeks {
-  padding: 4px 10px 4px 4px;
-  /* Right padding for scrollbar (10px = 4px + 6px scrollbar) */
+  padding: 4px 0 4px 0;
+  /* No horizontal padding - week rows have their own padding */
 }
 
 /* Week Row */
@@ -121,10 +122,12 @@
   gap: 0;
   margin-bottom: 0;
   position: relative;
-  height: var(--day-height, 28px);  /* Fixed height, not min-height */
+  height: var(--day-height, 28px);
+  padding: 0 26px 0 4px;
+  /* Left padding: 4px (align with header), Right padding: 26px (label space) */
 }
 
-/* Month Label - Last flex item with fixed dimensions */
+/* Month Label - Positioned in the reserved right padding */
 .calendar-month-label {
   writing-mode: vertical-lr;
   transform: rotate(180deg);
@@ -136,26 +139,25 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 2px 1px;  /* Reduced padding to fit in 28px */
+  padding: 2px 1px;
   background: var(--calendar-bg-secondary);
   border-radius: 2px;
   line-height: 1;
   gap: 0;
   white-space: nowrap;
-  overflow: hidden;  /* Prevent text overflow expanding height */
-  /* Fixed dimensions matching day cells */
-  flex: 0 0 24px;
+  overflow: hidden;
+  /* Position absolutely in the reserved padding space */
+  position: absolute;
+  right: 2px;
+  top: 0;
   width: 24px;
-  height: var(--day-height, 28px);  /* Same height as days */
-  margin-left: 2px;
+  height: var(--day-height, 28px);
 }
 
 /* Hide empty month labels (not needed with flexbox) */
 .calendar-month-label:empty,
 .calendar-month-label-empty {
   display: none;
-}
-  height: var(--day-height, 28px);
 }
 
 /* Month label on month-start weeks - show background */
