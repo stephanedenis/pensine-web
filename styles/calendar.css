@@ -141,17 +141,12 @@
 /* Month Label - Styles now defined in linear-calendar-v2.css */
 /* Keeping only color overrides here */
 .calendar-month-label {
-    /* Color override for old calendar style */
-    background: var(--bg-hover);
-    border-right: 1px solid var(--border);
+    /* Transparent background - displays over cells */
+    background: transparent !important;
+    border-right: none;
 }
 
-/* Month label on month-start weeks - show background */
-.calendar-week.month-start .calendar-month-label {
-    background: var(--bg-secondary);
-}
-
-/* Full month label (first/last) with name and year */
+/* Month label only on first week of month */
 .calendar-month-label.full-label {
     font-size: 0.75rem;
     padding: 8px 3px;
@@ -401,7 +396,6 @@
 .calendar-week.current-week {
     background: rgba(14, 99, 156, 0.08);
     border-radius: 3px;
-    padding: 1px;
 }
 
 /* Has journal entry */
