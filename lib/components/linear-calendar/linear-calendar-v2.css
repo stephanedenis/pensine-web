@@ -121,10 +121,10 @@
   gap: 0;
   margin-bottom: 0;
   position: relative;
-  min-height: var(--day-height, 28px);
+  height: var(--day-height, 28px);  /* Fixed height, not min-height */
 }
 
-/* Month Label - Last flex item with fixed width */
+/* Month Label - Last flex item with fixed dimensions */
 .calendar-month-label {
   writing-mode: vertical-lr;
   transform: rotate(180deg);
@@ -136,23 +136,25 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 4px 2px;
+  padding: 2px 1px;  /* Reduced padding to fit in 28px */
   background: var(--calendar-bg-secondary);
   border-radius: 2px;
-  line-height: 1.2;
+  line-height: 1;
   gap: 0;
   white-space: nowrap;
-  /* Fixed width flex item that stretches to row height */
+  overflow: hidden;  /* Prevent text overflow expanding height */
+  /* Fixed dimensions matching day cells */
   flex: 0 0 24px;
   width: 24px;
-  align-self: stretch;  /* Stretch to match day cells height */
+  height: var(--day-height, 28px);  /* Same height as days */
   margin-left: 2px;
 }
 
-/* Empty cell for weeks without month labels (maintains grid structure) */
+/* Hide empty month labels (not needed with flexbox) */
+.calendar-month-label:empty,
 .calendar-month-label-empty {
-  /* Auto-placed as 8th grid child */
-  width: 24px;
+  display: none;
+}
   height: var(--day-height, 28px);
 }
 
