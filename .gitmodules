@@ -1,0 +1,12 @@
+[submodule "plugins/pensine-plugin-calendar"]
+	path = plugins/pensine-plugin-calendar
+	url = git@github.com:stephanedenis/pensine-plugin-calendar.git
+[submodule "plugins/pensine-plugin-inbox"]
+	path = plugins/pensine-plugin-inbox
+	url = git@github.com:stephanedenis/pensine-plugin-inbox.git
+[submodule "plugins/pensine-plugin-journal"]
+	path = plugins/pensine-plugin-journal
+	url = git@github.com:stephanedenis/pensine-plugin-journal.git
+[submodule "plugins/pensine-plugin-reflection"]
+	path = plugins/pensine-plugin-reflection
+	url = git@github.com:stephanedenis/pensine-plugin-reflection.git
