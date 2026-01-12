@@ -463,21 +463,21 @@ import { initializeModernConfig } from './lib/settings-integration.js';
 try {
     const { default: EventBus } = await import('./core/event-bus.js');
     const { default: PluginSystem } = await import('./core/plugin-system.js');
-    
+
     window.eventBus = window.eventBus || new EventBus();
     window.pluginSystem = window.pluginSystem || new PluginSystem(window.eventBus, storageManager);
-    
+
     await window.pluginSystem.init();
-    
+
     const { configManager: modernConfigManager, settingsView } = await initializeModernConfig(
         storageManager,
         window.eventBus,
         window.pluginSystem
     );
-    
+
     this.modernConfigManager = modernConfigManager;
     this.settingsView = settingsView;
-    
+
     console.log('✅ Modern configuration system initialized');
 } catch (error) {
     console.warn('⚠️ Could not initialize modern config system:', error);

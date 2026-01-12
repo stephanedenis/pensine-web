@@ -3,9 +3,15 @@
   "version": "1.0.0",
   "description": "Test utilities for Pensine Web",
   "scripts": {
-    "test": "node test-playwright.js"
+    "test": "playwright test",
+    "test:config": "playwright test tests/config-system-integration.spec.mjs",
+    "test:ui": "playwright test --ui",
+    "test:debug": "playwright test --debug"
   },
   "dependencies": {
     "playwright": "^1.40.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.57.0"
   }
 }
