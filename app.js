@@ -3,9 +3,6 @@
  * Zero-install, GitHub-direct knowledge management
  */
 
-// Import modern configuration system
-import { initializeModernConfig } from './lib/settings-integration.js';
-
 /**
  * Configuration Manager - Syncs localStorage with GitHub
  * localStorage is used as a cache for performance
@@ -183,6 +180,9 @@ class PensineApp {
             window.pluginSystem = window.pluginSystem || new PluginSystem(window.eventBus, storageManager);
 
             await window.pluginSystem.init();
+
+            // Import modern configuration system dynamically
+            const { initializeModernConfig } = await import('./lib/settings-integration.js');
 
             const { configManager: modernConfigManager, settingsView } = await initializeModernConfig(
                 storageManager,

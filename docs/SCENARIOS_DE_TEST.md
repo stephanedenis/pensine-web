@@ -4,7 +4,7 @@
 
 Ce document contient tous les scénarios de test pour valider le bon fonctionnement de Pensine Web et prévenir les régressions.
 
-**Dernière mise à jour**: v0.0.22  
+**Dernière mise à jour**: v0.0.22
 **Responsable**: Équipe Développement
 
 ---
@@ -38,7 +38,7 @@ Avant chaque commit, exécuter cette checklist minimale:
 
 **Résultat Attendu**:
 - ✅ Wizard de configuration s'ouvre automatiquement
-- ✅ Affiche étape 1/5 (Sélection plateforme)
+- ✅ Affiche étape 1/6 (Bienvenue)
 - ✅ Pas d'erreur console
 
 **Données Test**:
@@ -57,10 +57,11 @@ localStorage.clear();
 
 **Résultat Attendu**:
 - ✅ App charge directement (pas de wizard)
-- ✅ Calendrier affiché (52 semaines)
-- ✅ Scroll positionné sur semaine actuelle
+- ✅ Calendrier LinearCalendar V2 affiché
+- ✅ Vue centrée sur semaine actuelle
+- ✅ Scroll infini fonctionnel
 - ✅ Token validé (pas d'erreur)
-- ✅ Indicateur sync "ok" (vert)
+- ✅ Plugins chargés (calendar, inbox, journal, reflection)
 
 **Données Test**:
 ```json
@@ -99,12 +100,14 @@ localStorage.clear();
 
 **Objectif**: Tester le parcours complet du wizard
 
-#### T2.1 - Parcours Complet GitHub
+#### T2.1 - Parcours Complet GitHub (PAT)
 **Étapes**:
 1. Ouvrir wizard (localStorage vide)
-2. **Étape 1**: Sélectionner "GitHub"
+2. **Étape 1 (Bienvenue)**: Lire instructions
 3. Cliquer "Suivant →"
-4. **Étape 2**: Entrer token `ghp_test123`
+4. **Étape 2 (Plateforme)**: Sélectionner "GitHub"
+5. Cliquer "Suivant →"
+6. **Étape 3 (Token)**: Entrer token `ghp_test123`
 5. Cliquer "Suivant →"
 6. **Étape 3**: Entrer owner `testuser`, repo `Pensine`, branch `master`
 7. Cliquer "Suivant →"
@@ -442,7 +445,7 @@ localStorage.clear();
 - ✅ Si modif `weekStartDay`: Calendrier se recharge avec nouveau début semaine
 
 #### T5.8 - Configuration Absente (404)
-**Préconditions**: 
+**Préconditions**:
 - localStorage vide
 - Pas de `.pensine-config.json` sur GitHub
 
@@ -795,6 +798,96 @@ Ces tests doivent TOUJOURS passer après chaque modification.
 3. Cocher checklist
 4. Noter anomalies
 
+---
+
+### T5: Système Configuration Moderne (SettingsView)
+
+**Objectif**: Valider le système de configuration par plugin avec génération de formulaires dynamiques
+
+#### T5.1 - Ouverture Settings
+**Préconditions**: App initialisée avec config moderne
+
+**Étapes**:
+1. Cliquer bouton ⚙️ (Settings) dans la sidebar
+2. Observer panneau
+
+**Résultat Attendu**:
+- ✅ Panneau `.settings-view` s'ouvre avec overlay
+- ✅ Header "Settings" visible avec bouton fermer ✕
+- ✅ Sidebar onglets visible à gauche
+- ✅ Onglets présents: Core + plugins actifs (Calendar, Inbox, Journal, Reflection)
+- ✅ Formulaire zone principale à droite
+- ✅ Actions footer: Save, Reset, Export, Import
+
+#### T5.2 - Navigation Onglets et Génération Formulaires
+**Étapes**:
+1. Ouvrir Settings → Core
+2. Observer formulaire généré dynamiquement
+3. Cliquer onglet "Calendar"
+4. Observer changement formulaire
+
+**Résultat Attendu**:
+- ✅ Formulaire Core: config globale (theme, storage, etc.)
+- ✅ Formulaire Calendar: champs spécifiques (`startWeekOn`, `showWeekNumbers`)
+- ✅ Types champs: text, number, checkbox, select selon JSON Schema
+- ✅ Validation HTML5 active (required, min, max, pattern)
+- ✅ Labels et help text affichés
+
+#### T5.3 - Validation et Sauvegarde
+**Étapes**:
+1. Modifier une valeur
+2. Cliquer "Save"
+
+**Résultat Attendu**:
+- ✅ Notification "Configuration saved successfully"
+- ✅ Config persistée (`.pensine-config.json` ou localStorage)
+- ✅ Événement `config:saved` émis
+
+#### T5.4 - Export/Import Configuration
+**Étapes**:
+1. Cliquer "Export" → Fichier téléchargé
+2. Cliquer "Import" → Sélectionner fichier
+
+**Résultat Attendu**:
+- ✅ Export génère JSON valide `{ core: {}, plugins: {} }`
+- ✅ Import restaure configuration
+- ✅ Validation JSON Schema lors import
+
+---
+
+### T6: Plugins Submodules
+
+**Objectif**: Valider le système de plugins avec architecture submodules Git
+
+#### T6.1 - Plugins Chargés au Démarrage
+**Étapes**:
+1. Console développeur: `window.pluginSystem.plugins`
+
+**Résultat Attendu**:
+- ✅ Map avec 4 plugins: calendar, inbox, journal, reflection
+- ✅ Chaque plugin a manifest (id, name, version)
+
+#### T6.2 - Activation/Désactivation Plugin
+**Étapes**:
+1. Console: `await window.pluginSystem.disablePlugin('calendar')`
+2. Observer UI calendrier
+
+**Résultat Attendu**:
+- ✅ Calendrier disparaît
+- ✅ Événement `plugin:disabled` émis
+
+#### T6.3 - Configuration Plugin dans Settings
+**Étapes**:
+1. Ouvrir Settings → Calendar
+2. Modifier config
+3. Sauvegarder
+
+**Résultat Attendu**:
+- ✅ Formulaire généré depuis schéma plugin
+- ✅ Config plugin mise à jour dans `config.plugins.calendar`
+
+---
+
 ### Tests Automatisés (Future)
 ```bash
 # Playwright ou Cypress
@@ -853,6 +946,6 @@ Avant de taguer une version stable:
 
 ---
 
-**Dernière Validation Complète**: [Date à remplir]  
-**Validée Par**: [Nom]  
+**Dernière Validation Complète**: [Date à remplir]
+**Validée Par**: [Nom]
 **Version Testée**: v0.0.22

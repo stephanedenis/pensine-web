@@ -60,6 +60,47 @@ Exécuter AVANT chaque `git commit`:
 - [ ] **Types affichés**: Badges `string`, `number`, `boolean` visibles
 - [ ] **Pas de boutons bas formulaire**: Uniquement header controls
 
+### ✅ Configuration Moderne (Settings UI)
+
+- [ ] **Ouverture Settings**: Clic ⚙️ ouvre panneau `.settings-view`
+- [ ] **Layout Settings**:
+  - [ ] Sidebar onglets à gauche
+  - [ ] Zone formulaire principale à droite
+  - [ ] Header avec titre "Settings" et bouton ✕
+  - [ ] Footer avec Save, Reset, Export, Import
+- [ ] **Onglets présents**: Core + onglets plugins (Calendar, Inbox, Journal, Reflection)
+- [ ] **Formulaire Core**:
+  - [ ] Champs générés depuis JSON Schema
+  - [ ] Types correctement rendus (string, number, boolean, select)
+  - [ ] Validation HTML5 active (required, min, max, pattern)
+  - [ ] Labels et help text affichés
+- [ ] **Navigation onglets**: Clic onglet change formulaire dynamiquement
+- [ ] **Onglet plugin (Calendar)**:
+  - [ ] Formulaire spécifique plugin affiché
+  - [ ] Champs: startWeekOn, showWeekNumbers, etc.
+  - [ ] Valeurs actuelles chargées
+- [ ] **Modification valeur**: Input déclenche changement état
+- [ ] **Validation**: Valeur invalide empêche sauvegarde
+- [ ] **Sauvegarde**: Bouton Save persiste config
+- [ ] **Notification**: Toast "Configuration saved successfully" affiché
+- [ ] **Persistance**: Reload page → config préservée
+- [ ] **Export**: Bouton Export génère fichier `.pensine-config.json`
+- [ ] **Import**: Bouton Import restaure config depuis fichier
+- [ ] **Reset**: Bouton Reset restaure valeurs par défaut (avec confirmation)
+- [ ] **Fermeture**: Bouton ✕ ou Escape ferme panneau
+
+### ✅ Plugins Submodules
+
+- [ ] **Plugins chargés**: `window.pluginSystem.plugins.size >= 4` en console
+- [ ] **Plugins actifs**: `window.pluginSystem.activePlugins` contient 4 plugins
+- [ ] **Manifests**: Chaque plugin a id, name, version, description
+- [ ] **Onglets plugins**: Settings montre onglets Calendar, Inbox, Journal, Reflection
+- [ ] **Config plugin**: Formulaire plugin s'affiche correctement
+- [ ] **Schémas enregistrés**: `window.modernConfigManager.schemas` contient schémas plugins
+- [ ] **EventBus**: `window.eventBus` existe et communique entre plugins
+- [ ] **Disable plugin**: `disablePlugin('calendar')` masque calendrier
+- [ ] **Enable plugin**: `enablePlugin('calendar')` restaure calendrier
+
 ### ✅ Sauvegarde
 
 - [ ] **Modification détectée**: Éditer contenu active bouton save
@@ -193,7 +234,7 @@ git push origin v0.0.XX-stable
 | Validation rapide | 3-5 min |
 | Validation syntaxe | 1 min |
 | Tests régression | 2 min |
-| **TOTAL** | **6-8 min** |
+| **TOTAL** | **8-10 min** |
 
 **Investissement**: 6-8 minutes par commit pour éviter heures de debug régression.
 
@@ -212,6 +253,6 @@ Si en dessous: **Corriger avant commit**.
 
 ---
 
-**Version Checklist**: v1.0  
-**Compatible avec**: Pensine Web v0.0.22+  
+**Version Checklist**: v1.0
+**Compatible avec**: Pensine Web v0.0.22+
 **Dernière mise à jour**: 2024-12-14

@@ -30,10 +30,13 @@ test.describe('Modern Configuration System Integration', () => {
     });
 
     // Naviguer vers l'app
-    await page.goto('http://localhost:8000', { waitUntil: 'networkidle' });
+    await page.goto('http://localhost:8000', { waitUntil: 'domcontentloaded' });
 
-    // Attendre que l'app soit chargée
-    await page.waitForTimeout(1000);
+    // Attendre que l'app soit complètement initialisée (modules ES6 chargés)
+    await page.waitForFunction(() => {
+      return window.app?.modernConfigManager !== undefined &&
+        window.app?.settingsView !== undefined;
+    }, { timeout: 5000 });
   });
 
   test('1. Système de configuration s\'initialise correctement', async ({ page }) => {
@@ -337,7 +340,12 @@ test.describe('Configuration Validation Tests', () => {
     });
 
     await page.goto('http://localhost:8000', { waitUntil: 'networkidle' });
-    await page.waitForTimeout(1000);
+
+    // Attendre initialisation complète
+    await page.waitForFunction(() => {
+      return window.app?.modernConfigManager !== undefined &&
+        window.app?.settingsView !== undefined;
+    }, { timeout: 10000 });
   });
 
   test('11. Validation - Rejet de valeurs invalides', async ({ page }) => {
@@ -429,7 +437,11 @@ test('Quick Smoke Test - Configuration système fonctionne de bout en bout', asy
   });
 
   await page.goto('http://localhost:8000', { waitUntil: 'networkidle' });
-  await page.waitForTimeout(1000);
+
+  // Attendre initialisation complète
+  await page.waitForFunction(() => {
+    return window.app?.settingsView !== undefined;
+  }, { timeout: 10000 });
 
   // 1. Système initialisé
   const hasSystem = await page.evaluate(() => !!window.app?.settingsView);

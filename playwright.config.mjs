@@ -9,7 +9,7 @@ export default defineConfig({
   workers: 1, // Un seul worker pour tests séquentiels
   reporter: [
     ['list'],
-    ['html', { outputFolder: 'test-results/html' }]
+    ['html', { outputFolder: 'playwright-report' }]
   ],
 
   use: {
