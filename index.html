@@ -178,57 +178,49 @@
         </ul>
     </aside>
 
-    <!-- Configuration Wizard (shown on first launch if no config) -->
-    <div id="config-wizard" class="wizard hidden">
-        <div class="wizard-content">
-            <div class="wizard-header">
-                <h1>🧠 Bienvenue dans Pensine</h1>
-                <p>Configuration initiale de votre second cerveau</p>
-            </div>
-            <div id="wizard-steps"></div>
-        </div>
-    </div>
-
     <!-- Scripts -->
-    <script src="config.js"></script>
+    <script src="config/config.js"></script>
 
-    <!-- Token Security -->
-    <script src="lib/token-storage.js"></script>
+    <!-- Token Security (Services) -->
+    <script src="src/lib/services/token-storage.js"></script>
 
-    <!-- Storage Adapters (nouveaux modes multi-storage) -->
-    <script src="lib/storage-adapter-base.js"></script>
-    <script src="lib/local-storage-adapter.js"></script>
-    <script src="lib/local-git-adapter.js"></script>
-    <script src="lib/github-storage-adapter.js"></script>
-    <script src="lib/storage-manager-unified.js"></script>
+    <!-- Storage Adapters (Adapters) -->
+    <script src="src/lib/adapters/storage-adapter-base.js"></script>
+    <script src="src/lib/adapters/local-storage-adapter.js"></script>
+    <script src="src/lib/adapters/local-git-adapter.js"></script>
+    <script src="src/lib/adapters/github-storage-adapter.js"></script>
+    <script src="src/lib/components/storage-manager-unified.js"></script>
 
-    <!-- OAuth (si utilisé) -->
-    <script src="lib/github-oauth.js"></script>
+    <!-- OAuth (Adapters) -->
+    <script src="src/lib/adapters/github-oauth.js"></script>
     <!-- Migration PAT -> OAuth: Désactivé car le wizard gère maintenant les modes correctement -->
-    <!-- <script src="lib/migrate-to-oauth.js"></script> -->
+    <!-- <script src="src/lib/services/migrate-to-oauth.js"></script> -->
 
-    <!-- Legacy GitHub adapter (rétrocompatibilité) -->
-    <script src="lib/github-adapter.js"></script>
+    <!-- Legacy GitHub adapter (rétrocompatibilité - Services) -->
+    <script src="src/lib/services/github-adapter.js"></script>
 
     <!-- LinearCalendar Component -->
     <script src="lib/components/base/configurable-component.js"></script>
     <script src="lib/components/linear-calendar/linear-calendar.js"></script>
 
-    <!-- Core -->
-    <script src="lib/config-wizard.js"></script>
-    <script src="lib/markdown-renderer.js"></script>
-    <script src="lib/markdown-parser.js"></script>
-    <script src="lib/storage.js"></script>
-    <script src="lib/editor.js"></script>
+    <!-- Core Components -->
+    <script src="src/lib/components/config-wizard.js"></script>
+    <script src="src/lib/services/markdown-renderer.js"></script>
+    <script src="src/lib/services/markdown-parser.js"></script>
+    <script src="src/lib/services/storage.js"></script>
+    <script src="src/lib/components/editor.js"></script>
 
-    <!-- Modern Config System (modules ES6) -->
-    <script type="module" src="core/config-manager.js"></script>
-    <script type="module" src="lib/json-schema-form-builder.js"></script>
-    <script type="module" src="views/settings-view.js"></script>
-    <script type="module" src="lib/settings-integration.js"></script>
+    <!-- Modern Config System (modules ES6) - MUST load before app.js -->
+    <script type="module" src="src/core/event-bus.js"></script>
+    <script type="module" src="src/core/router.js"></script>
+    <script type="module" src="src/core/plugin-system.js"></script>
+    <script type="module" src="src/core/config-manager.js"></script>
+    <script type="module" src="src/lib/components/json-schema-form-builder.js"></script>
+    <script type="module" src="src/lib/components/settings-view.js"></script>
+    <script type="module" src="src/lib/components/settings-integration.js"></script>
 
-    <!-- Main App -->
-    <script src="app.js"></script>
+    <!-- Main App - Loads after ES6 modules are available -->
+    <script src="src/app-init.js"></script>
 </body>
 
 </html>

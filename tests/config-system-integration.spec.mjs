@@ -8,7 +8,8 @@ import { test, expect } from '@playwright/test';
 // Configuration des tests
 test.describe('Modern Configuration System Integration', () => {
   test.beforeEach(async ({ page }) => {
-    // Mock localStorage pour éviter le wizard
+    // Mock localStorage to simulate having a valid config
+    // Wizard is now opt-in, so it won't show unless no config exists
     await page.addInitScript(() => {
       localStorage.setItem('pensine-config', 'true');
       localStorage.setItem('github-owner', 'test-owner');
