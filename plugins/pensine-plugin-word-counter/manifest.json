@@ -1,0 +1,14 @@
+{
+  "id": "word-counter",
+  "name": "Word Counter",
+  "version": "1.0.0",
+  "description": "Count words and characters in journal entries",
+  "author": "Panini Team",
+  "tags": ["productivity", "stats", "markdown"],
+  "dependencies": [],
+  "main": "word-counter.js",
+  "panini": {
+    "interface": "@panini/plugin-interface@^0.1.0",
+    "compatible": ["pensine", "ontowave"]
+  }
+}
