@@ -14,7 +14,10 @@
 
 ---
 
-## 🎯 Trois Axes Principaux
+## 🎯 Quatre Axes Principaux
+
+### 📚 Gestion des Connaissances
+Notes en Markdown, journaux personnels, documentation technique, liens entre idées. Capturez, organisez et retrouvez facilement toutes vos connaissances avec des contextes multiples (travail, perso, projets).
 
 ### ⏰ Gestion du Temps
 Calendrier unifié, journal quotidien, timeline continue. Synchronisez toutes vos sources (Google, Outlook, GitHub) et retrouvez facilement vos notes liées aux événements.
