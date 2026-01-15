@@ -283,9 +283,13 @@ class PluginSystem {
     try {
       if (pluginData.isPaniniPlugin) {
         // New: Call PaniniPlugin.activate(context)
+        console.log(`[PluginSystem] Calling activate() on Panini plugin`);
+        console.log(`[PluginSystem] Plugin:`, pluginData.plugin);
+        console.log(`[PluginSystem] Context:`, this.paniniContext);
         await pluginData.plugin.activate(this.paniniContext);
       } else {
         // Legacy: Call enable() if exists
+        console.log(`[PluginSystem] Calling enable() on Legacy plugin`);
         if (pluginData.plugin.enable) {
           await pluginData.plugin.enable();
         }

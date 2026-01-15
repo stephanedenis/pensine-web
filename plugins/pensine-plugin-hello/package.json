@@ -1,0 +1,15 @@
+{
+  "name": "pensine-plugin-hello",
+  "version": "1.0.0",
+  "description": "Hello World plugin de démonstration",
+  "main": "plugin.js",
+  "author": "Pensine Team",
+  "license": "MIT",
+  "pensine": {
+    "id": "hello-world",
+    "displayName": "Hello World",
+    "icon": "👋",
+    "category": "demo",
+    "compatibility": "^1.0.0"
+  }
+}

@@ -271,11 +271,14 @@ class PensineBootstrap {
      * Charger et activer un plugin
      */
     async loadPlugin(pluginConfig) {
-        const { id, source } = pluginConfig;
+        const { id, source, path } = pluginConfig;
 
         // Déterminer source du plugin
         let pluginPath;
-        if (source === 'local') {
+        if (path) {
+            // Chemin custom fourni explicitement
+            pluginPath = path;
+        } else if (source === 'local') {
             pluginPath = `./plugins/pensine-plugin-${id}/${id}-plugin.js`;
         } else if (source === 'cdn') {
             pluginPath = `https://unpkg.com/pensine-plugin-${id}@latest/${id}-plugin.js`;
@@ -299,8 +302,14 @@ class PensineBootstrap {
             icon: pluginConfig.icon || '🔌'
         };
 
+        // Détecter type de plugin (Panini vs Legacy)
+        // PaniniPlugin a : activate, deactivate methods (pas de constructor context param)
+        // Legacy a : enable method + prend context en constructor
+        const isPaniniPlugin = PluginClass.prototype && 
+                             typeof PluginClass.prototype.activate === 'function';
+
         // Enregistrer plugin
-        await window.pluginSystem.register(PluginClass, manifest);
+        await window.pluginSystem.register(PluginClass, manifest, isPaniniPlugin);
 
         // Activer plugin
         const context = {

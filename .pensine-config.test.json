@@ -1,0 +1,19 @@
+{
+  "version": "1.0.0",
+  "settings": {
+    "theme": "auto",
+    "language": "fr",
+    "autoSave": true
+  },
+  "plugins": {
+    "hello-world": {
+      "enabled": true,
+      "source": "local",
+      "path": "/plugins/pensine-plugin-hello/plugin.js",
+      "config": {
+        "message": "Bienvenue dans Pensine!",
+        "showIcon": true
+      }
+    }
+  }
+}
