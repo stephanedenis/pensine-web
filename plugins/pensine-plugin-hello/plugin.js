@@ -5,26 +5,30 @@
 
 export default class HelloPlugin {
   constructor() {
-    this.id = 'hello-world';
-    this.name = 'Hello World';
-    this.version = '1.0.0';
-    this.icon = '👋';
+    // PaniniPlugin interface requires manifest property
+    this.manifest = {
+      id: 'hello-world',
+      name: 'Hello World',
+      version: '1.0.0',
+      icon: '👋',
+      description: 'Simple test plugin demonstrating Pensine plugin architecture'
+    };
   }
 
   /**
-   * Activation du plugin
+   * Activation du plugin (PaniniPlugin interface)
    */
   async activate(context) {
     console.log('🎯 HelloPlugin.activate() called');
     console.log('Context:', context);
-    
+
     try {
       const { eventBus, storage, config } = context;
-      
+
       // Injecter un message de bienvenue dans l'app
       const appContainer = document.getElementById('app');
       console.log('App container:', appContainer);
-      
+
       if (appContainer) {
         const helloDiv = document.createElement('div');
         helloDiv.id = 'hello-plugin';
@@ -68,12 +72,12 @@ export default class HelloPlugin {
    */
   async deactivate() {
     console.log('👋 Hello World plugin deactivated');
-    
+
     const helloDiv = document.getElementById('hello-plugin');
     if (helloDiv) {
       helloDiv.remove();
     }
-    
+
     return true;
   }
 
