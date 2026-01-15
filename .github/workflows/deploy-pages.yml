@@ -1,3 +1,6 @@
+# Workflow principal pour déployer pensine.org sur GitHub Pages
+# Build depuis le dossier /docs avec Jekyll
+# Déclenché uniquement lors de modifications dans docs/ (économise les ressources)
 name: Deploy to GitHub Pages
 
 on:
