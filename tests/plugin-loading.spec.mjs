@@ -38,7 +38,7 @@ test.describe('Plugin Loading', () => {
 
     // 3. Recharger pour initialiser le storage
     await page.reload();
-    
+
     // 4. Attendre que le storage soit initialisé
     await page.waitForFunction(() => {
       return window.storageManager && window.storageManager.mode === 'local';
@@ -66,7 +66,7 @@ test.describe('Plugin Loading', () => {
           }
         }
       };
-      
+
       // Sauvegarder via StorageManager
       await window.storageManager.writeJSON('.pensine-config.json', remoteConfig);
       console.log('📝 Config file written to storage');
@@ -76,17 +76,17 @@ test.describe('Plugin Loading', () => {
 
     // 6. Recharger pour que bootstrap charge la config et les plugins
     await page.reload();
-    
+
     // 7. Attendre explicitement que l'app soit prête
     await page.waitForFunction(() => {
       const app = document.getElementById('app');
       const loading = document.getElementById('loading');
-      return app && !app.classList.contains('hidden') && 
-             loading && loading.classList.contains('hidden');
+      return app && !app.classList.contains('hidden') &&
+        loading && loading.classList.contains('hidden');
     }, { timeout: 5000 });
 
     console.log('[Test] App ready, looking for plugin...');
-    
+
     // 8. Attendre que le plugin soit chargé
     await page.waitForFunction(() => {
       return document.getElementById('hello-plugin') !== null;
@@ -97,7 +97,7 @@ test.describe('Plugin Loading', () => {
     // 9. Vérifier que le plugin est visible
     const helloPlugin = await page.$('#hello-plugin');
     expect(helloPlugin).toBeTruthy();
-    
+
     if (helloPlugin) {
       const text = await helloPlugin.textContent();
       console.log('✅ Plugin content:', text);

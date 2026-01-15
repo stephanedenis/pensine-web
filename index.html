@@ -185,12 +185,13 @@
     <!-- Token Security (Services) -->
     <script src="src/lib/services/token-storage.js"></script>
 
-    <!-- Storage Adapters (Adapters) -->
-    <script src="src/lib/adapters/storage-adapter-base.js"></script>
-    <script src="src/lib/adapters/local-storage-adapter.js"></script>
-    <script src="src/lib/adapters/local-git-adapter.js"></script>
-    <script src="src/lib/adapters/github-storage-adapter.js"></script>
-    <script src="src/lib/components/storage-manager-unified.js"></script>
+    <!-- Storage Adapters: Now loaded dynamically via ES6 imports (see bootstrap.js and storage-manager-unified.js) -->
+    <!-- OLD SYSTEM - REMOVED: These were causing "StorageAdapterBase is not defined" errors -->
+    <!-- <script src="src/lib/adapters/storage-adapter-base.js"></script> -->
+    <!-- <script src="src/lib/adapters/local-storage-adapter.js"></script> -->
+    <!-- <script src="src/lib/adapters/local-git-adapter.js"></script> -->
+    <!-- <script src="src/lib/adapters/github-storage-adapter.js"></script> -->
+    <!-- <script src="src/lib/components/storage-manager-unified.js"></script> -->
 
     <!-- OAuth (Adapters) -->
     <script src="src/lib/adapters/github-oauth.js"></script>

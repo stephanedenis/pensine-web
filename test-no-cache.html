@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>Test No-Cache</title>
+    <style>
+        body { font-family: monospace; padding: 20px; background: #1a1a1a; color: #33ff33; }
+        pre { background: #0a0a0a; padding: 15px; border: 2px solid #33ff33; }
+        .success { color: #33ff33; }
+        .error { color: #ff3333; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Test Storage Adapters - NO CACHE</h1>
+    <p>This page forces reload without cache</p>
+
+    <button onclick="runTest()">Run Test</button>
+    <button onclick="location.reload(true)">Hard Reload</button>
+
+    <pre id="output">Ready...</pre>
+
+    <script type="module">
+        async function runTest() {
+            const output = document.getElementById('output');
+            const log = (msg, type = 'info') => {
+                const icon = type === 'error' ? '❌' : '✅';
+                output.innerHTML += `\n${icon} ${msg}`;
+                console.log(msg);
+            };
+
+            output.innerHTML = 'Starting test with cache-busting...\n';
+
+            try {
+                const timestamp = Date.now();
+
+                log(`Importing with timestamp: ${timestamp}`);
+
+                // Import with cache-busting query param
+                const { default: StorageAdapterBase } = await import(`./src/lib/adapters/storage-adapter-base.js?v=${timestamp}`);
+                log('✓ StorageAdapterBase imported', 'success');
+
+                const { default: GitHubStorageAdapter } = await import(`./src/lib/adapters/github-storage-adapter.js?v=${timestamp}`);
+                log('✓ GitHubStorageAdapter imported', 'success');
+
+                const { default: LocalGitAdapter } = await import(`./src/lib/adapters/local-git-adapter.js?v=${timestamp}`);
+                log('✓ LocalGitAdapter imported', 'success');
+
+                log('\nCreating instances...');
+
+                const githubAdapter = new GitHubStorageAdapter();
+                log(`✓ GitHub adapter: ${githubAdapter.constructor.name}`, 'success');
+                log(`  - Extends StorageAdapterBase: ${githubAdapter instanceof StorageAdapterBase}`, 'success');
+
+                const localGitAdapter = new LocalGitAdapter();
+                log(`✓ LocalGit adapter: ${localGitAdapter.constructor.name}`, 'success');
+                log(`  - Extends StorageAdapterBase: ${localGitAdapter instanceof StorageAdapterBase}`, 'success');
+
+                log('\n✅ ALL TESTS PASSED - No StorageAdapterBase errors!', 'success');
+
+            } catch (error) {
+                log(`\n❌ ERROR: ${error.message}`, 'error');
+                log(`Stack: ${error.stack}`, 'error');
+
+                if (error.message.includes('StorageAdapterBase')) {
+                    log('\n⚠️⚠️⚠️ FOUND THE BUG! StorageAdapterBase is not defined!', 'error');
+                }
+            }
+        }
+
+        window.runTest = runTest;
+
+        // Auto-run on load
+        window.addEventListener('load', () => {
+            setTimeout(runTest, 500);
+        });
+    </script>
+</body>
+</html>
