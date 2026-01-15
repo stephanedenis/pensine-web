@@ -168,7 +168,14 @@ class PensineApp {
 
         console.log('🔍 Configuration check:', { hasConfig, hasToken, hasOwner, hasRepo });
 
-        return hasConfig && hasToken && hasOwner && hasRepo;
+        // Configuration is valid only if ALL required items are present
+        const isValid = hasConfig && hasToken && hasOwner && hasRepo;
+        
+        if (!isValid) {
+            console.log('⚠️ Configuration incomplète - wizard sera affiché');
+        }
+        
+        return isValid;
     }
 
     async init() {
@@ -339,6 +346,14 @@ class PensineApp {
             todayBtn.addEventListener('click', async () => {
                 this.currentDate = new Date();
                 await this.loadJournal();
+            });
+        }
+
+        // Documentation
+        const docsBtn = document.getElementById('docs-btn');
+        if (docsBtn) {
+            docsBtn.addEventListener('click', () => {
+                window.open('https://github.com/stephanedenis/pensine-web/tree/main/docs', '_blank');
             });
         }
 
