@@ -773,7 +773,10 @@ class ConfigWizard {
         }
 
         try {
-            const tempAdapter = new (window.GitHubStorageAdapter || window.githubAdapter.constructor)();
+            // Import GitHubStorageAdapter dynamiquement
+            const { default: GitHubStorageAdapter } = await import('../adapters/github-storage-adapter.js');
+            
+            const tempAdapter = new GitHubStorageAdapter();
             tempAdapter.configure({
                 token: this.config.git.token,
                 owner: this.config.git.owner,
