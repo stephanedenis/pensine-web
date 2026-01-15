@@ -1,7 +1,7 @@
 # Architecture du Système de Configuration Moderne
 
-**Version**: 1.0  
-**Date**: 2026-01-14  
+**Version**: 1.0
+**Date**: 2026-01-14
 **Status**: Émergent - À valider comme direction future
 
 ---
@@ -54,15 +54,16 @@ Le système de configuration moderne est une architecture modulaire construite s
 **Responsabilité**: Communication décuplée entre plugins
 
 **API Publique**:
+
 ```javascript
 // S'abonner à un événement
-eventBus.on('event:name', callback, pluginId);
+eventBus.on("event:name", callback, pluginId);
 
 // Se désabonner
-eventBus.off('event:name', callback);
+eventBus.off("event:name", callback);
 
 // Émettre un événement
-eventBus.emit('event:name', data, sourcePluginId);
+eventBus.emit("event:name", data, sourcePluginId);
 
 // Obtenir stats
 eventBus.getEvents();
@@ -70,32 +71,35 @@ eventBus.getStats();
 ```
 
 **Événements Supportés** (voir EVENTS map complète):
+
 ```javascript
 // Plugin lifecycle
-'plugin:registered'
-'plugin:enabled'
-'plugin:disabled'
-'plugin:error'
+"plugin:registered";
+"plugin:enabled";
+"plugin:disabled";
+"plugin:error";
 
 // Configuration
-'config:loaded'
-'config:changed'
-'config:saved'
+"config:loaded";
+"config:changed";
+"config:saved";
 
 // Domain-specific
-'calendar:day-click'
-'inbox:item-captured'
-'journal:entry-save'
-'reflection:insight-generated'
+"calendar:day-click";
+"inbox:item-captured";
+"journal:entry-save";
+"reflection:insight-generated";
 ```
 
 **Avantages**:
+
 - ✅ Zéro couplage entre plugins
 - ✅ Scalable pour N plugins
 - ✅ Testable (mock facile)
 - ✅ Historique d'événements possible
 
 **Limitations**:
+
 - ❌ Événements perdus si pas écouté avant emit
 - ❌ Pas de garantie d'ordre
 - ❌ Pas de rejeu d'état
@@ -109,6 +113,7 @@ eventBus.getStats();
 **Responsabilité**: Gestion du cycle de vie et orchestration des plugins
 
 **Cycle de Vie**:
+
 ```
 1. register(PluginClass, manifest)
    ├─ Vérifier dépendances
@@ -128,6 +133,7 @@ eventBus.getStats();
 ```
 
 **Plugins Actuels**:
+
 ```
 pensine-plugin-calendar/   - Gestion calendrier
 pensine-plugin-inbox/      - Capture et triage
@@ -137,6 +143,7 @@ pensine-plugin-accelerator/ - Aide au développement
 ```
 
 **Manifest de Plugin** (exemple):
+
 ```javascript
 {
   id: 'calendar',
@@ -149,6 +156,7 @@ pensine-plugin-accelerator/ - Aide au développement
 ```
 
 **API Principale**:
+
 ```javascript
 async pluginSystem.register(PluginClass, manifest);
 async pluginSystem.activate(pluginId);
@@ -166,6 +174,7 @@ async pluginSystem.savePluginConfig(pluginId, config);
 **Responsabilité**: Centraliser et valider la configuration
 
 **Structure de Configuration**:
+
 ```json
 {
   "core": {
@@ -187,6 +196,7 @@ async pluginSystem.savePluginConfig(pluginId, config);
 ```
 
 **API Principale**:
+
 ```javascript
 // Initialisation
 async configManager.init();
@@ -209,6 +219,7 @@ async configManager.save();
 ```
 
 **Stockage**:
+
 - Source de vérité: **GitHub** (`.pensine-config.json`)
 - Cache local: **localStorage** (rapidité)
 - Accès: Via **StorageManager**
@@ -222,6 +233,7 @@ async configManager.save();
 **Responsabilité**: Interface utilisateur pour configuration
 
 **Fonctionnalités**:
+
 - Onglets par plugin
 - Génération formulaire automatique (JSON Schema)
 - Validation en temps réel
@@ -229,6 +241,7 @@ async configManager.save();
 - Réactivité aux événements EventBus
 
 **Initialisation** (dans `settings-integration.js`):
+
 ```javascript
 const configManager = new ConfigManager(storage, eventBus);
 const settingsView = new SettingsView(configManager, pluginSystem, eventBus);
@@ -269,6 +282,7 @@ window.settingsView = settingsView;
 ## 📊 Cas d'Usage Actuel
 
 ### 1. Afficher le Panneau de Settings
+
 ```javascript
 // Depuis n'importe où
 window.app.showSettings();
@@ -278,27 +292,34 @@ window.settingsView.show();
 ```
 
 ### 2. Obtenir Configuration d'un Plugin
+
 ```javascript
-const calendarConfig = window.modernConfigManager.getPluginConfig('calendar');
+const calendarConfig = window.modernConfigManager.getPluginConfig("calendar");
 console.log(calendarConfig.weekStartDay); // 1
 ```
 
 ### 3. Modifier Configuration
+
 ```javascript
-await window.modernConfigManager.setPluginConfig('calendar', {
+await window.modernConfigManager.setPluginConfig("calendar", {
   weekStartDay: 0, // Dimanche
-  viewMode: 'week'
+  viewMode: "week",
 });
 
 // Événement émis: 'config:changed'
 ```
 
 ### 4. Écouter Changements de Config
+
 ```javascript
-window.eventBus.on('config:changed', (data) => {
-  console.log('Config changée:', data);
-  // Mettre à jour UI si nécessaire
-}, 'my-plugin');
+window.eventBus.on(
+  "config:changed",
+  (data) => {
+    console.log("Config changée:", data);
+    // Mettre à jour UI si nécessaire
+  },
+  "my-plugin"
+);
 ```
 
 ---
@@ -306,14 +327,17 @@ window.eventBus.on('config:changed', (data) => {
 ## 🎯 Problèmes Identifiés et Solutions
 
 ### Problème 1: Cohabitation Legacy/Modern
+
 **État**: `lib/` (legacy) + `src/` (modern) existent simultanément
 
-**Symptôme**: 
+**Symptôme**:
+
 - Duplication de code (2 config managers)
 - Tests fragiles (mélange des systèmes)
 - Migration complexe
 
 **Solution Proposée**:
+
 ```
 Phase 1 (FAIT): Refactorisation wizard (opt-in)
 Phase 2: Migrer tous les plugins vers EventBus/PluginSystem
@@ -324,37 +348,48 @@ Phase 4: Supprimer code legacy graduel
 ---
 
 ### Problème 2: Tests Playwright Instables
+
 **État**: 7/12 tests passent, 5 échouent avec "settings panel hidden"
 
 **Root Cause**:
+
 - SettingsView pas initialisée correctement en test
 - ConfigManager.init() peut échouer
 - Événements EventBus pas attendus avant assertions
 
 **Solution**:
+
 ```javascript
 // Dans beforeEach du test
-await page.waitForFunction(() => {
-  return window.settingsView?.isVisible !== undefined &&
-         window.modernConfigManager?.config;
-}, { timeout: 5000 });
+await page.waitForFunction(
+  () => {
+    return (
+      window.settingsView?.isVisible !== undefined &&
+      window.modernConfigManager?.config
+    );
+  },
+  { timeout: 5000 }
+);
 ```
 
 ---
 
 ### Problème 3: Configuration Token Invalide
+
 **État**: Tests mock token "test-token", validation échoue
 
-**Impact**: 
+**Impact**:
+
 - Test 9 détecte erreur console
 - Smoke test échoue
 - Settings panel ne s'affiche pas
 
 **Solution**:
+
 ```javascript
 // Mock un vrai token format (même invalide)
-const mockToken = 'ghp_' + 'x'.repeat(36); // Format valide syntaxiquement
-localStorage.setItem('pensine-encrypted-token', mockToken);
+const mockToken = "ghp_" + "x".repeat(36); // Format valide syntaxiquement
+localStorage.setItem("pensine-encrypted-token", mockToken);
 ```
 
 ---
@@ -384,12 +419,14 @@ PensineApp (Orchestration)
 ```
 
 ### Avantages:
+
 - ✅ Extensibilité: Ajouter plugins sans modifier core
 - ✅ Maintenabilité: Chaque plugin isolé et testable
 - ✅ Scalabilité: N plugins sans dégradation perf
 - ✅ Testabilité: Mock facile avec EventBus
 
 ### Timeline Recommandée:
+
 1. **Semaine 1**: Stabiliser tests (mock token + EventBus waits)
 2. **Semaine 2**: Migrer plugins legacy vers PluginSystem
 3. **Semaine 3**: Unifier config (éliminer LegacyConfigManager)

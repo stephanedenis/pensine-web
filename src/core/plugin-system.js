@@ -1,18 +1,27 @@
 /**
  * Plugin System - Gestionnaire de plugins Pensine
  * Gère l'enregistrement, l'activation et la communication entre plugins
+ * 
+ * Support @panini/plugin-interface v0.1.0:
+ * - PaniniPlugin interface (activate/deactivate)
+ * - PaniniPluginContext injection
+ * - Namespace-based cleanup
+ * - Legacy plugin backward compatibility
  */
 
 import EventBus, { EVENTS } from './event-bus.js';
+import { createPaniniContext, LegacyPluginAdapter } from './panini-wrappers.js';
 
 class PluginSystem {
-  constructor(eventBus, storageManager) {
+  constructor(eventBus, storageManager, configManager) {
     this.eventBus = eventBus || new EventBus();
     this.storageManager = storageManager;
+    this.configManager = configManager; // New: ConfigManager for Panini context
     this.plugins = new Map();
     this.activePlugins = new Set();
     this.pluginConfigs = new Map();
     this.initialized = false;
+    this.paniniContext = null; // Shared PaniniPluginContext
   }
 
   /**
@@ -25,6 +34,21 @@ class PluginSystem {
     }
 
     console.log('🔌 Initializing plugin system...');
+
+    // Create shared PaniniPluginContext
+    this.paniniContext = createPaniniContext({
+      eventBus: this.eventBus,
+      configManager: this.configManager,
+      storageManager: this.storageManager,
+      features: {
+        markdown: true,
+        hotReload: false, // Enable in dev mode
+        semanticSearch: false, // Future feature
+        offline: this.storageManager?.mode === 'local' || this.storageManager?.mode === 'local-git'
+      },
+      logger: console,
+      user: null // TODO: Get from auth system
+    });
 
     // Charger config plugins depuis storage
     try {
@@ -39,22 +63,23 @@ class PluginSystem {
     }
 
     this.initialized = true;
-    console.log('✅ Plugin system initialized');
+    console.log('✅ Plugin system initialized with Panini context');
   }
 
   /**
    * Enregistrer un plugin
    * @param {Object} PluginClass - Classe du plugin
    * @param {Object} manifest - Métadonnées du plugin
+   * @param {boolean} isPaniniPlugin - Si true, utilise PaniniPlugin interface; sinon legacy
    */
-  async register(PluginClass, manifest) {
+  async register(PluginClass, manifest, isPaniniPlugin = false) {
     const { id, name, version, dependencies = [] } = manifest;
 
     if (this.plugins.has(id)) {
       throw new Error(`Plugin "${id}" already registered`);
     }
 
-    console.log(`🔌 Registering plugin: ${name} v${version}`);
+    console.log(`🔌 Registering plugin: ${name} v${version} (${isPaniniPlugin ? 'Panini' : 'Legacy'})`);
 
     // Vérifier dépendances
     for (const dep of dependencies) {
@@ -63,18 +88,32 @@ class PluginSystem {
       }
     }
 
-    // Créer contexte plugin
-    const context = this.createPluginContext(id);
+    let plugin;
 
-    // Instancier plugin
-    const plugin = new PluginClass(manifest, context);
+    if (isPaniniPlugin) {
+      // New: PaniniPlugin interface
+      plugin = new PluginClass();
+      
+      // Validate PaniniPlugin interface
+      if (!plugin.manifest || !plugin.activate || !plugin.deactivate) {
+        throw new Error(`Plugin "${id}" does not implement PaniniPlugin interface`);
+      }
+    } else {
+      // Legacy: Old Pensine plugin style
+      const legacyContext = this.createPluginContext(id);
+      plugin = new PluginClass(manifest, legacyContext);
+      
+      // Wrap in adapter to provide PaniniPlugin interface
+      plugin = new LegacyPluginAdapter(plugin, manifest);
+    }
 
     // Stocker
     this.plugins.set(id, {
       id,
       manifest,
       plugin,
-      context,
+      context: isPaniniPlugin ? this.paniniContext : null,
+      isPaniniPlugin,
       enabled: false
     });
 
@@ -241,18 +280,28 @@ class PluginSystem {
 
     console.log(`✅ Enabling plugin: ${pluginData.manifest.name}`);
 
-    // Appeler lifecycle hook
-    if (pluginData.plugin.enable) {
-      await pluginData.plugin.enable();
+    try {
+      if (pluginData.isPaniniPlugin) {
+        // New: Call PaniniPlugin.activate(context)
+        await pluginData.plugin.activate(this.paniniContext);
+      } else {
+        // Legacy: Call enable() if exists
+        if (pluginData.plugin.enable) {
+          await pluginData.plugin.enable();
+        }
+      }
+
+      this.activePlugins.add(pluginId);
+      pluginData.enabled = true;
+
+      this.eventBus.emit(EVENTS['plugin:enabled'], {
+        id: pluginId,
+        name: pluginData.manifest.name
+      }, 'core');
+    } catch (error) {
+      console.error(`❌ Failed to enable plugin "${pluginId}":`, error);
+      throw error;
     }
-
-    this.activePlugins.add(pluginId);
-    pluginData.enabled = true;
-
-    this.eventBus.emit(EVENTS['plugin:enabled'], {
-      id: pluginId,
-      name: pluginData.manifest.name
-    }, 'core');
   }
 
   /**
@@ -272,21 +321,31 @@ class PluginSystem {
 
     console.log(`🔌 Disabling plugin: ${pluginData.manifest.name}`);
 
-    // Appeler lifecycle hook
-    if (pluginData.plugin.disable) {
-      await pluginData.plugin.disable();
+    try {
+      if (pluginData.isPaniniPlugin) {
+        // New: Call PaniniPlugin.deactivate()
+        // This will auto-cleanup via clearNamespace()
+        await pluginData.plugin.deactivate();
+      } else {
+        // Legacy: Call disable() if exists
+        if (pluginData.plugin.disable) {
+          await pluginData.plugin.disable();
+        }
+        // Manual cleanup for legacy plugins
+        this.eventBus.removeAllListeners(pluginId);
+      }
+
+      this.activePlugins.delete(pluginId);
+      pluginData.enabled = false;
+
+      this.eventBus.emit(EVENTS['plugin:disabled'], {
+        id: pluginId,
+        name: pluginData.manifest.name
+      }, 'core');
+    } catch (error) {
+      console.error(`❌ Failed to disable plugin "${pluginId}":`, error);
+      throw error;
     }
-
-    // Nettoyer event listeners
-    this.eventBus.removeAllListeners(pluginId);
-
-    this.activePlugins.delete(pluginId);
-    pluginData.enabled = false;
-
-    this.eventBus.emit(EVENTS['plugin:disabled'], {
-      id: pluginId,
-      name: pluginData.manifest.name
-    }, 'core');
   }
 
   /**
@@ -300,15 +359,58 @@ class PluginSystem {
   }
 
   /**
+   * Enregistrer un plugin Panini (raccourci)
+   * @param {PaniniPlugin} PluginClass - Classe implémentant PaniniPlugin
+   */
+  async registerPaniniPlugin(PluginClass) {
+    // Instantiate to get manifest
+    const instance = new PluginClass();
+    const manifest = instance.manifest;
+    
+    if (!manifest || !manifest.id) {
+      throw new Error('PaniniPlugin must have manifest with id');
+    }
+    
+    return await this.register(PluginClass, manifest, true);
+  }
+
+  /**
+   * Health check pour tous les plugins actifs
+   * @returns {Object} Status de chaque plugin
+   */
+  async healthCheckAll() {
+    const results = {};
+    
+    for (const pluginId of this.activePlugins) {
+      const pluginData = this.plugins.get(pluginId);
+      if (!pluginData) continue;
+      
+      try {
+        if (pluginData.isPaniniPlugin && pluginData.plugin.healthCheck) {
+          results[pluginId] = await pluginData.plugin.healthCheck();
+        } else {
+          results[pluginId] = true; // Legacy assume healthy if enabled
+        }
+      } catch (error) {
+        results[pluginId] = false;
+        console.error(`Health check failed for ${pluginId}:`, error);
+      }
+    }
+    
+    return results;
+  }
+
+  /**
    * Obtenir tous les plugins enregistrés
    * @returns {Array}
    */
   getAllPlugins() {
-    return Array.from(this.plugins.values()).map(({ id, manifest, enabled }) => ({
+    return Array.from(this.plugins.values()).map(({ id, manifest, enabled, isPaniniPlugin }) => ({
       id,
       name: manifest.name,
       version: manifest.version,
-      enabled
+      enabled,
+      type: isPaniniPlugin ? 'panini' : 'legacy'
     }));
   }
 

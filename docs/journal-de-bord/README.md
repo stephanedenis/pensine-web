@@ -5,11 +5,22 @@ Ce dossier contient l'historique des conversations de développement avec GitHub
 ## Organisation
 
 Chaque fichier est nommé selon la date et le sujet principal :
+
 - `YYYY-MM-DD_sujet-principal.md`
 
 ## Index des sessions
 
+### 2026-01-14
+
+- [Phase 1.1: Interface Plugin Commune Complete](2026-01-14_phase1-1-plugin-interface-complete.md)
+  - Création du package `@panini/plugin-interface` v0.1.0
+  - Interfaces TypeScript pour plugins Panini (Pensine, OntoWave, PaniniFS)
+  - 9 tests unitaires passent ✅
+  - Exemple complet: Word Counter plugin
+  - Documentation et guide de développement
+
 ### 2025-12-14
+
 - [Sécurité et séparation des repos](2025-12-14_securite-et-separation-repos.md)
   - Suppression des tokens du code source
   - Configuration de l'éditeur de config avec formulaire dynamique
@@ -30,6 +41,7 @@ Pour chaque session de développement, créez un nouveau fichier avec :
 ## Utilité
 
 Ce journal permet de :
+
 - Comprendre l'évolution du projet
 - Retrouver pourquoi certaines décisions ont été prises
 - Éviter de répéter les mêmes erreurs

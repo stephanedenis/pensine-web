@@ -9,8 +9,8 @@
  * À importer dans app.js après les autres dépendances
  */
 
-import ConfigManager from '../core/config-manager.js';
-import SettingsView from '../views/settings-view.js';
+import ConfigManager from '../../core/config-manager.js';
+import SettingsView from './settings-view.js';
 
 // Instance globale du ConfigManager (si pas déjà instancié)
 window.modernConfigManager = null;

@@ -1,7 +1,7 @@
 # Plan d'Action Q1 2026 - Modern Config System Migration
 
-**Status**: Acceptance de l'architecture ✅  
-**Decision Log**: `docs/ARCHITECTURE_DECISION_LOG.md`  
+**Status**: Acceptance de l'architecture ✅
+**Decision Log**: `docs/ARCHITECTURE_DECISION_LOG.md`
 **Target**: Système de configuration moderne comme fondation
 
 ---
@@ -17,6 +17,7 @@ Transformer Pensine Web d'une **architecture monolithique** vers une **architect
 ### 🔴 Blocker: 5 Tests Playwright Échouent
 
 **Tests Affectés**:
+
 - Test 2: "Panneau Settings s'ouvre et affiche l'interface"
 - Test 3: "Onglet Core affiche le formulaire"
 - Test 6: "Fermeture du panneau Settings"
@@ -24,6 +25,7 @@ Transformer Pensine Web d'une **architecture monolithique** vers une **architect
 - Smoke Test: "Configuration système fonctionne de bout en bout"
 
 **Symptômes Identifiés**:
+
 ```
 ❌ SettingsView.show() n'affiche pas le panneau
 ❌ Élément `.settings-view` existe mais classe `hidden`
@@ -34,33 +36,42 @@ Transformer Pensine Web d'une **architecture monolithique** vers une **architect
 ### ✅ Actions (Priority)
 
 #### 1.1 Fixer le Token Mock (CRITICAL)
+
 ```javascript
 // Problème: localStorage.setItem('pensine-encrypted-token', 'test-token');
 // Erreur: Token invalide syntaxiquement
 
 // Solution proposée:
-const validTokenFormat = 'ghp_' + 'x'.repeat(36); // Syntaxe valide
-localStorage.setItem('pensine-encrypted-token', validTokenFormat);
+const validTokenFormat = "ghp_" + "x".repeat(36); // Syntaxe valide
+localStorage.setItem("pensine-encrypted-token", validTokenFormat);
 ```
 
 **Fichier à modifier**: `tests/config-system-integration.spec.mjs` (ligne ~10)
 
 #### 1.2 Ajouter Waits pour EventBus
+
 ```javascript
 // Attendre que ConfigManager soit prêt
-await page.waitForFunction(() => {
-  return window.modernConfigManager?.loaded === true;
-}, { timeout: 5000 });
+await page.waitForFunction(
+  () => {
+    return window.modernConfigManager?.loaded === true;
+  },
+  { timeout: 5000 }
+);
 
 // Attendre que SettingsView soit créée
-await page.waitForFunction(() => {
-  return document.getElementById('settings-view') !== null;
-}, { timeout: 5000 });
+await page.waitForFunction(
+  () => {
+    return document.getElementById("settings-view") !== null;
+  },
+  { timeout: 5000 }
+);
 ```
 
 **Fichier à modifier**: `tests/config-system-integration.spec.mjs` (beforeEach)
 
 #### 1.3 Déboguer SettingsView.show()
+
 ```javascript
 // Dans test, ajouter logs
 const settingsShown = await page.evaluate(() => {
@@ -70,22 +81,23 @@ const settingsShown = await page.evaluate(() => {
   }
   return false;
 });
-console.log('Settings view shown:', settingsShown);
+console.log("Settings view shown:", settingsShown);
 ```
 
 **Fichier à examiner**: `src/lib/components/settings-view.js` (méthode show())
 
 #### 1.4 Valider ConfigManager.init()
+
 ```javascript
 // Vérifier le chemin init
 const configReady = await page.evaluate(() => {
   return {
     loaded: window.modernConfigManager?.loaded,
     config: window.modernConfigManager?.config,
-    error: window.modernConfigManager?._error
+    error: window.modernConfigManager?._error,
   };
 });
-console.log('Config state:', configReady);
+console.log("Config state:", configReady);
 ```
 
 **Fichier à examiner**: `src/core/config-manager.js` (méthode init())
@@ -110,6 +122,7 @@ Migrer `plugins/pensine-plugin-journal/` vers PluginSystem en tant que premier e
 ### ✅ Étapes
 
 #### 2.1 Analyser Structure Actuelle
+
 ```
 pensine-plugin-journal/
 ├── plugin.js         # Point d'entrée
@@ -141,11 +154,15 @@ export default class JournalPlugin {
     );
 
     // 2. S'abonner aux événements pertinents
-    this.context.eventBus.on('calendar:day-click', this.onDayClick, this.manifest.id);
-    
+    this.context.eventBus.on(
+      "calendar:day-click",
+      this.onDayClick,
+      this.manifest.id
+    );
+
     // 3. Initialiser composants
     this.initializeUI();
-    
+
     this.isActive = true;
   }
 
@@ -156,7 +173,7 @@ export default class JournalPlugin {
 
   onDayClick(data) {
     // Créer entrée journal pour ce jour
-    console.log('Day clicked:', data.date);
+    console.log("Day clicked:", data.date);
   }
 }
 ```
@@ -172,7 +189,9 @@ export default class JournalPlugin {
   "version": "1.0.0",
   "description": "Daily journal entries with markdown support",
   "dependencies": [],
-  "configSchema": { /* JSON Schema */ },
+  "configSchema": {
+    /* JSON Schema */
+  },
   "configDefaults": {
     "autoSave": true,
     "entryFormat": "markdown"
@@ -187,14 +206,16 @@ export default class JournalPlugin {
 ```javascript
 // Dans app.js initialize()
 
-const journalPlugin = await import('./plugins/pensine-plugin-journal/plugin.js');
+const journalPlugin = await import(
+  "./plugins/pensine-plugin-journal/plugin.js"
+);
 await pluginSystem.register(journalPlugin.default, {
-  id: 'journal',
-  name: 'Journal Plugin',
-  version: '1.0.0'
+  id: "journal",
+  name: "Journal Plugin",
+  version: "1.0.0",
 });
 
-await pluginSystem.activate('journal');
+await pluginSystem.activate("journal");
 ```
 
 ### 📋 Checklist Semaine 2
@@ -217,21 +238,24 @@ Migrer tous les plugins vers ConfigManager, supprimer LegacyConfigManager.
 ### ✅ Étapes
 
 #### 3.1 Migrer Remaining Plugins
+
 - Calendar plugin → PluginSystem
 - Inbox plugin → PluginSystem
 - Reflection plugin → PluginSystem
 
 #### 3.2 Unifier Storage
+
 ```javascript
 // Avant: Deux systèmes
-localStorage.getItem('calendar-weekStart'); // Legacy
-configManager.getPluginConfig('calendar').weekStart; // Modern
+localStorage.getItem("calendar-weekStart"); // Legacy
+configManager.getPluginConfig("calendar").weekStart; // Modern
 
 // Après: Un seul
-configManager.getPluginConfig('calendar').weekStart;
+configManager.getPluginConfig("calendar").weekStart;
 ```
 
 #### 3.3 Supprimer Code Legacy
+
 - [ ] Supprimer `src/legacy/config-manager.js` (old)
 - [ ] Supprimer `lib/config-wizard.js` fallback
 - [ ] Conserver seulement `src/core/config-manager.js`
@@ -250,6 +274,7 @@ configManager.getPluginConfig('calendar').weekStart;
 ### À Créer (Au fur et à mesure)
 
 1. **Plugin Development Guide**
+
    ```
    docs/PLUGIN_DEVELOPMENT_GUIDE.md
    ├─ Architecture de base
@@ -260,6 +285,7 @@ configManager.getPluginConfig('calendar').weekStart;
    ```
 
 2. **Plugin Template**
+
    ```
    plugins/plugin-template/
    ├─ plugin.js (implémentation)
@@ -284,20 +310,24 @@ configManager.getPluginConfig('calendar').weekStart;
 ### Par Semaine
 
 **Semaine 1**: Tests
+
 - [ ] 12/12 tests green ✅
 - [ ] All error logs resolved
 
 **Semaine 2**: First Plugin Migration
+
 - [ ] Journal plugin via PluginSystem
 - [ ] App still works identically
 - [ ] <50ms additional init time
 
 **Semaine 3**: Complete Migration
+
 - [ ] 4/4 plugins migrated
 - [ ] LegacyConfigManager removed
 - [ ] Documentation complete
 
 ### Overall (Fin Q1)
+
 - ✅ All 12 tests green
 - ✅ All 4 plugins in PluginSystem
 - ✅ Custom plugin example working
@@ -318,13 +348,13 @@ configManager.getPluginConfig('calendar').weekStart;
 
 ## 🚨 Known Blockers
 
-| Blocker | Severity | Mitigation |
-|---------|----------|-----------|
-| 5 tests failing | HIGH | Debug plan above |
-| SettingsView.show() broken | HIGH | Examine source code |
-| ConfigManager.init() may fail | MEDIUM | Add error handling |
-| Token validation fails | MEDIUM | Mock valid token format |
-| Plugin registration untested | MEDIUM | Create test for each plugin |
+| Blocker                       | Severity | Mitigation                  |
+| ----------------------------- | -------- | --------------------------- |
+| 5 tests failing               | HIGH     | Debug plan above            |
+| SettingsView.show() broken    | HIGH     | Examine source code         |
+| ConfigManager.init() may fail | MEDIUM   | Add error handling          |
+| Token validation fails        | MEDIUM   | Mock valid token format     |
+| Plugin registration untested  | MEDIUM   | Create test for each plugin |
 
 ---
 
@@ -353,6 +383,6 @@ configManager.getPluginConfig('calendar').weekStart;
 
 ---
 
-**Created**: 2026-01-14  
-**Last Updated**: 2026-01-14  
+**Created**: 2026-01-14
+**Last Updated**: 2026-01-14
 **Owner**: Stéphane + Copilot
