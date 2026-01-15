@@ -94,19 +94,11 @@ class ConfigWizard {
                             </div>
                         </div>
                         <div id="wizard-steps" class="wizard-steps"></div>
-                        <div class="wizard-nav">
-                            <button id="wizard-prev" class="btn-secondary">← Précédent</button>
-                            <button id="wizard-next" class="btn-primary">Suivant →</button>
-                        </div>
                     </div>
                 </div>
             `;
 
             wizard = document.getElementById('config-wizard');
-
-            // Attacher event listeners
-            document.getElementById('wizard-prev').addEventListener('click', () => this.prev());
-            document.getElementById('wizard-next').addEventListener('click', () => this.next());
         }
 
         wizard.classList.remove('hidden');
