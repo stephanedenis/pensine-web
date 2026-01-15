@@ -172,7 +172,7 @@ class PensineBootstrap {
         const { default: StorageManager } = await import('../src/lib/components/storage-manager-unified.js');
         
         window.storageManager = new StorageManager();
-        await window.storageManager.initialize();
+        await window.storageManager.initialize(config);
 
         this.storageAdapter = window.storageManager.adapter;
         console.log('✅ Storage initialized:', config.storageMode);

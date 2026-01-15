@@ -1,7 +1,7 @@
 /**
  * Plugin System - Gestionnaire de plugins Pensine
  * Gère l'enregistrement, l'activation et la communication entre plugins
- * 
+ *
  * Support @panini/plugin-interface v0.1.0:
  * - PaniniPlugin interface (activate/deactivate)
  * - PaniniPluginContext injection
@@ -93,7 +93,7 @@ class PluginSystem {
     if (isPaniniPlugin) {
       // New: PaniniPlugin interface
       plugin = new PluginClass();
-      
+
       // Validate PaniniPlugin interface
       if (!plugin.manifest || !plugin.activate || !plugin.deactivate) {
         throw new Error(`Plugin "${id}" does not implement PaniniPlugin interface`);
@@ -102,7 +102,7 @@ class PluginSystem {
       // Legacy: Old Pensine plugin style
       const legacyContext = this.createPluginContext(id);
       plugin = new PluginClass(manifest, legacyContext);
-      
+
       // Wrap in adapter to provide PaniniPlugin interface
       plugin = new LegacyPluginAdapter(plugin, manifest);
     }
@@ -366,11 +366,11 @@ class PluginSystem {
     // Instantiate to get manifest
     const instance = new PluginClass();
     const manifest = instance.manifest;
-    
+
     if (!manifest || !manifest.id) {
       throw new Error('PaniniPlugin must have manifest with id');
     }
-    
+
     return await this.register(PluginClass, manifest, true);
   }
 
@@ -380,11 +380,11 @@ class PluginSystem {
    */
   async healthCheckAll() {
     const results = {};
-    
+
     for (const pluginId of this.activePlugins) {
       const pluginData = this.plugins.get(pluginId);
       if (!pluginData) continue;
-      
+
       try {
         if (pluginData.isPaniniPlugin && pluginData.plugin.healthCheck) {
           results[pluginId] = await pluginData.plugin.healthCheck();
@@ -396,7 +396,7 @@ class PluginSystem {
         console.error(`Health check failed for ${pluginId}:`, error);
       }
     }
-    
+
     return results;
   }
 

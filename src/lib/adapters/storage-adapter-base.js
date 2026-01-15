@@ -95,6 +95,9 @@ class StorageAdapterBase {
   }
 }
 
+// Export for ES6 modules
+export default StorageAdapterBase;
+
 // Export pour utilisation dans autres modules
 if (typeof window !== 'undefined') {
   window.StorageAdapterBase = StorageAdapterBase;

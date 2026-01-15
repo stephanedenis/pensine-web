@@ -17,15 +17,19 @@
 ## 🎯 Quatre Axes Principaux
 
 ### 📚 Gestion des Connaissances
+
 Notes en Markdown, journaux personnels, documentation technique, liens entre idées. Capturez, organisez et retrouvez facilement toutes vos connaissances avec des contextes multiples (travail, perso, projets).
 
 ### ⏰ Gestion du Temps
+
 Calendrier unifié, journal quotidien, timeline continue. Synchronisez toutes vos sources (Google, Outlook, GitHub) et retrouvez facilement vos notes liées aux événements.
 
 ### 🏥 Santé & Bien-être
+
 Suivi médicaments, activité physique, sommeil, nutrition. Comprenez les patterns et corrélations entre votre santé et votre vie quotidienne.
 
 ### 🎯 Buts & Motivations
+
 Objectifs hiérarchiques (vision → buts → jalons → tâches), suivi de progression, réalisations. Visualisez votre avancement et restez motivé.
 
 [📖 En savoir plus sur la Vision](VISION.md)
@@ -51,6 +55,7 @@ open http://localhost:8000
 ### Configuration
 
 Pensine fonctionne entièrement dans votre navigateur et stocke vos données :
+
 - **GitHub** - Vos notes en Markdown sur votre propre repo
 - **Local Git** - Repo Git local avec synchronisation
 - **LocalStorage** - Cache local du navigateur
@@ -77,16 +82,19 @@ Pensine fait partie de l'écosystème **Panini** avec un système de plugins par
 ## 📚 Documentation
 
 ### Pour Utilisateurs
+
 - [🎯 Vision & Roadmap](VISION.md) - Le concept du 3e Hémisphère
 - [⚙️ Configuration](CONFIG_SYSTEM.md) - Modes de stockage
 - [✅ Scénarios de Test](SCENARIOS_DE_TEST.md) - Fonctionnalités complètes
 
 ### Pour Développeurs
+
 - [🏗️ Architecture](SPECIFICATIONS_TECHNIQUES.md) - Spécifications techniques
 - [🔌 Guide Plugins](PLUGIN_MIGRATION_GUIDE.md) - Développer des plugins
 - [🌊 Écosystème Panini](PANINI_INTEGRATION_STRATEGY.md) - Pensine ↔ OntoWave ↔ PaniniFS
 
 ### Avancement du Projet
+
 - [📖 Journal de Bord](journal-de-bord/) - Décisions techniques et sessions
 - [🎉 Phase 1 Complete](journal-de-bord/2026-01-14_phase1-1-et-1-2-complete.md) - Interface plugin commune
 - [🗺️ Roadmap Q1 2026](NEXT_STEPS_Q1_2026.md) - Prochaines étapes

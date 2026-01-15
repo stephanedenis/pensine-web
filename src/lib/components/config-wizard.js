@@ -1054,83 +1054,63 @@ class ConfigWizard {
 
     async complete() {
         try {
-            // Local Git mode configuration
+            console.log('[Wizard] Completing configuration...');
+            
+            // Déterminer le mode de stockage
+            let storageMode;
             if (this.config.git.platform === 'local-git') {
-                return await this.completeLocalGitSetup();
+                storageMode = 'local-git';
+            } else if (this.config.git.platform === 'github') {
+                storageMode = 'github';
+            } else {
+                storageMode = 'local';
             }
 
-            // GitHub PAT mode configuration
-            // Use first selected repo as primary (or existing config)
-            if (this.selectedRepos.length > 0) {
-                this.config.git.repo = this.selectedRepos[0];
-                this.config.git.branch = 'main'; // Default branch
-            }
-
-            // IMPORTANT: Do NOT include token in config JSON (security)
-            const configForStorage = {
-                ...this.config,
-                git: {
-                    ...this.config.git,
-                    token: undefined // Never store token in config file
-                }
-            };
-
-            const configContent = JSON.stringify(configForStorage, null, 2);
-
-            // Save configuration to localStorage (WITHOUT token)
-            localStorage.setItem('pensine-config', configContent);
-            localStorage.setItem('github-owner', this.config.git.owner);
-            localStorage.setItem('github-repo', this.config.git.repo);
-            localStorage.setItem('github-branch', this.config.git.branch);
-
-            // CRITICAL: Set storage mode to PAT (Personal Access Token)
-            localStorage.setItem('pensine-storage-mode', 'pat');
-
-            // Save GitHub config for storage manager
-            const githubConfig = {
-                owner: this.config.git.owner,
-                repo: this.config.git.repo,
-                branch: this.config.git.branch,
-                authMode: 'pat'
-            };
-            localStorage.setItem('pensine-github-config', JSON.stringify(githubConfig));
-
-            // Save selected repos for future multi-repo support
-            if (this.selectedRepos.length > 0) {
-                localStorage.setItem('pensine-selected-repos', JSON.stringify(this.selectedRepos));
-            }
-
-            // Encrypt and save token separately
-            await window.tokenStorage.saveToken(this.config.git.token);
-
-            console.log('✅ Configuration saved (token encrypted separately)');
-            console.log('✅ Selected repos:', this.selectedRepos);
-
-            // Try to save config to GitHub (without token, safe to commit)
-            try {
-                githubAdapter.configure({
-                    token: this.config.git.token,
+            // Préparer les credentials selon le mode
+            let credentials = {};
+            if (storageMode === 'github') {
+                credentials = {
                     owner: this.config.git.owner,
                     repo: this.config.git.repo,
-                    branch: this.config.git.branch
-                });
-
-                // Force = true: will fetch SHA automatically if file exists
-                await githubAdapter.saveFile('.pensine-config.json', configContent, 'Initial Pensine configuration', true);
-                console.log('✅ Configuration saved to GitHub (without token)');
-            } catch (githubError) {
-                console.warn('⚠️ Could not save config to GitHub (will use localStorage):', githubError.message);
-                // Continue anyway - localStorage is enough to start
+                    token: this.config.git.token
+                };
+            } else if (storageMode === 'local-git') {
+                credentials = {
+                    repoPath: this.config.git.repoPath || '/pensine-data'
+                };
             }
 
-            // Hide wizard and reload page to initialize with new config
+            // Sauvegarder au format bootstrap (localStorage)
+            const bootstrapConfig = {
+                version: '1.0.0',
+                storageMode: storageMode,
+                credentials: credentials,
+                timestamp: new Date().toISOString()
+            };
+
+            localStorage.setItem('pensine-bootstrap', JSON.stringify(bootstrapConfig));
+            console.log('✅ Bootstrap config saved:', { storageMode });
+
+            // Sauvegarder aussi l'ancien format pour compatibilité
+            localStorage.setItem('github-owner', this.config.git.owner);
+            localStorage.setItem('github-repo', this.config.git.repo);
+            localStorage.setItem('pensine-storage-mode', storageMode);
+
+            // Encrypt and save token separately si GitHub
+            if (storageMode === 'github' && this.config.git.token) {
+                await window.tokenStorage.saveToken(this.config.git.token);
+                console.log('✅ Token encrypted and saved');
+            }
+
+            // Cacher wizard
             this.hide();
 
-            // Reload the page to reinitialize the app with new config
+            // Recharger l'app pour initialiser avec la nouvelle config
+            console.log('🔄 Reloading app...');
             window.location.reload();
 
         } catch (error) {
-            console.error('Error completing wizard:', error);
+            console.error('[Wizard] Error completing:', error);
             alert('Erreur lors de la création de la configuration: ' + error.message);
         }
     }

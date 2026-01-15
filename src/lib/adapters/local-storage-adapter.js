@@ -4,6 +4,8 @@
  * Aucune synchronisation GitHub, fonctionnement 100% offline
  */
 
+import StorageAdapterBase from './storage-adapter-base.js';
+
 class LocalStorageAdapter extends StorageAdapterBase {
   constructor() {
     super();
@@ -395,7 +397,10 @@ class LocalStorageAdapter extends StorageAdapterBase {
   }
 }
 
-// Export
+// Export for ES6 modules
+export default LocalStorageAdapter;
+
+// Export for backward compatibility
 if (typeof window !== 'undefined') {
   window.LocalStorageAdapter = LocalStorageAdapter;
 }

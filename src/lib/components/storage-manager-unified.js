@@ -12,18 +12,42 @@ class StorageManager {
   /**
    * Initialise le storage avec le mode approprié
    */
-  async initialize() {
-    // Vérifier le mode stocké
-    const storedMode = localStorage.getItem('pensine-storage-mode');
+  async initialize(bootstrapConfig = null) {
+    let mode, config;
 
-    if (!storedMode) {
+    // Si config fournie directement, utiliser celle-ci
+    if (bootstrapConfig) {
+      mode = bootstrapConfig.storageMode;
+      config = bootstrapConfig.credentials;
+    } else {
+      // Essayer de charger depuis nouveau format (bootstrap.json)
+      try {
+        const bootstrapData = localStorage.getItem('pensine-bootstrap');
+        if (bootstrapData) {
+          const parsed = JSON.parse(bootstrapData);
+          mode = parsed.storageMode;
+          config = parsed.credentials;
+          console.log('📋 Loaded bootstrap config:', mode);
+        }
+      } catch (error) {
+        console.warn('Error parsing bootstrap config:', error);
+      }
+
+      // Fallback vers ancien format
+      if (!mode) {
+        mode = localStorage.getItem('pensine-storage-mode');
+        console.log('📋 Loaded legacy storage mode:', mode);
+      }
+    }
+
+    if (!mode) {
       console.log('⚠️ No storage mode configured, will show wizard');
       return false;
     }
 
-    console.log(`🔧 Initializing storage mode: ${storedMode}`);
+    console.log(`🔧 Initializing storage mode: ${mode}`);
 
-    switch (storedMode) {
+    switch (mode) {
       case 'oauth':
         await this.initOAuthMode();
         break;
@@ -41,7 +65,7 @@ class StorageManager {
         break;
 
       default:
-        console.error('Unknown storage mode:', storedMode);
+        console.error('Unknown storage mode:', mode);
         return false;
     }
 
@@ -50,6 +74,9 @@ class StorageManager {
 
   async initOAuthMode() {
     this.mode = 'oauth';
+    
+    // Import dynamique de l'adapter
+    const { default: GitHubStorageAdapter } = await import('../adapters/github-storage-adapter.js');
     this.adapter = new GitHubStorageAdapter();
 
     // Vérifier si OAuth est authentifié
@@ -69,6 +96,9 @@ class StorageManager {
 
   async initPATMode() {
     this.mode = 'pat';
+    
+    // Import dynamique de l'adapter
+    const { default: GitHubStorageAdapter } = await import('../adapters/github-storage-adapter.js');
     this.adapter = new GitHubStorageAdapter();
 
     // Récupérer token chiffré et config
@@ -90,6 +120,9 @@ class StorageManager {
 
   async initLocalMode() {
     this.mode = 'local';
+    
+    // Import dynamique de l'adapter
+    const { default: LocalStorageAdapter } = await import('../adapters/local-storage-adapter.js');
     this.adapter = new LocalStorageAdapter();
 
     const config = JSON.parse(localStorage.getItem('pensine-local-config') || '{}');
@@ -101,6 +134,9 @@ class StorageManager {
 
   async initLocalGitMode() {
     this.mode = 'local-git';
+    
+    // Import dynamique de l'adapter
+    const { default: LocalGitAdapter } = await import('../adapters/local-git-adapter.js');
     this.adapter = new LocalGitAdapter();
 
     const config = JSON.parse(localStorage.getItem('pensine-local-git-config') || '{}');
@@ -258,6 +294,26 @@ class StorageManager {
   }
 
   /**
+   * Alias methods for compatibility with ConfigManager and other plugins
+   */
+  async list(path = '/') {
+    return this.listFiles(path);
+  }
+
+  async readJSON(path) {
+    const content = await this.getFile(path);
+    return JSON.parse(content);
+  }
+
+  async writeJSON(path, data, message = 'Update config') {
+    const content = JSON.stringify(data, null, 2);
+    const files = await this.listFiles('/');
+    const file = files.find(f => f.path === path);
+    const sha = file ? file.sha : null;
+    return this.putFile(path, content, message, sha);
+  }
+
+  /**
    * Comparer les modes disponibles
    */
   static getAvailableModes() {
@@ -305,7 +361,10 @@ class StorageManager {
   }
 }
 
-// Export singleton
+// Export for ES6 modules
+export default StorageManager;
+
+// Export singleton for backward compatibility
 if (typeof window !== 'undefined') {
   window.storageManager = new StorageManager();
 }
