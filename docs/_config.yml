@@ -1,0 +1,29 @@
+theme: jekyll-theme-cayman
+title: Pensine Web
+description: Votre second cerveau pour gérer connaissances, projets et réflexions
+show_downloads: true
+github:
+  repository_url: https://github.com/stephanedenis/pensine-web
+
+plugins:
+  - jekyll-relative-links
+  - jekyll-seo-tag
+  - jekyll-sitemap
+
+relative_links:
+  enabled: true
+  collections: true
+
+markdown: kramdown
+kramdown:
+  input: GFM
+  syntax_highlighter: rouge
+  auto_ids: true
+  toc_levels: 1..3
+
+exclude:
+  - node_modules
+  - package.json
+  - package-lock.json
+  - .git
+  - .gitignore
