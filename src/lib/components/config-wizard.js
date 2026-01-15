@@ -727,7 +727,7 @@ class ConfigWizard {
 
         try {
             // Import GitHubStorageAdapter dynamiquement
-            const { default: GitHubStorageAdapter } = await import('../adapters/github-storage-adapter.js');
+            const { default: GitHubStorageAdapter } = await import('/src/lib/adapters/github-storage-adapter.js');
 
             // Configure temporary adapter to test token
             const tempAdapter = new GitHubStorageAdapter();
@@ -774,7 +774,7 @@ class ConfigWizard {
 
         try {
             // Import GitHubStorageAdapter dynamiquement
-            const { default: GitHubStorageAdapter } = await import('../adapters/github-storage-adapter.js');
+            const { default: GitHubStorageAdapter } = await import('/src/lib/adapters/github-storage-adapter.js');
 
             const tempAdapter = new GitHubStorageAdapter();
             tempAdapter.configure({
@@ -813,7 +813,7 @@ class ConfigWizard {
 
         try {
             // Import GitHubStorageAdapter dynamiquement
-            const { default: GitHubStorageAdapter } = await import('../adapters/github-storage-adapter.js');
+            const { default: GitHubStorageAdapter } = await import('/src/lib/adapters/github-storage-adapter.js');
 
             const tempAdapter = new GitHubStorageAdapter();
             tempAdapter.configure({
