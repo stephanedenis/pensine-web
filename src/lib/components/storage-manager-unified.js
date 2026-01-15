@@ -74,7 +74,7 @@ class StorageManager {
 
   async initOAuthMode() {
     this.mode = 'oauth';
-    
+
     // Import dynamique de l'adapter
     const { default: GitHubStorageAdapter } = await import('../adapters/github-storage-adapter.js');
     this.adapter = new GitHubStorageAdapter();
@@ -96,7 +96,7 @@ class StorageManager {
 
   async initPATMode() {
     this.mode = 'pat';
-    
+
     // Import dynamique de l'adapter
     const { default: GitHubStorageAdapter } = await import('../adapters/github-storage-adapter.js');
     this.adapter = new GitHubStorageAdapter();
@@ -120,7 +120,7 @@ class StorageManager {
 
   async initLocalMode() {
     this.mode = 'local';
-    
+
     // Import dynamique de l'adapter
     const { default: LocalStorageAdapter } = await import('../adapters/local-storage-adapter.js');
     this.adapter = new LocalStorageAdapter();
@@ -134,7 +134,7 @@ class StorageManager {
 
   async initLocalGitMode() {
     this.mode = 'local-git';
-    
+
     // Import dynamique de l'adapter
     const { default: LocalGitAdapter } = await import('../adapters/local-git-adapter.js');
     this.adapter = new LocalGitAdapter();

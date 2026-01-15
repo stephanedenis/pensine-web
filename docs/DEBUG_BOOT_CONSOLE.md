@@ -1,6 +1,6 @@
 # Boot Console - Guide de debugging
 
-**Date** : 2026-01-15  
+**Date** : 2026-01-15
 **Status** : ✅ Implémenté et committé (2b2aa44)
 
 ## 🎯 Objectif
@@ -12,25 +12,25 @@ Console visuelle style boot Linux pour tracer en temps réel le processus de dé
 ### Esthétique
 
 - **Style** : Terminal rétro Linux/VT100
-- **Couleurs** : 
+- **Couleurs** :
   - Fond : `#0a0a0a` (noir)
   - Texte : `#33ff33` (vert phosphorescent)
   - Bordure : `2px solid #33ff33` avec glow
 - **Police** : `'Courier New', 'Consolas', monospace` 12px
 - **Position** : Fixed, top-right (650px width, 85vh max-height)
-- **Effets** : 
+- **Effets** :
   - Fade-in pour nouvelles lignes (0.15s)
   - Blink cursor animation
   - Box-shadow glow vert
 
 ### Système de badges
 
-| Badge | Couleur | Utilisation |
-|-------|---------|-------------|
-| `[ OK ]` | Vert | Opération réussie |
-| `[FAIL]` | Rouge | Erreur critique |
-| `[WAIT]` | Jaune | En attente/en cours |
-| `[INFO]` | Bleu | Information |
+| Badge    | Couleur | Utilisation         |
+| -------- | ------- | ------------------- |
+| `[ OK ]` | Vert    | Opération réussie   |
+| `[FAIL]` | Rouge   | Erreur critique     |
+| `[WAIT]` | Jaune   | En attente/en cours |
+| `[INFO]` | Bleu    | Information         |
 
 ### Types de lignes
 
@@ -72,12 +72,12 @@ class BootLogger {
 this.logger = new BootLogger();
 
 // Dans méthodes
-this.logger.step(1, 6, 'Loading configuration...');
-this.logger.wait('Initializing storage...');
-this.logger.debug('Config loaded: 4832 bytes');
-this.logger.ok('Storage initialized');
-this.logger.fail('Plugin activation failed');
-this.logger.error('Critical error', error);
+this.logger.step(1, 6, "Loading configuration...");
+this.logger.wait("Initializing storage...");
+this.logger.debug("Config loaded: 4832 bytes");
+this.logger.ok("Storage initialized");
+this.logger.fail("Plugin activation failed");
+this.logger.error("Critical error", error);
 ```
 
 ## 🔍 Phases tracées
@@ -205,17 +205,22 @@ this.logger.error('Critical error', error);
 ### Hypothèses à vérifier avec boot console
 
 #### Hypothèse #1 : activate() n'est pas appelé
+
 **Vérification** : Chercher dans console :
+
 ```
 [PluginSystem.enable] About to call: pluginData.plugin.activate(this.paniniContext)
 ```
 
 Si ce log apparaît MAIS pas de logs depuis `HelloWorldPlugin.activate()`, alors :
+
 - La méthode existe mais ne s'exécute pas → bug bind/context
 - Ou exception silencieuse → check try/catch
 
 #### Hypothèse #2 : activate() s'exécute mais plante silencieusement
+
 **Vérification** : Chercher erreur JavaScript dans console après :
+
 ```
 [PluginSystem.enable] About to call: ...
 ```
@@ -223,19 +228,24 @@ Si ce log apparaît MAIS pas de logs depuis `HelloWorldPlugin.activate()`, alors
 Si erreur → problème dans le code du plugin lui-même
 
 #### Hypothèse #3 : Context invalide
+
 **Vérification** : Inspecter log :
+
 ```
 [PluginSystem.enable] Panini context: { ... }
 ```
 
 Vérifier que context a bien :
+
 - `storage` (objet StorageManager)
 - `events` (objet EventBus)
 - `config` (objet ConfigManager)
 - `features` (objet avec markdown: true, etc.)
 
 #### Hypothèse #4 : Plugin non-Panini détecté comme Panini
+
 **Vérification** : Chercher :
+
 ```
 [PluginSystem.enable] Plugin found in registry: {
   isPaniniPlugin: true,
@@ -246,7 +256,9 @@ Vérifier que context a bien :
 Si `isPaniniPlugin: false` alors détection échoue → revoir logique détection
 
 #### Hypothèse #5 : activate() retourne Promise non-awaited
-**Vérification** : 
+
+**Vérification** :
+
 ```javascript
 // Dans plugin.js - activate() doit retourner Promise
 async activate(context) {
@@ -281,8 +293,8 @@ La boot console affiche les timestamps en secondes depuis démarrage :
 
 ```javascript
 // Toggle console visibility
-const console = document.getElementById('boot-console');
-console.classList.toggle('visible');
+const console = document.getElementById("boot-console");
+console.classList.toggle("visible");
 ```
 
 ### Bouton close
@@ -293,16 +305,18 @@ Cliquer sur `×` en haut à droite pour masquer la console (utile en production)
 
 ```javascript
 // Show only errors
-document.querySelectorAll('.boot-line:not(.error)').forEach(el => el.style.display = 'none');
+document
+  .querySelectorAll(".boot-line:not(.error)")
+  .forEach((el) => (el.style.display = "none"));
 ```
 
 ### Exporter logs
 
 ```javascript
 // Copy all logs to clipboard
-const logs = Array.from(document.querySelectorAll('.boot-line'))
-  .map(el => el.textContent)
-  .join('\n');
+const logs = Array.from(document.querySelectorAll(".boot-line"))
+  .map((el) => el.textContent)
+  .join("\n");
 navigator.clipboard.writeText(logs);
 ```
 
@@ -320,8 +334,8 @@ Dans `index-minimal.html`, commenter :
 Ou ajouter condition :
 
 ```javascript
-if (import.meta.env.MODE === 'production') {
-  const console = document.getElementById('boot-console');
+if (import.meta.env.MODE === "production") {
+  const console = document.getElementById("boot-console");
   console?.remove();
 }
 ```
@@ -350,12 +364,14 @@ Dans `index-minimal.html` CSS :
 ## 📚 Fichiers modifiés
 
 1. **index-minimal.html** (+150 lignes CSS, +30 lignes HTML)
+
    - `#boot-console` structure
    - Styles badges et animations
 
 2. **src/bootstrap.js** (+80 lignes BootLogger, +100 lignes logs)
+
    - Classe `BootLogger`
-   - Conversion tous console.log → logger.*
+   - Conversion tous console.log → logger.\*
    - Logs détaillés chaque phase
 
 3. **src/core/plugin-system.js** (+40 lignes logs)

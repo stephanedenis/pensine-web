@@ -170,11 +170,11 @@ class PensineApp {
 
         // Configuration is valid only if ALL required items are present
         const isValid = hasConfig && hasToken && hasOwner && hasRepo;
-        
+
         if (!isValid) {
             console.log('⚠️ Configuration incomplète - wizard sera affiché');
         }
-        
+
         return isValid;
     }
 

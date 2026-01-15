@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Test Direct Wizard</title>
+    <style>
+        body { font-family: monospace; padding: 20px; background: #1a1a1a; color: #33ff33; }
+        button { padding: 10px 20px; font-size: 16px; margin: 10px 5px; cursor: pointer; }
+        #output { white-space: pre-wrap; background: #0a0a0a; padding: 15px; margin-top: 20px; border: 2px solid #33ff33; }
+        .error { color: #ff3333; font-weight: bold; }
+        .success { color: #33ff33; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Test Direct - Validation GitHub</h1>
+
+    <div>
+        <button onclick="testImports()">1. Test Imports</button>
+        <button onclick="testWizardInit()">2. Test Wizard Init</button>
+        <button onclick="testValidateToken()">3. Test ValidateToken()</button>
+        <button onclick="clearOutput()">Clear</button>
+    </div>
+
+    <div id="output">Ready to test...</div>
+
+    <script type="module">
+        function log(msg, type = 'info') {
+            const output = document.getElementById('output');
+            const time = new Date().toISOString().substring(11, 23);
+            const icon = type === 'error' ? '❌' : type === 'success' ? '✅' : 'ℹ️';
+            output.innerHTML += `\n[${time}] ${icon} ${msg}`;
+            output.scrollTop = output.scrollHeight;
+            console.log(`[${type}] ${msg}`);
+        }
+
+        window.log = log;
+
+        window.clearOutput = () => {
+            document.getElementById('output').innerHTML = 'Output cleared.\n';
+        };
+
+        window.testImports = async () => {
+            log('=== TEST 1: Testing ES6 Imports ===');
+
+            try {
+                log('Importing StorageAdapterBase...');
+                const { default: StorageAdapterBase } = await import('./src/lib/adapters/storage-adapter-base.js');
+                log(`✓ StorageAdapterBase: ${typeof StorageAdapterBase}`, 'success');
+
+                log('Importing GitHubStorageAdapter...');
+                const { default: GitHubStorageAdapter } = await import('./src/lib/adapters/github-storage-adapter.js');
+                log(`✓ GitHubStorageAdapter: ${typeof GitHubStorageAdapter}`, 'success');
+
+                log('Importing LocalGitAdapter...');
+                const { default: LocalGitAdapter } = await import('./src/lib/adapters/local-git-adapter.js');
+                log(`✓ LocalGitAdapter: ${typeof LocalGitAdapter}`, 'success');
+
+                log('Creating GitHubStorageAdapter instance...');
+                const adapter = new GitHubStorageAdapter();
+                log(`✓ Instance created: ${adapter.constructor.name}`, 'success');
+
+                log('Checking inheritance...');
+                const extendsBase = adapter instanceof StorageAdapterBase;
+                log(`✓ Extends StorageAdapterBase: ${extendsBase}`, extendsBase ? 'success' : 'error');
+
+                log('\n✅ ALL IMPORTS WORKING!', 'success');
+
+            } catch (error) {
+                log(`\n❌ ERROR: ${error.message}`, 'error');
+                log(`Stack: ${error.stack}`, 'error');
+            }
+        };
+
+        window.testWizardInit = async () => {
+            log('\n=== TEST 2: Testing Wizard Initialization ===');
+
+            try {
+                // Clear localStorage
+                log('Clearing localStorage...');
+                localStorage.clear();
+
+                log('Importing ConfigWizard...');
+                const { default: ConfigWizard } = await import('./src/lib/components/config-wizard.js');
+                log(`✓ ConfigWizard imported: ${typeof ConfigWizard}`, 'success');
+
+                log('Creating wizard instance...');
+                const wizard = new ConfigWizard();
+                log(`✓ Wizard created`, 'success');
+
+                log('Showing wizard...');
+                await wizard.show();
+                log(`✓ Wizard shown`, 'success');
+
+                window.testWizard = wizard;
+                log('\n✅ Wizard available as window.testWizard', 'success');
+
+            } catch (error) {
+                log(`\n❌ ERROR: ${error.message}`, 'error');
+                log(`Stack: ${error.stack}`, 'error');
+            }
+        };
+
+        window.testValidateToken = async () => {
+            log('\n=== TEST 3: Testing validateToken() ===');
+
+            if (!window.testWizard) {
+                log('❌ Wizard not initialized! Run Test 2 first.', 'error');
+                return;
+            }
+
+            try {
+                log('Setting up test config...');
+                window.testWizard.config = {
+                    git: {
+                        owner: 'stephanedenis',
+                        repo: 'pensine-data',
+                        token: 'ghp_test_token_123'
+                    }
+                };
+                log('✓ Config set', 'success');
+
+                log('Calling validateToken()...');
+                const result = await window.testWizard.validateToken();
+                log(`✓ validateToken() completed`, 'success');
+                log(`Result: ${JSON.stringify(result)}`, 'success');
+
+            } catch (error) {
+                log(`\n❌ ERROR in validateToken(): ${error.message}`, 'error');
+                log(`Stack: ${error.stack}`, 'error');
+
+                // Check if it's the specific error we're looking for
+                if (error.message.includes('StorageAdapterBase')) {
+                    log('\n⚠️ ⚠️ ⚠️  FOUND THE BUG! StorageAdapterBase error!', 'error');
+                }
+            }
+        };
+
+        // Auto-run on load
+        window.addEventListener('load', async () => {
+            log('Page loaded. Click buttons to test.');
+            log('Or open DevTools Console to see errors in real-time.\n');
+        });
+
+        // Capture page errors
+        window.addEventListener('error', (event) => {
+            log(`\n❌ PAGE ERROR: ${event.message}`, 'error');
+            log(`At: ${event.filename}:${event.lineno}:${event.colno}`, 'error');
+            if (event.error && event.error.stack) {
+                log(`Stack: ${event.error.stack.substring(0, 300)}`, 'error');
+            }
+        });
+
+        window.addEventListener('unhandledrejection', (event) => {
+            log(`\n❌ UNHANDLED PROMISE REJECTION: ${event.reason}`, 'error');
+        });
+
+    </script>
+</body>
+</html>

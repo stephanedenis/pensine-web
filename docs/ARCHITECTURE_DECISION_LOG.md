@@ -1,7 +1,7 @@
 # Architecture Decision Log - Modern Config System
 
-**Date**: 2026-01-14  
-**Decision Maker**: Stéphane + Copilot  
+**Date**: 2026-01-14
+**Decision Maker**: Stéphane + Copilot
 **Status**: ACCEPTED (pending tests)
 
 ---
@@ -11,10 +11,12 @@
 ### Context
 
 Currently, Pensine Web has:
+
 - **Legacy System** (`lib/`, `app.js`): Monolithic, tightly coupled
 - **Modern System** (`src/core/`, `src/lib/components/`): EventBus + PluginSystem + ConfigManager
 
 Tests show:
+
 - 7/12 passing (modern system initializes correctly)
 - 5/12 failing (settings panel UI issues - fixable)
 - Wizard refactored to opt-in ✅
@@ -24,6 +26,7 @@ Tests show:
 **We commit to EventBus + PluginSystem + ConfigManager as our future architecture.**
 
 This means:
+
 1. **Everything is a plugin** - Even core features (journal, calendar) as plugins
 2. **Configuration is centralized** - ConfigManager + JSON Schema validation
 3. **Communication is event-driven** - No direct dependencies between plugins
@@ -31,18 +34,18 @@ This means:
 
 ### Rationale
 
-| Aspect | Legacy | Modern |
-|--------|--------|--------|
-| **Coupling** | High (direct calls) | Low (EventBus) |
-| **Extensibility** | Hard (modify app.js) | Easy (add plugin) |
-| **Testing** | Brittle (full app init) | Robust (mock deps) |
+| Aspect            | Legacy                      | Modern                |
+| ----------------- | --------------------------- | --------------------- |
+| **Coupling**      | High (direct calls)         | Low (EventBus)        |
+| **Extensibility** | Hard (modify app.js)        | Easy (add plugin)     |
+| **Testing**       | Brittle (full app init)     | Robust (mock deps)    |
 | **Configuration** | String-based (localStorage) | JSON Schema validated |
-| **Scalability** | Max ~5 features | Unlimited plugins |
+| **Scalability**   | Max ~5 features             | Unlimited plugins     |
 
 ### Accepted Tradeoffs
 
-✅ **ACCEPT**: More files/complexity initially  
-✅ **ACCEPT**: Need for plugin development guide  
+✅ **ACCEPT**: More files/complexity initially
+✅ **ACCEPT**: Need for plugin development guide
 ❌ **REJECT**: Supporting both systems indefinitely
 
 ### Migration Plan
@@ -67,6 +70,7 @@ Q3+ 2026:
 ### Dependencies
 
 This decision depends on:
+
 - ✅ EventBus implementation (done)
 - ✅ PluginSystem implementation (done)
 - ✅ ConfigManager implementation (done)
@@ -84,18 +88,19 @@ This decision depends on:
 
 ### Risks & Mitigation
 
-| Risk | Probability | Impact | Mitigation |
-|------|-------------|--------|-----------|
-| Tests remain flaky | Medium | High | Intensive debugging (done this week) |
-| Plugin migration stalls | Low | Medium | Document as you go |
-| Performance degradation | Low | Medium | Event system profiling |
-| User config migration | Low | High | Automated migration script |
+| Risk                    | Probability | Impact | Mitigation                           |
+| ----------------------- | ----------- | ------ | ------------------------------------ |
+| Tests remain flaky      | Medium      | High   | Intensive debugging (done this week) |
+| Plugin migration stalls | Low         | Medium | Document as you go                   |
+| Performance degradation | Low         | Medium | Event system profiling               |
+| User config migration   | Low         | High   | Automated migration script           |
 
 ### Alternative Considered
 
 **Alternative**: Keep both systems indefinitely
 
 **Why Rejected**:
+
 - Maintenance burden = 2x work
 - Confuses new contributors
 - Tests must support both paths
@@ -108,12 +113,14 @@ This decision depends on:
 
 ### What Changes
 
-1. **For App Core**: 
+1. **For App Core**:
+
    - EventBus becomes communication backbone
    - All plugins register with PluginSystem
    - Configuration via ConfigManager
 
 2. **For Plugins**:
+
    - Must implement PluginInterface
    - Must emit standard events
    - Must register configSchema
@@ -125,7 +132,8 @@ This decision depends on:
 
 ### What Stays the Same
 
-1. **For End Users**: 
+1. **For End Users**:
+
    - Same UI/UX
    - Same data (GitHub storage)
    - Same keyboard shortcuts
@@ -140,11 +148,13 @@ This decision depends on:
 ## Next Actions
 
 1. **This Week** (Jan 14-16):
+
    - [ ] Debug & fix 5 failing tests
    - [ ] Commit decision to repo
    - [ ] Create plugin development guide
 
 2. **Next Week** (Jan 20-24):
+
    - [ ] Migrate journal-plugin to PluginSystem
    - [ ] Create first custom plugin example
    - [ ] Document plugin manifest
@@ -166,16 +176,16 @@ This decision depends on:
 
 ---
 
-**Record Keeper**: GitHub Copilot  
-**Decision Date**: 2026-01-14  
+**Record Keeper**: GitHub Copilot
+**Decision Date**: 2026-01-14
 **Last Updated**: 2026-01-15
 
 ---
 
 ## 🚀 Decision: Performance Strategy - Vanilla JS First, Wasm for Hot Paths
 
-**Date**: 2026-01-15  
-**Decision Maker**: Stéphane + Copilot  
+**Date**: 2026-01-15
+**Decision Maker**: Stéphane + Copilot
 **Status**: ACCEPTED
 
 ---
@@ -185,6 +195,7 @@ This decision depends on:
 Question: Should we use WebAssembly (Wasm) for performance-critical operations?
 
 Current app characteristics:
+
 - Vanilla JavaScript (no build step)
 - Bundle size: <100 KB
 - Target: notes typically <50 KB
@@ -197,6 +208,7 @@ Current app characteristics:
 ### Rationale
 
 #### Why NOT Wasm now (v0.0.x → v0.9.x):
+
 - ❌ **Complexity**: Requires build toolchain (rustc/clang → wasm)
 - ❌ **Bundle size**: Typical Wasm modules 1-2 MB vs current <100 KB total
 - ❌ **Breaks philosophy**: "Zero build step" is core value
@@ -204,6 +216,7 @@ Current app characteristics:
 - ✅ **Simplicity > Speed**: For notes <50 KB, JS parsing is <10ms
 
 #### Why Wasm later (v1.0+):
+
 - ✅ **Hot paths identified**: Real performance bottlenecks proven by metrics
 - ✅ **As plugins**: Optional, lazy-loaded, with JS fallback
 - ✅ **Progressive enhancement**: Advanced users opt-in
@@ -211,12 +224,12 @@ Current app characteristics:
 
 ### Priority Hot Paths for Future Wasm
 
-| Feature | Current (JS) | With Wasm | Gain | Priority |
-|---------|--------------|-----------|------|----------|
-| **Full-text search** | Lunr.js ~350ms (5000 notes) | Tantivy ~15ms | 23x | 🥇 HIGH |
-| **Git operations** | isomorphic-git ~12s (500 commits) | libgit2 ~0.8s | 15x | 🥈 MEDIUM |
-| **Graph algorithms** | N/A (future) | Rust graph libs | N/A | 🥉 LOW |
-| **Markdown parsing** | marked ~10ms | Wasm parser ~2ms | 5x | ❌ NOT WORTH IT |
+| Feature              | Current (JS)                      | With Wasm        | Gain | Priority        |
+| -------------------- | --------------------------------- | ---------------- | ---- | --------------- |
+| **Full-text search** | Lunr.js ~350ms (5000 notes)       | Tantivy ~15ms    | 23x  | 🥇 HIGH         |
+| **Git operations**   | isomorphic-git ~12s (500 commits) | libgit2 ~0.8s    | 15x  | 🥈 MEDIUM       |
+| **Graph algorithms** | N/A (future)                      | Rust graph libs  | N/A  | 🥉 LOW          |
+| **Markdown parsing** | marked ~10ms                      | Wasm parser ~2ms | 5x   | ❌ NOT WORTH IT |
 
 ### Implementation Strategy
 
@@ -238,6 +251,7 @@ Current app characteristics:
 ```
 
 **Advantages**:
+
 - ✅ Base app remains lightweight
 - ✅ Advanced users get performance boost
 - ✅ Graceful degradation (Wasm fail → JS fallback)
@@ -249,7 +263,7 @@ Current app characteristics:
 Implement Wasm plugin when **ALL** of these are true:
 
 1. **Proven bottleneck**: >500ms operation in real usage
-2. **Frequent operation**: >10 times/day by typical user  
+2. **Frequent operation**: >10 times/day by typical user
 3. **Wasm advantage**: >5x performance improvement demonstrated
 4. **JS fallback exists**: Works without Wasm
 5. **Bundle size acceptable**: <2 MB additional download
@@ -282,16 +296,19 @@ Phase 4 (v2.0+): Wasm for advanced features
 ### Rejected Alternatives
 
 **Alternative 1**: Wasm from day one
+
 - ❌ Violates "simplicity first" principle
 - ❌ Premature optimization
 - ❌ Adds complexity without proven need
 
 **Alternative 2**: Never use Wasm
+
 - ❌ Limits future performance ceiling
 - ❌ Prevents advanced features (ML, semantic analysis)
 - ❌ Competitive disadvantage vs native apps
 
 **Alternative 3**: Mandatory Wasm for all users
+
 - ❌ Forces 1-2 MB download on everyone
 - ❌ Breaks on Wasm-incompatible browsers
 - ❌ No graceful degradation
@@ -299,11 +316,13 @@ Phase 4 (v2.0+): Wasm for advanced features
 ### Success Metrics
 
 **Phase 1 (JS optimization)**:
+
 - [ ] All operations <100ms on average hardware
 - [ ] 5000 notes searchable in <500ms
 - [ ] Git clone (100 commits) in <5s
 
 **Phase 2 (First Wasm plugin)**:
+
 - [ ] Search 5000 notes in <50ms (Tantivy)
 - [ ] <20% of users opt-in (validates optional approach)
 - [ ] Zero crashes due to Wasm failures (fallback works)
@@ -319,24 +338,26 @@ Phase 4 (v2.0+): Wasm for advanced features
 
 ### Risks & Mitigation
 
-| Risk | Probability | Impact | Mitigation |
-|------|-------------|--------|-----------|
-| Wasm fails to load | Medium | Low | JS fallback mandatory |
-| Bundle size bloat | Low | Medium | Size warnings + lazy load |
-| Build complexity | High | Medium | Isolate in separate plugins |
-| Browser incompatibility | Low | Low | Feature detection + fallback |
+| Risk                    | Probability | Impact | Mitigation                   |
+| ----------------------- | ----------- | ------ | ---------------------------- |
+| Wasm fails to load      | Medium      | Low    | JS fallback mandatory        |
+| Bundle size bloat       | Low         | Medium | Size warnings + lazy load    |
+| Build complexity        | High        | Medium | Isolate in separate plugins  |
+| Browser incompatibility | Low         | Low    | Feature detection + fallback |
 
 ---
 
 ### Consequences
 
 **What changes**:
+
 1. Performance roadmap clearly defined
 2. Plugin system designed for Wasm support
 3. JS fallbacks required for all Wasm features
 4. Bundle size monitoring critical
 
 **What stays the same**:
+
 1. Core app remains vanilla JS
 2. Zero build step for main codebase
 3. Works without Wasm
@@ -347,16 +368,19 @@ Phase 4 (v2.0+): Wasm for advanced features
 ### Next Actions
 
 **Q1 2026** (Current):
+
 - [ ] Profile real-world performance bottlenecks
 - [ ] Document Wasm plugin architecture
 - [ ] Create JS fallback template
 
 **Q2-Q3 2026**:
+
 - [ ] Implement first Wasm plugin (search) if metrics justify
 - [ ] A/B test with/without Wasm
 - [ ] Gather user feedback
 
 **Q4 2026+**:
+
 - [ ] Expand Wasm to proven hot paths only
 - [ ] Community Wasm plugin guidelines
 - [ ] Performance dashboard for users
@@ -364,7 +388,7 @@ Phase 4 (v2.0+): Wasm for advanced features
 ---
 
 **References**:
+
 - Plugin Architecture: `docs/BOOTSTRAP_ARCHITECTURE.md`
 - Performance Benchmarks: `docs/PERFORMANCE.md` (to create)
 - Wasm Plugin Template: `packages/plugin-wasm-template/` (future)
-

@@ -1,7 +1,7 @@
 # Plan de Travail - Pensine Bootstrap Architecture
 
-**Date**: 2026-01-15  
-**Phase actuelle**: Bootstrap micro-kernel  
+**Date**: 2026-01-15
+**Phase actuelle**: Bootstrap micro-kernel
 **Version cible**: v0.1.0 → v0.5.0
 
 ---
@@ -11,17 +11,20 @@
 ### ✅ Complété (4 commits récents)
 
 1. **Architecture bootstrap minimale** (f3d5bf8)
+
    - src/bootstrap.js - Loader principal
    - index-minimal.html - Point d'entrée ultra-léger
    - Schémas de configuration (bootstrap.json, .pensine-config.json)
 
 2. **Exports ES6 modules** (56523ac)
+
    - StorageManager + méthodes compatibilité (list, readJSON, writeJSON)
    - LocalStorageAdapter + StorageAdapterBase
    - Imports dynamiques des adapters
    - Tests wizard-flow.spec.mjs fonctionnel ✅
 
 3. **Plugin loading framework** (0b138ad)
+
    - Bootstrap: auto-détection Panini plugins
    - Bootstrap: support chemins custom plugins
    - Plugin hello-world créé (demo)
@@ -35,6 +38,7 @@
 ### 🔄 En Cours (blockers)
 
 **Problème critique**: Plugin activation ne fonctionne pas
+
 - Plugin chargé et enregistré ✅
 - `activate()` pas appelée malgré `isPaniniPlugin=true` ❌
 - Logs ajoutés dans PluginSystem.enable() pour debug
@@ -44,6 +48,7 @@
   3. Async timing issue
 
 **Tests**:
+
 - 16 tests totaux
 - wizard-flow.spec.mjs: ✅ PASS
 - plugin-loading.spec.mjs: ❌ FAIL (plugin UI pas visible)
@@ -73,13 +78,15 @@ tests/plugin-loading.spec.mjs
 **Objectif**: Faire fonctionner `HelloPlugin.activate()`
 
 **Actions**:
+
 1. ✅ Vérifier logs PluginSystem.enable() ajoutés
 2. 🔄 Inspecter `pluginData.plugin` vs `PluginClass`
 3. 🔄 Vérifier `pluginData.isPaniniPlugin` flag
 4. 🔄 Tester appel direct `plugin.activate(context)`
 5. 🔄 Comparer avec plugins Legacy fonctionnels
 
-**Critère succès**: 
+**Critère succès**:
+
 - Log "🎯 HelloPlugin.activate() called" visible
 - Element `#hello-plugin` injecté dans DOM
 - Test plugin-loading.spec.mjs PASS
@@ -91,6 +98,7 @@ tests/plugin-loading.spec.mjs
 **Objectif**: Bootstrap → Storage → Plugins → App ready 100% fiable
 
 **Actions**:
+
 1. Fixer plugin activation (P0)
 2. Tester les 3 storage modes:
    - ✅ local (IndexedDB)
@@ -101,6 +109,7 @@ tests/plugin-loading.spec.mjs
 5. Tous tests bootstrap/wizard/plugin GREEN
 
 **Critère succès**:
+
 - 3/3 storage modes fonctionnels
 - Plugin hello-world s'affiche
 - Tests 100% PASS
@@ -113,6 +122,7 @@ tests/plugin-loading.spec.mjs
 **Objectif**: Extraire Calendar ou Editor en vrai plugin
 
 **Actions**:
+
 1. Choisir plugin (recommandé: Calendar - moins couplé)
 2. Créer structure: `plugins/pensine-plugin-calendar/`
 3. Implémenter interface PaniniPlugin:
@@ -127,6 +137,7 @@ tests/plugin-loading.spec.mjs
 6. Documenter processus migration
 
 **Critère succès**:
+
 - Calendar fonctionne comme plugin
 - Pas de régression fonctionnelle
 - Code isolé du core
@@ -176,6 +187,7 @@ tests/plugin-loading.spec.mjs
 ### 1. Bootstrap Progressive
 
 **Actuel**:
+
 ```
 Loading Indicator
   ↓
@@ -195,6 +207,7 @@ App ready (hide loading, show #app)
 ```
 
 **Optimisation future (v0.3+)**:
+
 - Lazy load plugins (on-demand)
 - Preload critical plugins (editor)
 - Defer optional plugins (inbox, reflection)
@@ -203,21 +216,26 @@ App ready (hide loading, show #app)
 ### 2. Module Loading Strategy
 
 **Actuel**: Dynamic imports ES6
+
 ```javascript
 // Bootstrap
-const { default: StorageManager } = await import('./lib/components/storage-manager-unified.js');
+const { default: StorageManager } = await import(
+  "./lib/components/storage-manager-unified.js"
+);
 
 // Plugins
 const { default: PluginClass } = await import(pluginPath);
 ```
 
 **Avantages**:
+
 - ✅ Pas de bundler
 - ✅ Modules natifs browser
 - ✅ Lazy loading gratuit
 - ✅ Cache HTTP par fichier
 
 **Contraintes**:
+
 - ⚠️ Pas de tree-shaking
 - ⚠️ Waterfall requests (mitigé par HTTP/2)
 - ⚠️ Imports absolus nécessaires
@@ -225,26 +243,29 @@ const { default: PluginClass } = await import(pluginPath);
 ### 3. Storage Loading Strategy
 
 **Pattern actuel**:
+
 ```javascript
 // 1. Bootstrap config (localStorage)
-const bootstrap = JSON.parse(localStorage.getItem('pensine-bootstrap'));
+const bootstrap = JSON.parse(localStorage.getItem("pensine-bootstrap"));
 
 // 2. Init storage adapter
 await storageManager.initialize(bootstrap);
 
 // 3. Remote config (from storage)
-const remoteConfig = await storageManager.readJSON('.pensine-config.json');
+const remoteConfig = await storageManager.readJSON(".pensine-config.json");
 
 // 4. Merge configs
 this.config = { ...localDefaults, ...remoteConfig };
 ```
 
 **Problèmes potentiels**:
+
 - 🐛 LocalStorageAdapter: config en localStorage vs IndexedDB
 - 🐛 ConfigManager appelle `storage.list()` trop tôt?
 - 🔄 Race condition config load vs plugin system init?
 
 **Solution proposée**:
+
 ```javascript
 // Attendre explicitement storage ready
 await storageManager.initialize(bootstrap);
@@ -257,6 +278,7 @@ const remoteConfig = await loadRemoteConfig();
 ### 4. Plugin Loading Strategy
 
 **Actuel (séquentiel)**:
+
 ```javascript
 for (const plugin of enabledPlugins) {
   await loadPlugin(plugin); // Un par un
@@ -264,24 +286,22 @@ for (const plugin of enabledPlugins) {
 ```
 
 **Optimisation v0.3**:
+
 ```javascript
 // Paralléliser plugins indépendants
-const criticalPlugins = ['editor']; // Load first
-const optionalPlugins = ['calendar', 'inbox']; // Load after
+const criticalPlugins = ["editor"]; // Load first
+const optionalPlugins = ["calendar", "inbox"]; // Load after
 
-await Promise.all(
-  criticalPlugins.map(p => loadPlugin(p))
-);
+await Promise.all(criticalPlugins.map((p) => loadPlugin(p)));
 
 // Puis optionnels en background
-Promise.all(
-  optionalPlugins.map(p => loadPlugin(p))
-).catch(console.warn); // Non-blocking
+Promise.all(optionalPlugins.map((p) => loadPlugin(p))).catch(console.warn); // Non-blocking
 ```
 
 ### 5. Dependency Resolution
 
 **Futur (v0.4+)**: Graph de dépendances
+
 ```json
 {
   "plugins": {
@@ -298,6 +318,7 @@ Promise.all(
 ```
 
 **Algorithme**:
+
 1. Build dependency graph
 2. Topological sort
 3. Load in correct order
@@ -310,12 +331,14 @@ Promise.all(
 ### Performance
 
 **Métriques cibles**:
+
 - [ ] Bootstrap → App ready: <2s (cold start)
 - [ ] Bootstrap → App ready: <500ms (warm cache)
 - [ ] Plugin load: <100ms par plugin
 - [ ] Storage init: <300ms (local), <1s (GitHub)
 
 **Outils**:
+
 - Performance.mark/measure
 - Chrome DevTools Performance tab
 - Lighthouse CI
@@ -323,12 +346,14 @@ Promise.all(
 ### Bundle Size
 
 **Actuel estimé**:
+
 - Core (bootstrap + config): ~50 KB
 - StorageManager: ~30 KB
 - PluginSystem: ~20 KB
 - **Total base**: ~100 KB
 
 **Par plugin**:
+
 - Editor: ~100 KB (MarkdownIt, CodeMirror)
 - Calendar: ~30 KB
 - History: ~20 KB
@@ -339,6 +364,7 @@ Promise.all(
 ### Security
 
 **Checklist**:
+
 - [ ] Token GitHub jamais en clair (localStorage chiffré)
 - [ ] CSP headers configurés
 - [ ] Plugin sandbox (future)
@@ -348,6 +374,7 @@ Promise.all(
 ### Backwards Compatibility
 
 **Stratégie migration v0.0.x → v0.5**:
+
 1. Détection ancien format config
 2. Migration automatique localStorage
 3. Fallback vers legacy system si échec
@@ -361,6 +388,7 @@ Promise.all(
 ### Développeur
 
 - [ ] **Plugin Development Guide**
+
   - Interface PaniniPlugin
   - Lifecycle (activate/deactivate)
   - Context API (storage, events, config)
@@ -369,6 +397,7 @@ Promise.all(
   - Publishing plugins
 
 - [ ] **Architecture Deep Dive**
+
   - Bootstrap flow détaillé
   - Event system patterns
   - Storage abstraction layers
@@ -383,6 +412,7 @@ Promise.all(
 ### Utilisateur
 
 - [ ] **Migration Guide v0.0 → v0.5**
+
   - Backup data
   - Migration steps
   - Troubleshooting
@@ -432,19 +462,20 @@ Promise.all(
 
 ## 🚨 Risques Identifiés
 
-| Risque | Probabilité | Impact | Mitigation |
-|--------|-------------|--------|-----------|
-| Plugin activation bug bloque tout | **HAUTE** | Critique | **P0 - fixer maintenant** |
-| Migration plugins plus longue que prévu | Moyenne | Haute | Timeline buffer 1 semaine |
-| Storage modes instables | Faible | Haute | Tests exhaustifs par mode |
-| Performance dégradation | Faible | Moyenne | Profiling continu |
-| Breaking changes users | Moyenne | Haute | Migration auto + fallback |
+| Risque                                  | Probabilité | Impact   | Mitigation                |
+| --------------------------------------- | ----------- | -------- | ------------------------- |
+| Plugin activation bug bloque tout       | **HAUTE**   | Critique | **P0 - fixer maintenant** |
+| Migration plugins plus longue que prévu | Moyenne     | Haute    | Timeline buffer 1 semaine |
+| Storage modes instables                 | Faible      | Haute    | Tests exhaustifs par mode |
+| Performance dégradation                 | Faible      | Moyenne  | Profiling continu         |
+| Breaking changes users                  | Moyenne     | Haute    | Migration auto + fallback |
 
 ---
 
 ## 🎯 Critères de Succès v0.5
 
 ### Fonctionnel
+
 - [ ] Bootstrap flow 100% fiable
 - [ ] 3 storage modes fonctionnels
 - [ ] 5 plugins core migrés et fonctionnels
@@ -452,6 +483,7 @@ Promise.all(
 - [ ] Migration auto depuis v0.0.x
 
 ### Qualité
+
 - [ ] Tests 100% GREEN (20+ tests)
 - [ ] Coverage >80%
 - [ ] Zero erreurs console
@@ -459,12 +491,14 @@ Promise.all(
 - [ ] Bundle <300 KB
 
 ### Documentation
+
 - [ ] Guide développeur plugin complet
 - [ ] API reference complète
 - [ ] Guide migration utilisateur
 - [ ] Architecture documentée
 
 ### Production
+
 - [ ] Deploy pensine.org
 - [ ] Security audit passé
 - [ ] Backup/restore tool
@@ -477,12 +511,14 @@ Promise.all(
 ### Aujourd'hui (Jan 15)
 
 1. **Debug plugin activation** (2-3h)
+
    - Examiner logs PluginSystem.enable()
    - Tracer flow: register() → enable() → activate()
    - Fix + test hello-world
    - Commit fix
 
 2. **Review changements non committés** (1h)
+
    - Examiner diff des 9 fichiers modifiés
    - Décider: commit, revert, ou continuer edit
    - Clean workspace
@@ -496,11 +532,13 @@ Promise.all(
 ### Cette semaine (Jan 15-19)
 
 1. **Storage modes validation**
+
    - Test local ✅
    - Test github (PAT)
    - Test local-git (OPFS)
 
 2. **Plugin migration proof**
+
    - Choisir Calendar
    - Créer structure plugin
    - Migrer code basique
@@ -513,7 +551,7 @@ Promise.all(
 
 ---
 
-**Statut**: 🔄 EN COURS - Debug plugin activation  
-**Bloqueur**: Plugin.activate() pas appelé  
-**Prochaine étape**: Examiner logs PluginSystem.enable()  
+**Statut**: 🔄 EN COURS - Debug plugin activation
+**Bloqueur**: Plugin.activate() pas appelé
+**Prochaine étape**: Examiner logs PluginSystem.enable()
 **ETA v0.5**: Mi-mars 2026

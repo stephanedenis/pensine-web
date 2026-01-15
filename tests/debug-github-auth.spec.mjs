@@ -17,10 +17,10 @@ test.describe('Debug GitHub Authentication', () => {
       const type = msg.type();
       const text = msg.text();
       const timestamp = new Date().toISOString();
-      
+
       const logEntry = { timestamp, type, text };
       consoleLogs.push(logEntry);
-      
+
       const prefix = {
         'log': '📘',
         'info': 'ℹ️',
@@ -28,7 +28,7 @@ test.describe('Debug GitHub Authentication', () => {
         'error': '❌',
         'debug': '🔍'
       }[type] || '📄';
-      
+
       console.log(`${prefix} [${type}] ${text}`);
     });
 
@@ -61,10 +61,10 @@ test.describe('Debug GitHub Authentication', () => {
 
   test('Test with real GitHub credentials', async ({ page, context }) => {
     console.log('\n🚀 Testing with real GitHub credentials...\n');
-    
+
     const username = 'stephanedenis';
     const token = 'REMOVED_TOKEN';
-    
+
     // 1. Aller sur la page
     await page.goto('http://localhost:8001/index-minimal.html');
     console.log('✅ Page loaded\n');
@@ -100,12 +100,12 @@ test.describe('Debug GitHub Authentication', () => {
 
       // Étape 2: Credentials GitHub
       await page.waitForSelector('input[name="github.owner"]', { timeout: 5000 });
-      
+
       console.log('Filling credentials...');
       await page.fill('input[name="github.owner"]', username);
       await page.fill('input[name="github.repo"]', 'pensine-data');
       await page.fill('input[name="github.token"]', token);
-      
+
       console.log('✅ Credentials filled');
       await page.waitForTimeout(500);
 
@@ -115,7 +115,7 @@ test.describe('Debug GitHub Authentication', () => {
         console.log('Clicking Validate button...');
         await validateButton.click();
         console.log('✅ Clicked Validate');
-        
+
         // Attendre la validation
         await page.waitForTimeout(3000);
       }
@@ -123,7 +123,7 @@ test.describe('Debug GitHub Authentication', () => {
 
     // 3. Extraire le contenu de la boot console
     console.log('\n📟 ========== BOOT CONSOLE CONTENT ==========\n');
-    
+
     const bootConsoleLines = await page.evaluate(() => {
       const lines = document.querySelectorAll('#boot-console-content .boot-line');
       return Array.from(lines).map(line => ({
@@ -140,7 +140,7 @@ test.describe('Debug GitHub Authentication', () => {
         'boot-line error': '❌',
         'boot-line debug': '🔍'
       }[line.class] || '📄';
-      
+
       console.log(`${icon} ${line.text}`);
     });
 
@@ -185,8 +185,8 @@ test.describe('Debug GitHub Authentication', () => {
 
     // 6. Filtrer les logs importants
     console.log('\n🔍 ========== KEY LOGS ==========\n');
-    
-    const errorLogs = consoleLogs.filter(log => 
+
+    const errorLogs = consoleLogs.filter(log =>
       log.type === 'error' ||
       log.text.includes('Error') ||
       log.text.includes('FAIL') ||
@@ -202,7 +202,7 @@ test.describe('Debug GitHub Authentication', () => {
     } else {
       console.log('No error logs found');
     }
-    
+
     console.log('\n=================================\n');
 
     // Attendre un peu avant de finir

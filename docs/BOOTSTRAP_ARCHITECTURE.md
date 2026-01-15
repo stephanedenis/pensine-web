@@ -46,8 +46,10 @@ pensine-web/
 ## 📝 Configuration en cascade
 
 ### Niveau 1 : Bootstrap local (localStorage)
-**Fichier** : `localStorage['pensine-bootstrap']`  
+
+**Fichier** : `localStorage['pensine-bootstrap']`
 **Contenu** :
+
 ```json
 {
   "version": "1.0.0",
@@ -59,11 +61,14 @@ pensine-web/
   }
 }
 ```
+
 **Rôle** : Détermine comment se connecter au storage
 
 ### Niveau 2 : Configuration remote (storage)
-**Fichier** : `.pensine-config.json` (racine du repo)  
+
+**Fichier** : `.pensine-config.json` (racine du repo)
 **Contenu** :
+
 ```json
 {
   "version": "1.0.0",
@@ -74,19 +79,23 @@ pensine-web/
   }
 }
 ```
+
 **Rôle** : Détermine quels plugins charger et leurs settings
 
 ### Niveau 3 : Registry (futur)
-**Source** : npm registry ou CDN custom  
+
+**Source** : npm registry ou CDN custom
 **Rôle** : Découverte de plugins compatibles
 
 ## 🔌 Plugins
 
 ### Plugins core (requis)
+
 - **editor** - Éditeur markdown/code
 - **storage** - Gestion storage (GitHub/local-git/local)
 
 ### Plugins optionnels
+
 - **calendar** - Vue calendrier linéaire
 - **history** - Historique et versions
 - **inbox** - Capture et tâches
@@ -94,7 +103,9 @@ pensine-web/
 - **reflection** - Notes permanentes et backlinks
 
 ### Format plugin
+
 Chaque plugin doit exposer :
+
 ```javascript
 export default class MyPlugin {
   constructor(context) {
@@ -118,6 +129,7 @@ export default class MyPlugin {
 ## 🚀 Utilisation
 
 ### Première visite
+
 1. Ouvrir `index-minimal.html`
 2. Wizard s'affiche (pas de config locale)
 3. Configurer storage mode
@@ -125,6 +137,7 @@ export default class MyPlugin {
 5. App recharge et s'initialise
 
 ### Visites suivantes
+
 1. Ouvrir `index-minimal.html`
 2. Bootstrap charge config locale
 3. Connecte au storage
@@ -163,5 +176,5 @@ localStorage.removeItem('pensine-bootstrap')
 
 ---
 
-**Version** : 0.1.0  
+**Version** : 0.1.0
 **Date** : 2026-01-15

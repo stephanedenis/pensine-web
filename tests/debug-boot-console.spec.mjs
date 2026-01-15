@@ -18,15 +18,15 @@ test.describe('Debug Boot Console', () => {
       const type = msg.type();
       const text = msg.text();
       const timestamp = new Date().toISOString();
-      
+
       const logEntry = {
         timestamp,
         type,
         text
       };
-      
+
       consoleLogs.push(logEntry);
-      
+
       // Afficher en temps réel avec couleur
       const prefix = {
         'log': '📘',
@@ -35,7 +35,7 @@ test.describe('Debug Boot Console', () => {
         'error': '❌',
         'debug': '🔍'
       }[type] || '📄';
-      
+
       console.log(`${prefix} [${type}] ${text}`);
     });
 
@@ -61,12 +61,12 @@ test.describe('Debug Boot Console', () => {
 
   test('Debug plugin activation with boot console', async ({ page, context }) => {
     console.log('\n🚀 Starting debug test with boot console...\n');
-    
+
     // 1. Nettoyer localStorage
     await context.clearCookies();
     await page.goto('http://localhost:8001/index-minimal.html');
     await page.evaluate(() => localStorage.clear());
-    
+
     console.log('✅ localStorage cleared\n');
 
     // 2. Configurer bootstrap en mode local
@@ -84,7 +84,7 @@ test.describe('Debug Boot Console', () => {
 
     // 3. Recharger pour initialiser
     await page.reload();
-    
+
     // Attendre un peu pour que les logs se stabilisent
     await page.waitForTimeout(2000);
 
@@ -139,7 +139,7 @@ test.describe('Debug Boot Console', () => {
 
     // 7. Extraire le contenu de la boot console
     console.log('\n📟 ========== BOOT CONSOLE CONTENT ==========\n');
-    
+
     const bootConsoleLines = await page.evaluate(() => {
       const lines = document.querySelectorAll('#boot-console-content .boot-line');
       return Array.from(lines).map(line => ({
@@ -156,7 +156,7 @@ test.describe('Debug Boot Console', () => {
         'boot-line error': '❌',
         'boot-line debug': '🔍'
       }[line.class] || '📄';
-      
+
       console.log(`${icon} ${line.text}`);
     });
 
@@ -172,7 +172,7 @@ test.describe('Debug Boot Console', () => {
         pluginSystemInitialized: window.pluginSystem?.initialized || false,
         registeredPlugins: window.pluginSystem ? Array.from(window.pluginSystem.plugins.keys()) : [],
         activePlugins: window.pluginSystem ? Array.from(window.pluginSystem.activePlugins) : [],
-        pluginDetails: window.pluginSystem ? 
+        pluginDetails: window.pluginSystem ?
           Array.from(window.pluginSystem.plugins.entries()).map(([id, data]) => ({
             id,
             name: data.manifest.name,
@@ -229,8 +229,8 @@ test.describe('Debug Boot Console', () => {
 
     // 11. Filtrer les logs importants pour le diagnostic
     console.log('\n🔍 ========== KEY LOGS FOR DIAGNOSIS ==========\n');
-    
-    const keyLogs = consoleLogs.filter(log => 
+
+    const keyLogs = consoleLogs.filter(log =>
       log.text.includes('[PluginSystem') ||
       log.text.includes('activate') ||
       log.text.includes('enable') ||
@@ -241,7 +241,7 @@ test.describe('Debug Boot Console', () => {
     keyLogs.forEach(log => {
       console.log(`[${log.type}] ${log.text}`);
     });
-    
+
     console.log('\n===============================================\n');
 
     // Attendre un peu avant de finir

@@ -202,8 +202,8 @@
     <script src="src/lib/services/github-adapter.js"></script>
 
     <!-- LinearCalendar Component -->
-    <script src="lib/components/base/configurable-component.js"></script>
-    <script src="lib/components/linear-calendar/linear-calendar.js"></script>
+    <script src="src/lib/components/base/configurable-component.js"></script>
+    <script src="src/lib/components/linear-calendar/linear-calendar.js"></script>
 
     <!-- Core Components -->
     <script src="src/lib/components/config-wizard.js"></script>
@@ -212,17 +212,18 @@
     <script src="src/lib/services/storage.js"></script>
     <script src="src/lib/components/editor.js"></script>
 
-    <!-- Modern Config System (modules ES6) - MUST load before app.js -->
-    <script type="module" src="src/core/event-bus.js"></script>
+    <!-- Modern Config System (modules ES6) -->
+    <!-- Note: Core modules (EventBus, ConfigManager, PluginSystem) are loaded dynamically by bootstrap.js -->
     <script type="module" src="src/core/router.js"></script>
-    <script type="module" src="src/core/plugin-system.js"></script>
-    <script type="module" src="src/core/config-manager.js"></script>
     <script type="module" src="src/lib/components/json-schema-form-builder.js"></script>
     <script type="module" src="src/lib/components/settings-view.js"></script>
     <script type="module" src="src/lib/components/settings-integration.js"></script>
 
-    <!-- Main App - Loads after ES6 modules are available -->
-    <script src="src/app-init.js"></script>
+    <!-- Bootstrap - Initializes storageManager and core systems FIRST -->
+    <script type="module" src="src/bootstrap.js"></script>
+
+    <!-- Main App - Must wait for bootstrap to finish (loaded as deferred classic script) -->
+    <script defer src="src/app-init.js"></script>
 </body>
 
 </html>

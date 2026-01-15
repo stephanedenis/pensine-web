@@ -1760,8 +1760,21 @@ class PensineApp {
     }
 }
 
-// Initialize app when DOM is ready
-document.addEventListener('DOMContentLoaded', () => {
+// Initialize app when DOM is ready AND storageManager is available
+document.addEventListener('DOMContentLoaded', async () => {
+    // Wait for storageManager to be initialized by bootstrap.js
+    let attempts = 0;
+    while (!window.storageManager && attempts < 100) {
+        await new Promise(resolve => setTimeout(resolve, 50));
+        attempts++;
+    }
+
+    if (!window.storageManager) {
+        console.error('❌ storageManager not initialized after 5s, cannot start app');
+        return;
+    }
+
+    console.log('✅ storageManager ready, initializing PensineApp...');
     window.app = new PensineApp();
     window.pensineApp = window.app; // Alias pour les callbacks du panneau de config
 });

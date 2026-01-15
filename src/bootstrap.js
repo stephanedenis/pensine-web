@@ -13,88 +13,88 @@
  * BootLogger - Console de boot style Linux
  */
 class BootLogger {
-    constructor() {
-        this.startTime = Date.now();
-        this.container = document.getElementById('boot-console-content');
-        this.lineCount = 0;
+  constructor() {
+    this.startTime = Date.now();
+    this.container = document.getElementById('boot-console-content');
+    this.lineCount = 0;
+  }
+
+  getTimestamp() {
+    const elapsed = ((Date.now() - this.startTime) / 1000).toFixed(3);
+    return `[${elapsed.padStart(8)}]`;
+  }
+
+  log(message, type = 'info', badge = null) {
+    // Log console standard
+    const emoji = {
+      info: 'ℹ️',
+      success: '✅',
+      warning: '⚠️',
+      error: '❌',
+      debug: '🔍'
+    }[type] || 'ℹ️';
+    console.log(`${emoji} ${message}`);
+
+    // Log console visuelle
+    if (!this.container) return;
+
+    const line = document.createElement('div');
+    line.className = `boot-line ${type}`;
+
+    let badgeHtml = '';
+    if (badge) {
+      badgeHtml = `<span class="badge badge-${badge.type}">${badge.text}</span>`;
     }
 
-    getTimestamp() {
-        const elapsed = ((Date.now() - this.startTime) / 1000).toFixed(3);
-        return `[${elapsed.padStart(8)}]`;
+    line.innerHTML = `<span class="timestamp">${this.getTimestamp()}</span>${badgeHtml}${this.escapeHtml(message)}`;
+
+    this.container.appendChild(line);
+    this.lineCount++;
+
+    // Auto-scroll
+    this.container.scrollTop = this.container.scrollHeight;
+  }
+
+  escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  ok(message) {
+    this.log(message, 'success', { type: 'ok', text: ' OK ' });
+  }
+
+  fail(message) {
+    this.log(message, 'error', { type: 'fail', text: 'FAIL' });
+  }
+
+  wait(message) {
+    this.log(message, 'info', { type: 'wait', text: 'WAIT' });
+  }
+
+  info(message) {
+    this.log(message, 'info', { type: 'info', text: 'INFO' });
+  }
+
+  warn(message) {
+    this.log(message, 'warning');
+  }
+
+  error(message, error) {
+    this.log(`${message}: ${error?.message || error}`, 'error');
+    if (error?.stack) {
+      this.log(error.stack, 'debug');
     }
+  }
 
-    log(message, type = 'info', badge = null) {
-        // Log console standard
-        const emoji = {
-            info: 'ℹ️',
-            success: '✅',
-            warning: '⚠️',
-            error: '❌',
-            debug: '🔍'
-        }[type] || 'ℹ️';
-        console.log(`${emoji} ${message}`);
+  debug(message) {
+    this.log(message, 'debug');
+  }
 
-        // Log console visuelle
-        if (!this.container) return;
-
-        const line = document.createElement('div');
-        line.className = `boot-line ${type}`;
-        
-        let badgeHtml = '';
-        if (badge) {
-            badgeHtml = `<span class="badge badge-${badge.type}">${badge.text}</span>`;
-        }
-        
-        line.innerHTML = `<span class="timestamp">${this.getTimestamp()}</span>${badgeHtml}${this.escapeHtml(message)}`;
-        
-        this.container.appendChild(line);
-        this.lineCount++;
-        
-        // Auto-scroll
-        this.container.scrollTop = this.container.scrollHeight;
-    }
-
-    escapeHtml(text) {
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
-    }
-
-    ok(message) {
-        this.log(message, 'success', { type: 'ok', text: ' OK ' });
-    }
-
-    fail(message) {
-        this.log(message, 'error', { type: 'fail', text: 'FAIL' });
-    }
-
-    wait(message) {
-        this.log(message, 'info', { type: 'wait', text: 'WAIT' });
-    }
-
-    info(message) {
-        this.log(message, 'info', { type: 'info', text: 'INFO' });
-    }
-
-    warn(message) {
-        this.log(message, 'warning');
-    }
-
-    error(message, error) {
-        this.log(`${message}: ${error?.message || error}`, 'error');
-        if (error?.stack) {
-            this.log(error.stack, 'debug');
-        }
-    }
-
-    debug(message) {
-        this.log(message, 'debug');
-    }
-
-    step(step, total, message) {
-        this.log(`[${step}/${total}] ${message}`, 'info');
-    }
+  step(step, total, message) {
+    this.log(`[${step}/${total}] ${message}`, 'info');
+  }
 }
 
 class PensineBootstrap {
@@ -272,13 +272,13 @@ class PensineBootstrap {
    */
   async initializeStorage(config) {
     this.logger.wait(`Initializing ${config.storageMode} storage adapter...`);
-    
+
     const { default: StorageManager } = await import('../src/lib/components/storage-manager-unified.js');
     this.logger.debug('StorageManager module imported');
 
     window.storageManager = new StorageManager();
     this.logger.debug('StorageManager instance created');
-    
+
     await window.storageManager.initialize(config);
     this.logger.debug('StorageManager.initialize() completed');
 
@@ -358,7 +358,7 @@ class PensineBootstrap {
     const enabledPlugins = this.getEnabledPlugins();
 
     this.logger.info(`Found ${enabledPlugins.length} enabled plugin(s)`);
-    
+
     if (enabledPlugins.length === 0) {
       this.logger.warn('No plugins configured - app will be empty');
       return;

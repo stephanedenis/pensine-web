@@ -270,7 +270,7 @@ class PluginSystem {
    */
   async enable(pluginId, legacyContext = null) {
     console.log(`[PluginSystem.enable] START - pluginId="${pluginId}"`);
-    
+
     const pluginData = this.plugins.get(pluginId);
     if (!pluginData) {
       console.error(`[PluginSystem.enable] ERROR - Plugin "${pluginId}" not found in registry`);
@@ -299,9 +299,9 @@ class PluginSystem {
         console.log(`[PluginSystem.enable] Plugin instance:`, pluginData.plugin);
         console.log(`[PluginSystem.enable] Panini context:`, this.paniniContext);
         console.log(`[PluginSystem.enable] About to call: pluginData.plugin.activate(this.paniniContext)`);
-        
+
         await pluginData.plugin.activate(this.paniniContext);
-        
+
         console.log(`[PluginSystem.enable] ✅ activate() completed successfully`);
       } else {
         // Legacy: Call enable() if exists
@@ -324,7 +324,7 @@ class PluginSystem {
         name: pluginData.manifest.name
       }, 'core');
       console.log(`[PluginSystem.enable] Event "plugin:enabled" emitted`);
-      
+
       console.log(`[PluginSystem.enable] ✅ SUCCESS - Plugin "${pluginId}" fully activated`);
     } catch (error) {
       console.error(`[PluginSystem.enable] ❌ FAILURE - Error during activation:`, error);
