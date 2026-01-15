@@ -1,3 +1,8 @@
+---
+layout: default
+title: Pensine Web - Votre 3e Hémisphère du Cerveau
+---
+
 # Pensine Web
 
 ## 🧠 Votre 3e Hémisphère du Cerveau

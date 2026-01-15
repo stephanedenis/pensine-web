@@ -5,6 +5,9 @@ show_downloads: true
 github:
   repository_url: https://github.com/stephanedenis/pensine-web
 
+# Favicon
+favicon: favicon.svg
+
 plugins:
   - jekyll-relative-links
   - jekyll-seo-tag
