@@ -266,44 +266,69 @@ class PluginSystem {
   /**
    * Activer un plugin
    * @param {string} pluginId
+   * @param {Object} legacyContext - Context for legacy plugins (optional)
    */
-  async enable(pluginId) {
+  async enable(pluginId, legacyContext = null) {
+    console.log(`[PluginSystem.enable] START - pluginId="${pluginId}"`);
+    
     const pluginData = this.plugins.get(pluginId);
     if (!pluginData) {
+      console.error(`[PluginSystem.enable] ERROR - Plugin "${pluginId}" not found in registry`);
       throw new Error(`Plugin "${pluginId}" not found`);
     }
+    console.log(`[PluginSystem.enable] Plugin found in registry:`, {
+      id: pluginId,
+      name: pluginData.manifest.name,
+      version: pluginData.manifest.version,
+      isPaniniPlugin: pluginData.isPaniniPlugin,
+      hasActivateMethod: typeof pluginData.plugin.activate === 'function',
+      hasEnableMethod: typeof pluginData.plugin.enable === 'function'
+    });
 
     if (this.activePlugins.has(pluginId)) {
-      console.warn(`⚠️ Plugin "${pluginId}" already enabled`);
+      console.warn(`[PluginSystem.enable] SKIP - Plugin "${pluginId}" already enabled`);
       return;
     }
 
-    console.log(`✅ Enabling plugin: ${pluginData.manifest.name}`);
+    console.log(`[PluginSystem.enable] Activating plugin: ${pluginData.manifest.name}`);
 
     try {
       if (pluginData.isPaniniPlugin) {
         // New: Call PaniniPlugin.activate(context)
-        console.log(`[PluginSystem] Calling activate() on Panini plugin`);
-        console.log(`[PluginSystem] Plugin:`, pluginData.plugin);
-        console.log(`[PluginSystem] Context:`, this.paniniContext);
+        console.log(`[PluginSystem.enable] Panini plugin detected`);
+        console.log(`[PluginSystem.enable] Plugin instance:`, pluginData.plugin);
+        console.log(`[PluginSystem.enable] Panini context:`, this.paniniContext);
+        console.log(`[PluginSystem.enable] About to call: pluginData.plugin.activate(this.paniniContext)`);
+        
         await pluginData.plugin.activate(this.paniniContext);
+        
+        console.log(`[PluginSystem.enable] ✅ activate() completed successfully`);
       } else {
         // Legacy: Call enable() if exists
-        console.log(`[PluginSystem] Calling enable() on Legacy plugin`);
+        console.log(`[PluginSystem.enable] Legacy plugin detected`);
         if (pluginData.plugin.enable) {
+          console.log(`[PluginSystem.enable] Calling enable() method with context:`, legacyContext);
           await pluginData.plugin.enable();
+          console.log(`[PluginSystem.enable] ✅ enable() completed successfully`);
+        } else {
+          console.log(`[PluginSystem.enable] ⚠️ Legacy plugin has no enable() method`);
         }
       }
 
       this.activePlugins.add(pluginId);
       pluginData.enabled = true;
+      console.log(`[PluginSystem.enable] Plugin marked as active and enabled`);
 
       this.eventBus.emit(EVENTS['plugin:enabled'], {
         id: pluginId,
         name: pluginData.manifest.name
       }, 'core');
+      console.log(`[PluginSystem.enable] Event "plugin:enabled" emitted`);
+      
+      console.log(`[PluginSystem.enable] ✅ SUCCESS - Plugin "${pluginId}" fully activated`);
     } catch (error) {
-      console.error(`❌ Failed to enable plugin "${pluginId}":`, error);
+      console.error(`[PluginSystem.enable] ❌ FAILURE - Error during activation:`, error);
+      console.error(`[PluginSystem.enable] Error stack:`, error.stack);
       throw error;
     }
   }
