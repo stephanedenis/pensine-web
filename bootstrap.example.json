@@ -1,0 +1,11 @@
+{
+  "$schema": "./bootstrap.schema.json",
+  "version": "1.0.0",
+  "storageMode": "github",
+  "credentials": {
+    "owner": "votre-username",
+    "repo": "pensine-data",
+    "token": "ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+  },
+  "timestamp": "2026-01-15T14:30:00.000Z"
+}

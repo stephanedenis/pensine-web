@@ -1,0 +1,80 @@
+{
+  "version": "1.0.0",
+  "settings": {
+    "theme": "auto",
+    "language": "fr",
+    "autoSave": true,
+    "autoSaveDelay": 2000
+  },
+  "plugins": {
+    "editor": {
+      "enabled": true,
+      "source": "local",
+      "name": "Éditeur",
+      "icon": "✏️",
+      "version": "0.1.0",
+      "config": {
+        "defaultMode": "rich",
+        "syntaxHighlight": true,
+        "autoSave": true
+      }
+    },
+    "calendar": {
+      "enabled": true,
+      "source": "local",
+      "name": "Calendrier",
+      "icon": "📅",
+      "version": "0.1.0",
+      "config": {
+        "startWeekOn": "monday",
+        "showWeekNumbers": false,
+        "monthsToDisplay": 6,
+        "highlightToday": true
+      }
+    },
+    "history": {
+      "enabled": true,
+      "source": "local",
+      "name": "Historique",
+      "icon": "📜",
+      "version": "0.1.0",
+      "config": {
+        "maxEntries": 50,
+        "groupByDate": true
+      }
+    },
+    "inbox": {
+      "enabled": false,
+      "source": "local",
+      "name": "Inbox",
+      "icon": "📥",
+      "version": "0.1.0",
+      "config": {
+        "defaultPriority": "medium",
+        "autoArchive": true
+      }
+    },
+    "journal": {
+      "enabled": false,
+      "source": "local",
+      "name": "Journal",
+      "icon": "📔",
+      "version": "0.1.0",
+      "config": {
+        "template": "default",
+        "autoCreateDaily": false
+      }
+    },
+    "reflection": {
+      "enabled": false,
+      "source": "local",
+      "name": "Réflexion",
+      "icon": "🔗",
+      "version": "0.1.0",
+      "config": {
+        "enableBacklinks": true,
+        "showGraph": true
+      }
+    }
+  }
+}

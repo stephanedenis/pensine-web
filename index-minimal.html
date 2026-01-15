@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pensine</title>
+    
+    <!-- Styles de base uniquement -->
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/wizard.css">
+    
+    <style>
+        /* Styles bootstrap minimal */
+        #loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        #loading.hidden {
+            display: none;
+        }
+        
+        #app.hidden {
+            display: none;
+        }
+        
+        .spinner {
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-top: 3px solid var(--accent-color, #4a9eff);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading indicator -->
+    <div id="loading">
+        <div class="spinner"></div>
+        <p>Chargement de Pensine...</p>
+    </div>
+
+    <!-- App container (injecté dynamiquement par plugins) -->
+    <div id="app" class="hidden">
+        <!-- Les plugins injecteront leur UI ici -->
+    </div>
+
+    <!-- Wizard container (si pas de config) -->
+    <div id="wizard-container"></div>
+
+    <!-- Error container -->
+    <div id="error" class="hidden"></div>
+
+    <!-- Dependencies CDN (pour bootstrap uniquement) -->
+    <script src="https://cdn.jsdelivr.net/npm/buffer@6.0.3/index.min.js"></script>
+    <script>
+        // Buffer global pour isomorphic-git
+        if (typeof window.Buffer === 'undefined') {
+            window.Buffer = buffer.Buffer;
+        }
+    </script>
+    
+    <!-- isomorphic-git pour mode local-git -->
+    <script src="https://unpkg.com/@isomorphic-git/lightning-fs"></script>
+    <script src="https://unpkg.com/isomorphic-git"></script>
+
+    <!-- Bootstrap loader -->
+    <script type="module" src="./src/bootstrap.js"></script>
+</body>
+</html>

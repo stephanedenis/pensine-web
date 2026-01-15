@@ -75,7 +75,40 @@ class ConfigWizard {
     }
 
     show() {
-        const wizard = document.getElementById('config-wizard');
+        // Créer structure HTML si elle n'existe pas
+        let wizard = document.getElementById('config-wizard');
+        if (!wizard) {
+            const container = document.getElementById('wizard-container');
+            if (!container) {
+                console.error('wizard-container not found');
+                return;
+            }
+            
+            container.innerHTML = `
+                <div id="config-wizard" class="wizard">
+                    <div class="wizard-content">
+                        <div class="wizard-header">
+                            <h2 id="wizard-title"></h2>
+                            <div class="wizard-progress">
+                                <span id="wizard-step-indicator"></span>
+                            </div>
+                        </div>
+                        <div id="wizard-steps" class="wizard-steps"></div>
+                        <div class="wizard-nav">
+                            <button id="wizard-prev" class="btn-secondary">← Précédent</button>
+                            <button id="wizard-next" class="btn-primary">Suivant →</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            wizard = document.getElementById('config-wizard');
+            
+            // Attacher event listeners
+            document.getElementById('wizard-prev').addEventListener('click', () => this.prev());
+            document.getElementById('wizard-next').addEventListener('click', () => this.next());
+        }
+        
         wizard.classList.remove('hidden');
         this.renderStep();
     }
@@ -86,20 +119,32 @@ class ConfigWizard {
     }
 
     renderStep() {
+        console.log(`[Wizard] Rendering step ${this.currentStep}`);
         const container = document.getElementById('wizard-steps');
+        if (!container) {
+            console.error('[Wizard] wizard-steps container not found');
+            return;
+        }
+        
         const step = this.steps[this.currentStep];
+        console.log(`[Wizard] Step:`, step.id, step.title);
 
-        container.innerHTML = `
-            ${this.renderProgress()}
-            <div class="wizard-step">
-                <div class="wizard-step-header">
-                    <span class="wizard-step-number">${this.currentStep + 1}</span>
-                    <h2 class="wizard-step-title">${step.title}</h2>
+        try {
+            container.innerHTML = `
+                ${this.renderProgress()}
+                <div class="wizard-step">
+                    <div class="wizard-step-header">
+                        <span class="wizard-step-number">${this.currentStep + 1}</span>
+                        <h2 class="wizard-step-title">${step.title}</h2>
+                    </div>
+                    ${step.render()}
                 </div>
-                ${step.render()}
-            </div>
-            ${this.renderActions()}
-        `;
+                ${this.renderActions()}
+            `;
+            console.log('[Wizard] Step rendered successfully');
+        } catch (error) {
+            console.error('[Wizard] Error rendering step:', error);
+        }
 
         // Load repos when entering repository step
         if (step.id === 'repository' && this.tokenValidated && this.availableRepos.length === 0) {
@@ -1091,5 +1136,8 @@ class ConfigWizard {
     }
 }
 
-// Export class as global (no auto-instantiation)
+// Export for ES6 modules
+export default ConfigWizard;
+
+// Export class as global (backward compatibility)
 window.ConfigWizard = ConfigWizard;
