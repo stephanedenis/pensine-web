@@ -83,7 +83,7 @@ class ConfigWizard {
                 console.error('wizard-container not found');
                 return;
             }
-            
+
             container.innerHTML = `
                 <div id="config-wizard" class="wizard">
                     <div class="wizard-content">
@@ -101,14 +101,14 @@ class ConfigWizard {
                     </div>
                 </div>
             `;
-            
+
             wizard = document.getElementById('config-wizard');
-            
+
             // Attacher event listeners
             document.getElementById('wizard-prev').addEventListener('click', () => this.prev());
             document.getElementById('wizard-next').addEventListener('click', () => this.next());
         }
-        
+
         wizard.classList.remove('hidden');
         this.renderStep();
     }
@@ -125,7 +125,7 @@ class ConfigWizard {
             console.error('[Wizard] wizard-steps container not found');
             return;
         }
-        
+
         const step = this.steps[this.currentStep];
         console.log(`[Wizard] Step:`, step.id, step.title);
 
@@ -734,8 +734,11 @@ class ConfigWizard {
         this.renderStep();
 
         try {
+            // Import GitHubStorageAdapter dynamiquement
+            const { default: GitHubStorageAdapter } = await import('../adapters/github-storage-adapter.js');
+            
             // Configure temporary adapter to test token
-            const tempAdapter = new (window.GitHubStorageAdapter || window.githubAdapter.constructor)();
+            const tempAdapter = new GitHubStorageAdapter();
             tempAdapter.configure({
                 token: this.config.git.token,
                 owner: 'test', // Temporary, will be replaced
@@ -814,7 +817,10 @@ class ConfigWizard {
         }
 
         try {
-            const tempAdapter = new (window.GitHubStorageAdapter || window.githubAdapter.constructor)();
+            // Import GitHubStorageAdapter dynamiquement
+            const { default: GitHubStorageAdapter } = await import('../adapters/github-storage-adapter.js');
+            
+            const tempAdapter = new GitHubStorageAdapter();
             tempAdapter.configure({
                 token: this.config.git.token,
                 owner: this.config.git.owner,
@@ -1055,7 +1061,7 @@ class ConfigWizard {
     async complete() {
         try {
             console.log('[Wizard] Completing configuration...');
-            
+
             // Déterminer le mode de stockage
             let storageMode;
             if (this.config.git.platform === 'local-git') {
