@@ -5,7 +5,6 @@
     "dbaeumer.vscode-eslint",
     "esbenp.prettier-vscode",
     "yzhang.markdown-all-in-one",
-    "ms-playwright.playwright",
-    "ritwickdey.liveserver"
+    "ms-playwright.playwright"
   ]
 }

@@ -10,7 +10,7 @@
  * @version 1.0.0
  */
 
-import JSONSchemaFormBuilder from '../lib/json-schema-form-builder.js';
+import JSONSchemaFormBuilder from './json-schema-form-builder.js';
 
 export default class SettingsView {
   /**
