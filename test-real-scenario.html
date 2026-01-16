@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Test Real Scenario - Pensine</title>
+    <style>
+        body { font-family: Arial; padding: 20px; }
+        #result { margin-top: 20px; padding: 10px; border: 1px solid #ccc; }
+        .error { color: red; }
+        .success { color: green; }
+    </style>
+</head>
+<body>
+    <h1>Test Scénario Réel - Validation Token</h1>
+    
+    <div>
+        <label>Token PAT:</label><br>
+        <input type="text" id="token" size="50" value="REMOVED_TOKEN"><br><br>
+        <button onclick="testValidation()">Tester la validation</button>
+    </div>
+    
+    <div id="result"></div>
+    
+    <script>
+        async function testValidation() {
+            const resultDiv = document.getElementById('result');
+            const token = document.getElementById('token').value;
+            
+            resultDiv.innerHTML = '⏳ Test en cours...';
+            
+            try {
+                // Test 1: Import du wizard
+                resultDiv.innerHTML += '<br>📦 Import ConfigWizard...';
+                const { default: ConfigWizard } = await import('/src/lib/components/config-wizard.js');
+                resultDiv.innerHTML += ' ✅';
+                
+                // Test 2: Créer instance
+                resultDiv.innerHTML += '<br>🔨 Créer instance...';
+                const wizard = new ConfigWizard();
+                wizard.config.git.token = token;
+                resultDiv.innerHTML += ' ✅';
+                
+                // Test 3: Valider token
+                resultDiv.innerHTML += '<br>🔍 Validation token...';
+                await wizard.validateToken();
+                resultDiv.innerHTML += ' ✅';
+                
+                // Test 4: Vérifier résultat
+                if (wizard.tokenValidated) {
+                    resultDiv.innerHTML += `<br><div class="success">✅ SUCCESS!<br>User: ${wizard.authenticatedUser.login}<br>Name: ${wizard.authenticatedUser.name}</div>`;
+                } else {
+                    resultDiv.innerHTML += `<br><div class="error">❌ Token NOT validated<br>Error: ${wizard.validationError}</div>`;
+                }
+                
+            } catch (error) {
+                resultDiv.innerHTML += `<br><div class="error">❌ ERROR: ${error.message}<br><pre>${error.stack}</pre></div>`;
+            }
+        }
+    </script>
+</body>
+</html>
