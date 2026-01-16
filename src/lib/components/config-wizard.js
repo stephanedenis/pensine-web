@@ -727,7 +727,9 @@ class ConfigWizard {
 
         try {
             // Import GitHubStorageAdapter dynamiquement
-            const { default: GitHubStorageAdapter } = await import('/src/lib/adapters/github-storage-adapter.js');
+            // Add version query string to bypass cache
+            const version = new Date().getTime(); // Or use window.cacheBuster?.APP_VERSION
+            const { default: GitHubStorageAdapter } = await import(`/src/lib/adapters/github-storage-adapter.js?v=${version}`);
 
             // Configure temporary adapter to test token
             const tempAdapter = new GitHubStorageAdapter();
@@ -774,7 +776,7 @@ class ConfigWizard {
 
         try {
             // Import GitHubStorageAdapter dynamiquement
-            const { default: GitHubStorageAdapter } = await import('/src/lib/adapters/github-storage-adapter.js');
+            const { default: GitHubStorageAdapter } = await import(`/src/lib/adapters/github-storage-adapter.js?v=${Date.now()}`);
 
             const tempAdapter = new GitHubStorageAdapter();
             tempAdapter.configure({
@@ -813,7 +815,7 @@ class ConfigWizard {
 
         try {
             // Import GitHubStorageAdapter dynamiquement
-            const { default: GitHubStorageAdapter } = await import('/src/lib/adapters/github-storage-adapter.js');
+            const { default: GitHubStorageAdapter } = await import(`/src/lib/adapters/github-storage-adapter.js?v=${Date.now()}`);
 
             const tempAdapter = new GitHubStorageAdapter();
             tempAdapter.configure({

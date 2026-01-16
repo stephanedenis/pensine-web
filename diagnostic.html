@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Diagnostic Cache - Pensine</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .card {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            border-bottom: 2px solid #4CAF50;
+            padding-bottom: 10px;
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        button.danger {
+            background: #f44336;
+        }
+        button.danger:hover {
+            background: #da190b;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .status.ok {
+            background: #d4edda;
+            color: #155724;
+        }
+        .status.warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        pre {
+            background: #f4f4f4;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        .info {
+            font-size: 14px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔧 Diagnostic Cache - Pensine</h1>
+
+    <div class="card">
+        <h2>État actuel</h2>
+        <div id="status"></div>
+    </div>
+
+    <div class="card">
+        <h2>Actions</h2>
+        <button onclick="checkCache()">🔍 Vérifier Cache</button>
+        <button onclick="clearAllCaches()" class="danger">🧹 Nettoyer Tous les Caches</button>
+        <button onclick="testImports()">📦 Tester Imports</button>
+        <button onclick="window.location.href='/'">🏠 Retour App</button>
+    </div>
+
+    <div class="card">
+        <h2>Informations</h2>
+        <div id="info"></div>
+    </div>
+
+    <div class="card">
+        <h2>Dernière erreur enregistrée</h2>
+        <div id="error"></div>
+    </div>
+
+    <script src="/src/lib/utils/cache-buster.js"></script>
+    <script>
+        const cacheBuster = new CacheBuster();
+
+        async function checkCache() {
+            const statusDiv = document.getElementById('status');
+            statusDiv.innerHTML = '<p>⏳ Vérification en cours...</p>';
+
+            const checks = [];
+
+            // Version check
+            const shouldClear = cacheBuster.shouldClearCache();
+            checks.push({
+                name: 'Version de l\'app',
+                status: shouldClear ? 'warning' : 'ok',
+                message: shouldClear 
+                    ? `Version obsolète détectée (actuelle: ${localStorage.getItem('pensine-app-version')}, attendue: ${cacheBuster.APP_VERSION})`
+                    : `Version à jour (${cacheBuster.APP_VERSION})`
+            });
+
+            // LocalStorage check
+            const lsSize = JSON.stringify(localStorage).length;
+            checks.push({
+                name: 'LocalStorage',
+                status: lsSize > 5000000 ? 'warning' : 'ok',
+                message: `Taille: ${(lsSize / 1024).toFixed(2)} KB`
+            });
+
+            // Cache API check
+            if ('caches' in window) {
+                const cacheNames = await caches.keys();
+                checks.push({
+                    name: 'Cache API',
+                    status: cacheNames.length > 0 ? 'warning' : 'ok',
+                    message: `${cacheNames.length} cache(s) trouvé(s): ${cacheNames.join(', ')}`
+                });
+            }
+
+            // Service Workers check
+            if ('serviceWorker' in navigator) {
+                const registrations = await navigator.serviceWorker.getRegistrations();
+                checks.push({
+                    name: 'Service Workers',
+                    status: registrations.length > 0 ? 'warning' : 'ok',
+                    message: `${registrations.length} worker(s) enregistré(s)`
+                });
+            }
+
+            // Render results
+            let html = '';
+            checks.forEach(check => {
+                html += `
+                    <div class="status ${check.status}">
+                        <strong>${check.name}:</strong> ${check.message}
+                    </div>
+                `;
+            });
+
+            statusDiv.innerHTML = html;
+        }
+
+        async function clearAllCaches() {
+            if (!confirm('⚠️ Cette action va supprimer tous les caches (sauf vos données de configuration). Continuer ?')) {
+                return;
+            }
+
+            const statusDiv = document.getElementById('status');
+            statusDiv.innerHTML = '<p class="status warning">⏳ Nettoyage en cours...</p>';
+
+            try {
+                const success = await cacheBuster.clearAllCaches();
+                
+                if (success) {
+                    statusDiv.innerHTML = `
+                        <div class="status ok">
+                            <p>✅ Tous les caches ont été nettoyés avec succès !</p>
+                            <p>L'application va maintenant recharger...</p>
+                        </div>
+                    `;
+                    setTimeout(() => {
+                        window.location.reload(true);
+                    }, 2000);
+                } else {
+                    statusDiv.innerHTML = `
+                        <div class="status error">
+                            <p>❌ Erreur lors du nettoyage des caches.</p>
+                            <p>Essayez de vider le cache manuellement via les outils développeur (F12).</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                statusDiv.innerHTML = `
+                    <div class="status error">
+                        <p>❌ Erreur: ${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        async function testImports() {
+            const statusDiv = document.getElementById('status');
+            statusDiv.innerHTML = '<p>⏳ Test des imports en cours...</p>';
+
+            const results = [];
+
+            // Test storage-adapter-base
+            try {
+                const { default: StorageAdapterBase } = await import(`/src/lib/adapters/storage-adapter-base.js?v=${Date.now()}`);
+                results.push({
+                    module: 'StorageAdapterBase',
+                    status: 'ok',
+                    message: '✅ Import réussi'
+                });
+            } catch (error) {
+                results.push({
+                    module: 'StorageAdapterBase',
+                    status: 'error',
+                    message: `❌ ${error.message}`
+                });
+            }
+
+            // Test github-storage-adapter
+            try {
+                const { default: GitHubStorageAdapter } = await import(`/src/lib/adapters/github-storage-adapter.js?v=${Date.now()}`);
+                results.push({
+                    module: 'GitHubStorageAdapter',
+                    status: 'ok',
+                    message: '✅ Import réussi'
+                });
+            } catch (error) {
+                results.push({
+                    module: 'GitHubStorageAdapter',
+                    status: 'error',
+                    message: `❌ ${error.message}`
+                });
+            }
+
+            // Render results
+            let html = '<h3>Résultats des tests d\'import:</h3>';
+            results.forEach(result => {
+                html += `
+                    <div class="status ${result.status}">
+                        <strong>${result.module}:</strong> ${result.message}
+                    </div>
+                `;
+            });
+
+            statusDiv.innerHTML = html;
+        }
+
+        // Show info
+        function showInfo() {
+            const infoDiv = document.getElementById('info');
+            infoDiv.innerHTML = `
+                <div class="info">
+                    <p><strong>Version:</strong> ${cacheBuster.APP_VERSION}</p>
+                    <p><strong>User Agent:</strong> ${navigator.userAgent}</p>
+                    <p><strong>URL:</strong> ${window.location.href}</p>
+                    <p><strong>Timestamp:</strong> ${new Date().toISOString()}</p>
+                </div>
+            `;
+        }
+
+        // Show last error
+        function showLastError() {
+            const errorDiv = document.getElementById('error');
+            const lastError = localStorage.getItem('pensine-last-error');
+            
+            if (lastError) {
+                try {
+                    const error = JSON.parse(lastError);
+                    errorDiv.innerHTML = `
+                        <div class="status error">
+                            <p><strong>Message:</strong> ${error.message}</p>
+                            <p><strong>Timestamp:</strong> ${error.timestamp}</p>
+                            <pre>${error.stack || 'N/A'}</pre>
+                        </div>
+                    `;
+                } catch (e) {
+                    errorDiv.innerHTML = '<p class="info">Erreur lors du parsing des logs</p>';
+                }
+            } else {
+                errorDiv.innerHTML = '<p class="info">Aucune erreur enregistrée</p>';
+            }
+        }
+
+        // Initialize
+        checkCache();
+        showInfo();
+        showLastError();
+    </script>
+</body>
+</html>

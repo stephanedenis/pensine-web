@@ -182,6 +182,31 @@
     <!-- Scripts -->
     <script src="config/config.js"></script>
 
+    <!-- Cache Buster - Load FIRST to handle cache issues -->
+    <script src="src/lib/utils/cache-buster.js"></script>
+    <script>
+        // Check version on startup
+        if (window.cacheBuster) {
+            window.cacheBuster.checkOnStartup();
+        }
+
+        // Global error handler for critical errors
+        window.addEventListener('error', (event) => {
+            if (window.cacheBuster && window.cacheBuster.isCriticalError(event.error)) {
+                event.preventDefault();
+                window.cacheBuster.handleCriticalError(event.error);
+            }
+        });
+
+        // Promise rejection handler
+        window.addEventListener('unhandledrejection', (event) => {
+            if (window.cacheBuster && window.cacheBuster.isCriticalError(event.reason)) {
+                event.preventDefault();
+                window.cacheBuster.handleCriticalError(event.reason);
+            }
+        });
+    </script>
+
     <!-- Token Security (Services) -->
     <script src="src/lib/services/token-storage.js"></script>
 
