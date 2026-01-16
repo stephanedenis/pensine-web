@@ -253,8 +253,8 @@ class PensineApp {
         // Setup event listeners
         this.setupEventListeners();
 
-        // Restore panel states from localStorage
-        this.restorePanelStates();
+        // Restore panel states from localStorage (await to ensure calendar init waits for storage)
+        await this.restorePanelStates();
 
         // Check if we have a valid configuration
         const hasConfig = await this.hasValidConfiguration();
@@ -1154,27 +1154,13 @@ class PensineApp {
             return;
         }
 
-        // Load journal files to mark dates
-        const markedDates = [];
-        try {
-            const journalFiles = await this.getJournalFiles();
-            journalFiles.forEach(file => {
-                const match = file.match(/(\d{4})_(\d{2})_(\d{2})\.md$/);
-                if (match) {
-                    const year = match[1];
-                    const month = match[2];
-                    const day = match[3];
-                    markedDates.push({
-                        date: `${year}-${month}-${day}`,
-                        markerType: 'dot',
-                        color: 'var(--calendar-accent)',
-                        opacity: 0.5
-                    });
-                }
-            });
-        } catch (error) {
-            console.error('Error loading journal files:', error);
+        // Check if storage is ready
+        if (!storageManager.isConfigured()) {
+            console.warn('⚠️ Storage not ready yet, calendar will show without markers');
+            // Continue with empty calendar - markers will load later
         }
+
+        console.log('📅 Initializing calendar...');
 
         // Get calendar config from localStorage or use defaults
         const weekStartDay = parseInt(readLocalConfig('weekStartDay', 1), 10) || 1; // Lundi par défaut
@@ -1183,11 +1169,11 @@ class PensineApp {
         const dayHeight = parseInt(readLocalConfig('dayHeight', 28), 10) || 28;
         const monthColors = readLocalConfig('monthColors', true) !== false;
 
-        // Initialize LinearCalendar
+        // Initialize LinearCalendar (empty, will add events after)
         this.linearCalendar = new LinearCalendar(container, {
             weekStartDay,
             weeksToShow: 52,
-            markedDates,
+            markedDates: [], // Empty - will use addEvents() instead
             monthFormat,
             monthColors,
             dayNumberPosition,
@@ -1199,6 +1185,41 @@ class PensineApp {
                 this.loadJournalByDate(date);
             }
         });
+        console.log('✅ Calendar component initialized');
+
+        // Load journal files and add as events
+        try {
+            const journalFiles = await this.getJournalFiles();
+            console.log(`📚 Found ${journalFiles.length} journal files`);
+            
+            if (journalFiles.length > 0) {
+                const events = [];
+                journalFiles.forEach(file => {
+                    const match = file.match(/(\d{4})_(\d{2})_(\d{2})\.md$/);
+                    if (match) {
+                        const year = match[1];
+                        const month = match[2];
+                        const day = match[3];
+                        events.push({
+                            date: `${year}-${month}-${day}`,
+                            type: 'note',
+                            color: '#0e639c',
+                            label: 'Journal'
+                        });
+                    }
+                });
+                
+                console.log(`➕ Adding ${events.length} events to calendar`);
+                if (events.length > 0) {
+                    this.linearCalendar.addEvents(events);
+                    console.log(`✅ Calendar now has ${this.linearCalendar.getAllEvents().size} dates with events`);
+                }
+            } else {
+                console.log('ℹ️ No journal files found, calendar will be empty');
+            }
+        } catch (error) {
+            console.error('❌ Error loading journal files for calendar:', error);
+        }
 
         // Setup config button listener
         const configBtn = document.getElementById('calendar-config-btn');
@@ -1223,6 +1244,12 @@ class PensineApp {
 
     async getJournalFiles() {
         try {
+            // Check if storage is configured before attempting to list files
+            if (!storageManager.isConfigured()) {
+                console.warn('Storage not configured, cannot fetch journal files');
+                return [];
+            }
+
             const response = await storageManager.listFiles('journals');
 
             if (Array.isArray(response)) {

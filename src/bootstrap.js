@@ -410,14 +410,15 @@ class PensineBootstrap {
       // Chemin custom fourni explicitement
       pluginPath = path;
     } else if (source === 'local') {
-      pluginPath = `./plugins/pensine-plugin-${id}/${id}-plugin.js`;
+      // Path from src/ to root plugins/
+      pluginPath = `../plugins/pensine-plugin-${id}/${id}-plugin.js`;
     } else if (source === 'cdn') {
       pluginPath = `https://unpkg.com/pensine-plugin-${id}@latest/${id}-plugin.js`;
     } else if (source) {
       pluginPath = source; // URL custom
     } else {
       // Default: local
-      pluginPath = `./plugins/pensine-plugin-${id}/${id}-plugin.js`;
+      pluginPath = `../plugins/pensine-plugin-${id}/${id}-plugin.js`;
     }
 
     this.logger.debug(`Plugin path: ${pluginPath}`);

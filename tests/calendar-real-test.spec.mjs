@@ -154,7 +154,10 @@ test.describe('Calendar Real Test with GitHub', () => {
       msg.text.includes('✅') ||
       msg.text.includes('⚙️') ||
       msg.text.includes('Scanning') ||
-      msg.text.includes('events')
+      msg.text.includes('events') ||
+      msg.text.includes('journal') ||
+      msg.text.includes('Storage') ||
+      msg.text.includes('marker')
     );
 
     console.log(`Found ${calendarLogs.length} calendar-related logs:`);
