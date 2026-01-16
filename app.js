@@ -1089,24 +1089,108 @@ class PensineApp {
             return;
         }
 
-        // Load journal files to mark dates
-        const markedDates = [];
+        // Load journal files to mark dates - support multi-repos
+        const markedDatesMap = new Map(); // date -> [{repo, color, file}]
+        const markedDates = []; // For LinearCalendar
+        const repoColors = ['#0e639c', '#10b981', '#ec4899', '#f97316', '#8b5cf6']; // 5 distinct colors
+        let weeksToLoad = 52; // Default
+        
         try {
-            const journalFiles = await this.getJournalFiles();
-            journalFiles.forEach(file => {
-                const match = file.match(/(\d{4})_(\d{2})_(\d{2})\.md$/);
-                if (match) {
-                    const year = match[1];
-                    const month = match[2];
-                    const day = match[3];
+            // Get configuration
+            const bootstrapConfig = JSON.parse(localStorage.getItem('pensine-bootstrap') || '{}');
+            const config = JSON.parse(localStorage.getItem('pensine-config') || '{}');
+            
+            // Determine repos to scan
+            let reposToScan = [];
+            if (config.git && config.git.repositories && Array.isArray(config.git.repositories)) {
+                // Multi-repos configured
+                reposToScan = config.git.repositories.map((repoName, idx) => ({
+                    name: repoName,
+                    owner: config.git.owner,
+                    color: repoColors[idx % repoColors.length]
+                }));
+            } else if (config.git && config.git.repo) {
+                // Single repo
+                reposToScan = [{
+                    name: config.git.repo,
+                    owner: config.git.owner,
+                    color: repoColors[0]
+                }];
+            }
+
+            console.log('📚 Scanning repos for journal entries:', reposToScan);
+
+            // Scan each repo
+            for (const repoInfo of reposToScan) {
+                try {
+                    const journalFiles = await this.getJournalFilesFromRepo(repoInfo.name);
+                    journalFiles.forEach(file => {
+                        const match = file.match(/(\d{4})_(\d{2})_(\d{2})\.md$/);
+                        if (match) {
+                            const dateKey = `${match[1]}-${match[2]}-${match[3]}`;
+                            
+                            if (!markedDatesMap.has(dateKey)) {
+                                markedDatesMap.set(dateKey, []);
+                            }
+                            
+                            markedDatesMap.get(dateKey).push({
+                                repo: repoInfo.name,
+                                color: repoInfo.color,
+                                file: file
+                            });
+                        }
+                    });
+                } catch (error) {
+                    console.warn(`Error loading journal files from ${repoInfo.name}:`, error);
+                }
+            }
+
+            // Calculate date range: earliest entry to +1 year from today
+            const today = new Date();
+            const oneYearAhead = new Date(today);
+            oneYearAhead.setFullYear(oneYearAhead.getFullYear() + 1);
+            
+            let earliestDate = today;
+            if (markedDatesMap.size > 0) {
+                const dates = Array.from(markedDatesMap.keys()).map(d => new Date(d));
+                earliestDate = new Date(Math.min(...dates));
+            }
+            
+            // Calculate weeks to load
+            const daysDiff = Math.ceil((oneYearAhead - earliestDate) / (1000 * 60 * 60 * 24));
+            const weeksToLoad = Math.ceil(daysDiff / 7) + 8; // +8 for buffer
+
+            console.log(`📅 Calendar range: ${earliestDate.toLocaleDateString()} to ${oneYearAhead.toLocaleDateString()} (${weeksToLoad} weeks)`);
+            console.log(`📌 Found ${markedDatesMap.size} dates with journal entries`);
+
+            // Prepare marked dates for LinearCalendar
+            const markedDates = [];
+            markedDatesMap.forEach((sources, dateKey) => {
+                if (sources.length === 1) {
+                    // Single source - simple dot
                     markedDates.push({
-                        date: `${year}-${month}-${day}`,
-                        markerType: 'dot',
-                        color: 'var(--calendar-accent)',
-                        opacity: 0.5
+                        date: dateKey,
+                        events: [{
+                            type: 'note',
+                            color: sources[0].color,
+                            label: sources[0].repo,
+                            opacity: 0.8
+                        }]
+                    });
+                } else {
+                    // Multiple sources - show all with multi-colored marker
+                    markedDates.push({
+                        date: dateKey,
+                        events: sources.map(src => ({
+                            type: 'note',
+                            color: src.color,
+                            label: src.repo,
+                            opacity: 0.8
+                        }))
                     });
                 }
             });
+
         } catch (error) {
             console.error('Error loading journal files:', error);
         }
@@ -1120,17 +1204,20 @@ class PensineApp {
         // Initialize LinearCalendar
         this.linearCalendar = new LinearCalendar(container, {
             weekStartDay,
-            weeksToShow: 52,
+            weeksToLoad: weeksToLoad || 52,
             markedDates,
             monthFormat,
             monthColors: true,
             dayNumberPosition,
             dayHeight,
-            onDayClick: (dateStr, event) => {
+            onDayClick: (dateStr, events) => {
                 // Parse dateStr (YYYY-MM-DD format)
                 const [year, month, day] = dateStr.split('-').map(Number);
                 const date = new Date(year, month - 1, day);
-                this.loadJournalByDate(date);
+                
+                // Get all sources for this date
+                const sources = markedDatesMap.get(dateStr) || [];
+                this.loadJournalByDate(date, sources);
             }
         });
 
@@ -1153,6 +1240,12 @@ class PensineApp {
         }
     }
 
+    async getJournalFilesFromRepo(repoName) {
+        // TODO: Implement repo-specific file listing
+        // For now, use the default storage manager
+        return await this.getJournalFiles();
+    }
+
 
 
     async getJournalFiles() {
@@ -1171,19 +1264,56 @@ class PensineApp {
         }
     }
 
-    async loadJournalByDate(date) {
+    async loadJournalByDate(date, sources = []) {
         this.currentDate = date;
         await this.closeCalendar();
 
-        // Open journal file in editor
         const fileName = `journals/${this.formatDate(date)}.md`;
 
+        if (sources.length === 0) {
+            // No existing entries, create new
+            const emptyContent = `# ${this.formatDate(date)}\n\n`;
+            await this.openInEditor(fileName, emptyContent);
+        } else if (sources.length === 1) {
+            // Single source, open directly
+            try {
+                const { content } = await storageManager.getFile(fileName);
+                await this.openInEditor(fileName, content);
+            } catch (error) {
+                const emptyContent = `# ${this.formatDate(date)}\n\n`;
+                await this.openInEditor(fileName, emptyContent);
+            }
+        } else {
+            // Multiple sources - show tab selector
+            await this.showMultiSourceEditor(date, sources);
+        }
+    }
+
+    async showMultiSourceEditor(date, sources) {
+        // TODO: Implement tabbed interface for multiple sources
+        // For now, show first source with indication of multiple sources
+        console.log(`📑 Multiple sources for ${date}:`, sources);
+        
+        const fileName = `journals/${this.formatDate(date)}.md`;
         try {
-            // Try to fetch existing file
             const { content } = await storageManager.getFile(fileName);
             await this.openInEditor(fileName, content);
+            
+            // Show notification about multiple sources
+            const notification = document.createElement('div');
+            notification.className = 'multi-source-notification';
+            notification.innerHTML = `
+                <div style="background: var(--bg-tertiary); border: 1px solid var(--border); padding: 8px; margin: 8px; border-radius: 4px;">
+                    📑 Cette date existe dans ${sources.length} repos : ${sources.map(s => s.repo).join(', ')}
+                    <br><small style="opacity: 0.7;">Support multi-repos complet à venir</small>
+                </div>
+            `;
+            const editorContainer = document.getElementById('editor-container');
+            if (editorContainer) {
+                editorContainer.insertBefore(notification, editorContainer.firstChild);
+                setTimeout(() => notification.remove(), 5000);
+            }
         } catch (error) {
-            // File doesn't exist yet, create empty
             const emptyContent = `# ${this.formatDate(date)}\n\n`;
             await this.openInEditor(fileName, emptyContent);
         }

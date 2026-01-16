@@ -45,3 +45,9 @@
     height: 100%;
     width: 100%;
 }
+
+/* Fix weekday header alignment with day cells */
+#linear-calendar .linear-calendar-weekdays {
+    padding: 8px 26px 4px 4px;
+    /* Match calendar-week padding: 4px left, 26px right (label space) */
+}
