@@ -162,9 +162,15 @@ class PensineBootstrap {
    */
   loadLocalConfig() {
     try {
-      const raw = localStorage.getItem('pensine-bootstrap');
-      if (!raw) return null;
-      return JSON.parse(raw);
+      // Load full config from pensine-config (not just bootstrap metadata)
+      const raw = localStorage.getItem('pensine-config');
+      if (!raw) {
+        this.logger.debug('No pensine-config in localStorage');
+        return null;
+      }
+      const config = JSON.parse(raw);
+      this.logger.debug('Loaded config:', { storageMode: config.storageMode, hasCredentials: !!config.credentials });
+      return config;
     } catch (error) {
       this.logger.error('Failed to parse local config', error);
       return null;
