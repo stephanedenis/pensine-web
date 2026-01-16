@@ -1050,6 +1050,18 @@ class ConfigWizard {
 
     nextStep() {
         if (this.currentStep < this.steps.length - 1 && this.canProceedFromStep()) {
+            // Avant de passer à l'étape suivante, sauvegarder les repos sélectionnés
+            const currentStepId = this.steps[this.currentStep].id;
+            
+            if (currentStepId === 'repository' && this.selectedRepos.length > 0) {
+                // Sauvegarder le premier repo sélectionné comme repo principal
+                this.config.git.repo = this.selectedRepos[0];
+                // Sauvegarder la liste complète pour référence future
+                this.config.git.repositories = this.selectedRepos;
+                console.log('✅ Repository configured:', this.config.git.repo);
+                console.log('📦 All selected repos:', this.selectedRepos);
+            }
+            
             this.currentStep++;
             this.renderStep();
         }
