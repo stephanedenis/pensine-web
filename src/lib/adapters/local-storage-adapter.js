@@ -4,7 +4,7 @@
  * Aucune synchronisation GitHub, fonctionnement 100% offline
  */
 
-import StorageAdapterBase from './storage-adapter-base.js';
+import StorageAdapterBase from '/src/lib/adapters/storage-adapter-base.js';
 
 class LocalStorageAdapter extends StorageAdapterBase {
   constructor() {

@@ -3,7 +3,7 @@
  * Adaptateur pour stockage via GitHub API avec support OAuth et PAT
  */
 
-import StorageAdapterBase from './storage-adapter-base.js';
+import StorageAdapterBase from '/src/lib/adapters/storage-adapter-base.js';
 
 class GitHubStorageAdapter extends StorageAdapterBase {
   constructor() {

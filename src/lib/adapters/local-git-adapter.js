@@ -4,7 +4,7 @@
  * Stockage via OPFS (Origin Private File System) ou LightningFS
  */
 
-import StorageAdapterBase from './storage-adapter-base.js';
+import StorageAdapterBase from '/src/lib/adapters/storage-adapter-base.js';
 
 class LocalGitAdapter extends StorageAdapterBase {
   constructor() {

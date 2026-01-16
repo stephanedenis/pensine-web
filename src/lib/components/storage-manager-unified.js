@@ -76,7 +76,7 @@ class StorageManager {
     this.mode = 'oauth';
 
     // Import dynamique de l'adapter
-    const { default: GitHubStorageAdapter } = await import('../adapters/github-storage-adapter.js');
+    const { default: GitHubStorageAdapter } = await import('/src/lib/adapters/github-storage-adapter.js');
     this.adapter = new GitHubStorageAdapter();
 
     // Vérifier si OAuth est authentifié
@@ -98,7 +98,7 @@ class StorageManager {
     this.mode = 'pat';
 
     // Import dynamique de l'adapter
-    const { default: GitHubStorageAdapter } = await import('../adapters/github-storage-adapter.js');
+    const { default: GitHubStorageAdapter } = await import('/src/lib/adapters/github-storage-adapter.js');
     this.adapter = new GitHubStorageAdapter();
 
     // Récupérer token chiffré et config
@@ -122,7 +122,7 @@ class StorageManager {
     this.mode = 'local';
 
     // Import dynamique de l'adapter
-    const { default: LocalStorageAdapter } = await import('../adapters/local-storage-adapter.js');
+    const { default: LocalStorageAdapter } = await import('/src/lib/adapters/local-storage-adapter.js');
     this.adapter = new LocalStorageAdapter();
 
     const config = JSON.parse(localStorage.getItem('pensine-local-config') || '{}');
@@ -136,7 +136,7 @@ class StorageManager {
     this.mode = 'local-git';
 
     // Import dynamique de l'adapter
-    const { default: LocalGitAdapter } = await import('../adapters/local-git-adapter.js');
+    const { default: LocalGitAdapter } = await import('/src/lib/adapters/local-git-adapter.js');
     this.adapter = new LocalGitAdapter();
 
     const config = JSON.parse(localStorage.getItem('pensine-local-git-config') || '{}');
