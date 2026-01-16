@@ -51,3 +51,20 @@
     padding: 8px 26px 4px 4px;
     /* Match calendar-week padding: 4px left, 26px right (label space) */
 }
+
+/* Make event markers more visible */
+#linear-calendar .event-dot {
+    width: 6px;
+    height: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+#linear-calendar .calendar-day.has-events {
+    font-weight: 600;
+}
+
+#linear-calendar .event-indicators {
+    bottom: 3px;
+    gap: 3px;
+}

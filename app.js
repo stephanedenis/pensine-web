@@ -1183,7 +1183,9 @@ class PensineApp {
         const weekStartDay = parseInt(localStorage.getItem('weekStartDay') || '1'); // Lundi par défaut
         const monthFormat = localStorage.getItem('monthFormat') || 'short';
         const dayNumberPosition = localStorage.getItem('dayNumberPosition') || 'center';
-        const dayHeight = parseInt(localStorage.getItem('dayHeight') || '28');
+        const dayHeight = parseInt(localStorage.getItem('dayHeight') || '36'); // Increased from 28 to 36
+
+        console.log(`⚙️ Calendar config: dayHeight=${dayHeight}px, weekStartDay=${weekStartDay}`);
 
         // Initialize LinearCalendar
         this.linearCalendar = new LinearCalendar(container, {
@@ -1195,6 +1197,7 @@ class PensineApp {
             dayNumberPosition,
             dayHeight,
             onDayClick: (dateStr, events) => {
+                console.log(`📅 Day clicked: ${dateStr}, events:`, events);
                 // Parse dateStr (YYYY-MM-DD format)
                 const [year, month, day] = dateStr.split('-').map(Number);
                 const date = new Date(year, month - 1, day);
@@ -1208,7 +1211,12 @@ class PensineApp {
         // Add events after initialization
         if (markedDates.length > 0) {
             console.log(`➕ Adding ${markedDates.length} events to calendar`);
+            console.log(`📍 Sample events:`, markedDates.slice(0, 3)); // Show first 3 for debugging
             this.linearCalendar.addEvents(markedDates);
+            
+            // Verify events were added
+            const allEvents = this.linearCalendar.getAllEvents();
+            console.log(`✅ Calendar now has ${allEvents.size} dates with events`);
         }
 
         // Setup config button listener
