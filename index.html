@@ -7,7 +7,7 @@
     <title>Pensine</title>
     <link rel="stylesheet" href="styles/main.css">
     <link rel="stylesheet" href="styles/calendar.css">
-    <link rel="stylesheet" href="lib/components/linear-calendar/linear-calendar-v2.css">
+    <link rel="stylesheet" href="src/lib/components/linear-calendar/linear-calendar-v2.css">
     <link rel="stylesheet" href="styles/editor.css">
     <link rel="stylesheet" href="styles/wizard.css">
     <link rel="stylesheet" href="styles/settings.css">
@@ -62,11 +62,9 @@
             </nav>
 
             <div id="calendar-container">
-                <div class="calendar-header">
-                    <div class="calendar-nav">
-                        <button id="calendar-today" title="Aujourd'hui">●</button>
-                        <button id="calendar-config-btn" title="Configuration calendrier">⚙️</button>
-                    </div>
+                <div class="calendar-controls">
+                    <button id="calendar-today" class="calendar-control-btn" title="Aujourd'hui">📅</button>
+                    <button id="calendar-config-btn" class="calendar-control-btn" title="Configuration">⚙️</button>
                 </div>
                 <div id="linear-calendar"></div>
             </div>
