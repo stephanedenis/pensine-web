@@ -1158,37 +1158,21 @@ class PensineApp {
             
             // Calculate weeks to load
             const daysDiff = Math.ceil((oneYearAhead - earliestDate) / (1000 * 60 * 60 * 24));
-            const weeksToLoad = Math.ceil(daysDiff / 7) + 8; // +8 for buffer
+            weeksToLoad = Math.ceil(daysDiff / 7) + 8; // +8 for buffer
 
             console.log(`📅 Calendar range: ${earliestDate.toLocaleDateString()} to ${oneYearAhead.toLocaleDateString()} (${weeksToLoad} weeks)`);
             console.log(`📌 Found ${markedDatesMap.size} dates with journal entries`);
 
-            // Prepare marked dates for LinearCalendar
-            const markedDates = [];
+            // Prepare events for LinearCalendar (not markedDates - use addEvents instead)
             markedDatesMap.forEach((sources, dateKey) => {
-                if (sources.length === 1) {
-                    // Single source - simple dot
+                sources.forEach(src => {
                     markedDates.push({
                         date: dateKey,
-                        events: [{
-                            type: 'note',
-                            color: sources[0].color,
-                            label: sources[0].repo,
-                            opacity: 0.8
-                        }]
+                        type: 'note',
+                        color: src.color,
+                        label: src.repo
                     });
-                } else {
-                    // Multiple sources - show all with multi-colored marker
-                    markedDates.push({
-                        date: dateKey,
-                        events: sources.map(src => ({
-                            type: 'note',
-                            color: src.color,
-                            label: src.repo,
-                            opacity: 0.8
-                        }))
-                    });
-                }
+                });
             });
 
         } catch (error) {
@@ -1205,7 +1189,7 @@ class PensineApp {
         this.linearCalendar = new LinearCalendar(container, {
             weekStartDay,
             weeksToLoad: weeksToLoad || 52,
-            markedDates,
+            markedDates: [], // Empty - will use addEvents instead
             monthFormat,
             monthColors: true,
             dayNumberPosition,
@@ -1220,6 +1204,12 @@ class PensineApp {
                 this.loadJournalByDate(date, sources);
             }
         });
+
+        // Add events after initialization
+        if (markedDates.length > 0) {
+            console.log(`➕ Adding ${markedDates.length} events to calendar`);
+            this.linearCalendar.addEvents(markedDates);
+        }
 
         // Setup config button listener
         const configBtn = document.getElementById('calendar-config-btn');
