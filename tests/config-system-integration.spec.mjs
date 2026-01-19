@@ -11,7 +11,15 @@ test.describe('Modern Configuration System Integration', () => {
     // Mock localStorage to simulate having a valid config
     // Wizard is now opt-in, so it won't show unless no config exists
     await page.addInitScript(() => {
-      localStorage.setItem('pensine-config', 'true');
+      // Create valid pensine-config with required fields
+      const validConfig = {
+        storageMode: 'local', // Use local mode for tests (no GitHub token needed)
+        credentials: {},
+        version: '0.0.22'
+      };
+      localStorage.setItem('pensine-config', JSON.stringify(validConfig));
+
+      // Legacy keys for backward compatibility
       localStorage.setItem('github-owner', 'test-owner');
       localStorage.setItem('github-repo', 'test-repo');
       localStorage.setItem('pensine-encrypted-token', 'test-token');
@@ -25,19 +33,35 @@ test.describe('Modern Configuration System Integration', () => {
       }
     });
 
-    // Capturer les erreurs
+    // Capturer les erreurs avec stack trace
     page.on('pageerror', error => {
       console.error(`❌ Page Error: ${error.message}`);
+      console.error(`   Stack: ${error.stack}`);
     });
 
     // Naviguer vers l'app
     await page.goto('http://localhost:8000', { waitUntil: 'domcontentloaded' });
 
-    // Attendre que l'app soit complètement initialisée (modules ES6 chargés)
+    // ✅ ATTENDRE bootstrapReady promise au lieu de timeout
     await page.waitForFunction(() => {
-      return window.app?.modernConfigManager !== undefined &&
-        window.app?.settingsView !== undefined;
+      return window.bootstrapReady !== undefined;
     }, { timeout: 5000 });
+
+    console.log('✅ bootstrapReady promise detected, waiting for resolution...');
+
+    // Attendre que bootstrap ET app soient prêts
+    await page.waitForFunction(() => {
+      return window.appReady !== undefined;
+    }, { timeout: 5000 });
+
+    console.log('✅ appReady promise detected, waiting for resolution...');
+
+    // Attendre que appReady soit résolue (app.init() terminé)
+    await page.evaluate(async () => {
+      await window.appReady;
+    });
+
+    console.log('✅ Bootstrap complete, app initialized');
   });
 
   test('1. Système de configuration s\'initialise correctement', async ({ page }) => {
@@ -48,7 +72,11 @@ test.describe('Modern Configuration System Integration', () => {
         hasPluginSystem: !!window.pluginSystem,
         hasModernConfigManager: !!window.modernConfigManager,
         hasAppConfigManager: !!window.app?.modernConfigManager,
-        hasSettingsView: !!window.app?.settingsView
+        hasSettingsView: !!window.app?.settingsView,
+        // Debug info
+        hasApp: !!window.app,
+        hasSettingsViewGlobal: !!window.settingsView,
+        appKeys: window.app ? Object.keys(window.app).filter(k => k.includes('settings')).join(',') : 'NO_APP'
       };
     });
 
@@ -76,7 +104,7 @@ test.describe('Modern Configuration System Integration', () => {
     await page.waitForTimeout(500);
 
     // Vérifier que le panneau est visible
-    const settingsPanel = page.locator('.settings-view, .settings-panel');
+    const settingsPanel = page.locator('#settings-view');
     await expect(settingsPanel).toBeVisible({ timeout: 5000 });
 
     // Vérifier le titre
@@ -84,7 +112,7 @@ test.describe('Modern Configuration System Integration', () => {
     await expect(header).toContainText(/Settings|Configuration/i);
 
     // Vérifier que les onglets sont présents
-    const tabs = page.locator('.settings-tabs .tab, .tab-button');
+    const tabs = page.locator('.settings-tab'); // Classe correcte générée par SettingsView
     const tabCount = await tabs.count();
 
     console.log(`📑 Nombre d'onglets trouvés: ${tabCount}`);
@@ -188,27 +216,18 @@ test.describe('Modern Configuration System Integration', () => {
     await page.evaluate(() => window.app.showSettings());
     await page.waitForTimeout(500);
 
-    const settingsPanel = page.locator('.settings-view, .settings-panel');
+    const settingsPanel = page.locator('#settings-view');
     await expect(settingsPanel).toBeVisible();
 
-    // Chercher le bouton close
-    const closeBtn = page.locator('.close-btn, .settings-close, button:has-text("×"), button[aria-label="Close"]').first();
+    // Cliquer sur le bouton close DANS le settings-panel (scoped selector)
+    const closeBtn = page.locator('#settings-view .btn-close, .settings-panel .btn-close').first();
+    await expect(closeBtn).toBeVisible({ timeout: 2000 });
+    await closeBtn.click();
+    await page.waitForTimeout(500);
 
-    if (await closeBtn.isVisible()) {
-      await closeBtn.click();
-      await page.waitForTimeout(500);
-
-      // Vérifier que le panneau est caché
-      await expect(settingsPanel).not.toBeVisible();
-    } else {
-      // Fallback: appuyer sur Escape
-      await page.keyboard.press('Escape');
-      await page.waitForTimeout(500);
-
-      // Vérifier la fermeture
-      const isVisible = await settingsPanel.isVisible().catch(() => false);
-      expect(isVisible).toBe(false);
-    }
+    // Vérifier que le panneau est caché
+    const isVisible = await settingsPanel.isVisible().catch(() => false);
+    expect(isVisible).toBe(false);
   });
 
   test('7. Fallback vers éditeur config si système moderne échoue', async ({ page }) => {
@@ -334,15 +353,27 @@ test.describe('Modern Configuration System Integration', () => {
 test.describe('Configuration Validation Tests', () => {
   test.beforeEach(async ({ page }) => {
     await page.addInitScript(() => {
-      localStorage.setItem('pensine-config', 'true');
+      // Create valid pensine-config with required fields
+      const validConfig = {
+        storageMode: 'local',
+        credentials: {},
+        version: '0.0.22'
+      };
+      localStorage.setItem('pensine-config', JSON.stringify(validConfig));
+
+      // Legacy keys for backward compatibility
       localStorage.setItem('github-owner', 'test-owner');
       localStorage.setItem('github-repo', 'test-repo');
       localStorage.setItem('pensine-encrypted-token', 'test-token');
     });
 
-    await page.goto('http://localhost:8000', { waitUntil: 'networkidle' });
+    await page.goto('http://localhost:8000', { waitUntil: 'domcontentloaded' });
 
-    // Attendre initialisation complète
+    // Attendre bootstrapReady comme les autres tests
+    await page.waitForFunction(() => {
+      return window.bootstrapReady !== undefined;
+    }, { timeout: 5000 });
+
     await page.waitForFunction(() => {
       return window.app?.modernConfigManager !== undefined &&
         window.app?.settingsView !== undefined;
@@ -350,6 +381,17 @@ test.describe('Configuration Validation Tests', () => {
   });
 
   test('11. Validation - Rejet de valeurs invalides', async ({ page }) => {
+    // Écouter les console.log côté navigateur
+    page.on('console', msg => {
+      const text = msg.text();
+      console.log('[BROWSER]', text);
+    });
+
+    // Écouter les erreurs
+    page.on('pageerror', err => {
+      console.error('[PAGE ERROR]', err.message);
+    });
+
     // Ouvrir settings
     await page.evaluate(() => window.app.showSettings());
     await page.waitForTimeout(500);
@@ -368,21 +410,54 @@ test.describe('Configuration Validation Tests', () => {
 
       if (constraints.max) {
         // Essayer d'entrer une valeur invalide
-        await numericInput.fill(String(Number(constraints.max) + 100));
+        const invalidValue = String(Number(constraints.max) + 100);
+        await numericInput.fill(invalidValue);
+
+        console.log(`🧪 Testing validation: entering ${invalidValue} (max: ${constraints.max})`);
 
         // Tenter de sauvegarder
         const saveBtn = page.locator('button:has-text("Save")').first();
         if (await saveBtn.isVisible()) {
-          await saveBtn.click();
-          await page.waitForTimeout(500);
+          console.log('💾 Save button found and visible');
 
-          // Vérifier qu'une notification d'erreur apparaît
-          const errorNotif = page.locator('.notification.error, .notification.danger, .toast.error');
+          // Vérifier que le formulaire existe et le bouton
+          await page.evaluate(() => {
+            const forms = document.querySelectorAll('#settings-view form');
+            console.log('📋 Forms in settings view:', forms.length);
+            forms.forEach((f, i) => {
+              console.log(`  Form ${i}: id="${f.id}"`);
+              const saveButtons = f.querySelectorAll('button[type="submit"]');
+              console.log(`    Submit buttons in form: ${saveButtons.length}`);
+              saveButtons.forEach((btn, j) => {
+                console.log(`      Button ${j}: text="${btn.textContent}", type="${btn.type}"`);
+              });
+            });
+          });
+
+          // Essayer de soumettre le formulaire directement
+          console.log('🚀 Submitting form directly via JavaScript');
+          await page.evaluate(() => {
+            const form = document.querySelector('#form-core');
+            if (form) {
+              console.log('📨 Dispatching submit event on form');
+              form.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+            }
+          });
+
+          await page.waitForTimeout(1000); // Attendre notification
+
+          // Vérifier qu'une notification d'erreur apparaît (classe notification-error)
+          const errorNotif = page.locator('.notification-error, .notification.error, .notification.danger, .toast.error');
           const hasError = await errorNotif.isVisible().catch(() => false);
 
           console.log('❌ Validation error shown:', hasError);
-          // On s'attend à ce qu'il y ait une erreur OU que la valeur soit rejetée
-          // (le comportement exact dépend de l'implémentation)
+
+          // Vérifier aussi que le champ a la classe error
+          const hasErrorClass = await numericInput.evaluate(el => el.classList.contains('error'));
+          console.log('🔴 Input has error class:', hasErrorClass);
+
+          // On s'attend à ce qu'il y ait une notification OU une classe error sur le champ
+          expect(hasError || hasErrorClass).toBe(true);
         }
       }
     } else {
@@ -431,15 +506,28 @@ test.describe('Configuration Validation Tests', () => {
 // Test de fumée rapide
 test('Quick Smoke Test - Configuration système fonctionne de bout en bout', async ({ page }) => {
   await page.addInitScript(() => {
-    localStorage.setItem('pensine-config', 'true');
+    // Create valid pensine-config with required fields
+    const validConfig = {
+      storageMode: 'local',
+      credentials: {},
+      version: '0.0.22'
+    };
+    localStorage.setItem('pensine-config', JSON.stringify(validConfig));
+
+    // Legacy keys
     localStorage.setItem('github-owner', 'test');
     localStorage.setItem('github-repo', 'test');
     localStorage.setItem('pensine-encrypted-token', 'test');
   });
 
-  await page.goto('http://localhost:8000', { waitUntil: 'networkidle' });
+  await page.goto('http://localhost:8000', { waitUntil: 'domcontentloaded' });
 
-  // Attendre initialisation complète
+  // Attendre bootstrapReady d'abord
+  await page.waitForFunction(() => {
+    return window.bootstrapReady !== undefined;
+  }, { timeout: 5000 });
+
+  // Puis attendre initialisation complète
   await page.waitForFunction(() => {
     return window.app?.settingsView !== undefined;
   }, { timeout: 10000 });
@@ -452,14 +540,16 @@ test('Quick Smoke Test - Configuration système fonctionne de bout en bout', asy
   await page.evaluate(() => window.app.showSettings());
   await page.waitForTimeout(500);
 
-  const panelVisible = await page.locator('.settings-view, .settings-panel').isVisible();
+  const panelVisible = await page.locator('#settings-view').isVisible();
   expect(panelVisible).toBe(true);
 
   // 3. Peut fermer settings
-  await page.keyboard.press('Escape');
+  const closeBtnSmoke = page.locator('.btn-close, .close-btn').first();
+  await expect(closeBtnSmoke).toBeVisible({ timeout: 2000 });
+  await closeBtnSmoke.click();
   await page.waitForTimeout(500);
 
-  const panelHidden = await page.locator('.settings-view, .settings-panel').isVisible().catch(() => false);
+  const panelHidden = await page.locator('#settings-view').isVisible().catch(() => false);
   expect(panelHidden).toBe(false);
 
   console.log('✅ Smoke test passed - Configuration système opérationnel');

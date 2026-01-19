@@ -286,6 +286,137 @@ export default class JSONSchemaFormBuilder {
   }
 
   /**
+   * Valider le formulaire contre le schéma JSON Schema
+   *
+   * @param {HTMLFormElement} form - Élément form
+   * @param {Object} schema - JSON Schema pour validation
+   * @returns {Object} { valid: boolean, errors: Array<{field, message}> }
+   */
+  validate(form, schema) {
+    const errors = [];
+    const data = this.extractData(form);
+
+    if (!schema.properties) {
+      return { valid: true, errors: [] };
+    }
+
+    // Valider chaque propriété
+    for (const [key, propSchema] of Object.entries(schema.properties)) {
+      const value = data[key];
+      const isRequired = schema.required?.includes(key);
+      const fieldElement = form.querySelector(`[name="${key}"]`);
+
+      // Vérifier champs requis
+      if (isRequired && (value === undefined || value === null || value === '')) {
+        errors.push({
+          field: key,
+          message: `${propSchema.title || key} is required`,
+          element: fieldElement
+        });
+        continue;
+      }
+
+      // Skip validation si pas de valeur et pas requis
+      if (value === undefined || value === null || value === '') {
+        continue;
+      }
+
+      // Validation selon le type
+      const { type = 'string' } = propSchema;
+
+      if (type === 'number' || type === 'integer') {
+        const numValue = typeof value === 'number' ? value : parseFloat(value);
+
+        if (isNaN(numValue)) {
+          errors.push({
+            field: key,
+            message: `${propSchema.title || key} must be a valid number`,
+            element: fieldElement
+          });
+          continue;
+        }
+
+        // Minimum
+        if (propSchema.minimum !== undefined && numValue < propSchema.minimum) {
+          errors.push({
+            field: key,
+            message: `${propSchema.title || key} must be at least ${propSchema.minimum}`,
+            element: fieldElement
+          });
+        }
+
+        // Maximum
+        if (propSchema.maximum !== undefined && numValue > propSchema.maximum) {
+          errors.push({
+            field: key,
+            message: `${propSchema.title || key} must be at most ${propSchema.maximum}`,
+            element: fieldElement
+          });
+        }
+
+        // Type integer
+        if (type === 'integer' && !Number.isInteger(numValue)) {
+          errors.push({
+            field: key,
+            message: `${propSchema.title || key} must be an integer`,
+            element: fieldElement
+          });
+        }
+      }
+
+      if (type === 'string') {
+        const strValue = String(value);
+
+        // MinLength
+        if (propSchema.minLength !== undefined && strValue.length < propSchema.minLength) {
+          errors.push({
+            field: key,
+            message: `${propSchema.title || key} must be at least ${propSchema.minLength} characters`,
+            element: fieldElement
+          });
+        }
+
+        // MaxLength
+        if (propSchema.maxLength !== undefined && strValue.length > propSchema.maxLength) {
+          errors.push({
+            field: key,
+            message: `${propSchema.title || key} must be at most ${propSchema.maxLength} characters`,
+            element: fieldElement
+          });
+        }
+
+        // Pattern
+        if (propSchema.pattern) {
+          const regex = new RegExp(propSchema.pattern);
+          if (!regex.test(strValue)) {
+            errors.push({
+              field: key,
+              message: `${propSchema.title || key} format is invalid`,
+              element: fieldElement
+            });
+          }
+        }
+      }
+
+      // Enum
+      if (propSchema.enum && Array.isArray(propSchema.enum)) {
+        if (!propSchema.enum.includes(value)) {
+          errors.push({
+            field: key,
+            message: `${propSchema.title || key} must be one of: ${propSchema.enum.join(', ')}`,
+            element: fieldElement
+          });
+        }
+      }
+    }
+
+    return {
+      valid: errors.length === 0,
+      errors
+    };
+  }
+
+  /**
    * Extraire les données du formulaire
    *
    * @param {HTMLFormElement} form - Élément form

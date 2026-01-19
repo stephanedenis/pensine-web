@@ -67,7 +67,8 @@ export default class SettingsView {
   async render() {
     if (!this.container) return;
 
-    const plugins = this.pluginSystem.getRegisteredPlugins();
+    // Use getAllPlugins() which returns all registered plugins
+    const plugins = this.pluginSystem.getAllPlugins();
     const configuredPlugins = this.configManager.getConfiguredPlugins();
 
     let html = `
@@ -181,50 +182,7 @@ export default class SettingsView {
    */
   async renderCoreSettings() {
     const coreConfig = this.configManager.getCoreConfig();
-
-    const coreSchema = {
-      title: 'Core Configuration',
-      description: 'Global application settings',
-      type: 'object',
-      properties: {
-        theme: {
-          type: 'string',
-          title: 'Theme',
-          description: 'Visual theme',
-          enum: ['light', 'dark', 'auto'],
-          default: 'auto'
-        },
-        language: {
-          type: 'string',
-          title: 'Language',
-          description: 'Interface language',
-          enum: ['en', 'fr'],
-          default: 'fr'
-        },
-        storageMode: {
-          type: 'string',
-          title: 'Storage Mode',
-          description: 'Where to store your data',
-          enum: ['github', 'local', 'local-git'],
-          default: 'github'
-        },
-        autoSave: {
-          type: 'boolean',
-          title: 'Auto-save',
-          description: 'Automatically save changes',
-          default: true
-        },
-        autoSaveDelay: {
-          type: 'number',
-          title: 'Auto-save delay (ms)',
-          description: 'Delay before auto-saving',
-          minimum: 500,
-          maximum: 10000,
-          default: 2000
-        }
-      },
-      required: ['theme', 'language', 'storageMode']
-    };
+    const coreSchema = this.getCoreSchema();
 
     return this.formBuilder.build(coreSchema, coreConfig, {
       formId: 'form-core',
@@ -300,7 +258,12 @@ export default class SettingsView {
     this.container.querySelectorAll('form').forEach(form => {
       form.addEventListener('submit', async (e) => {
         e.preventDefault();
-        await this.handleFormSubmit(form);
+        console.log('🔥 Form submit event fired!', form.id);
+        try {
+          await this.handleFormSubmit(form);
+        } catch (error) {
+          console.error('💥 Error in handleFormSubmit:', error);
+        }
       });
 
       // Attacher les listeners du form builder
@@ -361,6 +324,46 @@ export default class SettingsView {
    */
   async handleFormSubmit(form) {
     const formId = form.id.replace('form-', '');
+
+    console.log('🔍 handleFormSubmit called for:', formId);
+
+    // Obtenir le schéma pour validation
+    let schema;
+    if (formId === 'core') {
+      schema = this.getCoreSchema();
+    } else {
+      schema = this.configManager.getPluginSchema(formId);
+    }
+
+    console.log('📋 Schema for validation:', schema ? 'Found' : 'Not found');
+
+    // Valider avant extraction/sauvegarde
+    if (schema) {
+      const validation = this.formBuilder.validate(form, schema);
+
+      console.log('✅ Validation result:', validation);
+
+      if (!validation.valid) {
+        // Afficher les erreurs
+        const errorMessages = validation.errors.map(err => err.message).join(', ');
+        console.error('❌ Validation errors:', validation.errors);
+        this.showNotification(`Validation failed: ${errorMessages}`, 'error');
+
+        // Highlight les champs en erreur
+        validation.errors.forEach(err => {
+          if (err.element) {
+            console.log('🔴 Adding error class to field:', err.field);
+            err.element.classList.add('error');
+            // Retirer l'erreur après 3s
+            setTimeout(() => err.element.classList.remove('error'), 3000);
+          }
+        });
+
+        return; // Ne pas sauvegarder si invalide
+      }
+    }
+
+    // Extraction des données après validation
     const data = this.formBuilder.extractData(form);
 
     try {
@@ -382,6 +385,54 @@ export default class SettingsView {
       console.error('Error saving config:', error);
       this.showNotification(`Error: ${error.message}`, 'error');
     }
+  }
+
+  /**
+   * Obtenir le schéma Core (pour validation)
+   */
+  getCoreSchema() {
+    return {
+      type: 'object',
+      title: 'Core Settings',
+      properties: {
+        theme: {
+          type: 'string',
+          title: 'Theme',
+          description: 'Application theme',
+          enum: ['light', 'dark', 'auto'],
+          default: 'auto'
+        },
+        language: {
+          type: 'string',
+          title: 'Language',
+          description: 'Interface language',
+          enum: ['en', 'fr'],
+          default: 'fr'
+        },
+        storageMode: {
+          type: 'string',
+          title: 'Storage Mode',
+          description: 'Where to store your data',
+          enum: ['github', 'local', 'local-git'],
+          default: 'github'
+        },
+        autoSave: {
+          type: 'boolean',
+          title: 'Auto-save',
+          description: 'Automatically save changes',
+          default: true
+        },
+        autoSaveDelay: {
+          type: 'number',
+          title: 'Auto-save delay (ms)',
+          description: 'Delay before auto-saving',
+          minimum: 500,
+          maximum: 10000,
+          default: 2000
+        }
+      },
+      required: ['theme', 'language', 'storageMode']
+    };
   }
 
   /**
