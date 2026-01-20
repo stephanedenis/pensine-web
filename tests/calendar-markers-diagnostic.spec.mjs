@@ -1,7 +1,7 @@
 /**
  * Calendar Markers Diagnostic Test
  * Tests calendar initialization and event marker display
- * 
+ *
  * Run with: npx playwright test calendar-markers-diagnostic.spec.mjs
  * Make sure to have a local server running on port 8000:
  *   python3 -m http.server 8000
@@ -26,7 +26,7 @@ test.describe('Calendar Markers Diagnostic', () => {
     page.on('console', msg => {
       const text = msg.text();
       consoleMessages.push({ type: msg.type(), text });
-      
+
       if (msg.type() === 'error') {
         consoleErrors.push(text);
       }
@@ -46,7 +46,7 @@ test.describe('Calendar Markers Diagnostic', () => {
 
   test('1. Capture initial page load and errors', async ({ page }) => {
     console.log('\n=== PAGE LOAD DIAGNOSTIC ===\n');
-    
+
     // Wait for app to initialize
     await page.waitForTimeout(2000);
 
@@ -78,9 +78,9 @@ test.describe('Calendar Markers Diagnostic', () => {
     });
 
     // Take screenshot of initial state
-    await page.screenshot({ 
+    await page.screenshot({
       path: 'test-results/calendar-initial-load.png',
-      fullPage: true 
+      fullPage: true
     });
     console.log('\n📸 Screenshot saved: test-results/calendar-initial-load.png');
   });
@@ -92,30 +92,30 @@ test.describe('Calendar Markers Diagnostic', () => {
 
     const calendarContainer = await page.locator('#calendar-container');
     const isVisible = await calendarContainer.isVisible();
-    
+
     console.log(`Calendar container visible: ${isVisible}`);
     expect(isVisible).toBe(true);
 
     const linearCalendar = await page.locator('#linear-calendar');
     const linearVisible = await linearCalendar.isVisible();
-    
+
     console.log(`Linear calendar visible: ${linearVisible}`);
     expect(linearVisible).toBe(true);
 
     // Check if LinearCalendar created its structure
     const calendarWeekdays = await page.locator('.linear-calendar-weekdays');
     const weekdaysExists = await calendarWeekdays.count();
-    
+
     console.log(`Weekdays header count: ${weekdaysExists}`);
-    
+
     const calendarScroll = await page.locator('.linear-calendar-scroll');
     const scrollExists = await calendarScroll.count();
-    
+
     console.log(`Scroll container count: ${scrollExists}`);
 
-    await page.screenshot({ 
+    await page.screenshot({
       path: 'test-results/calendar-structure.png',
-      fullPage: true 
+      fullPage: true
     });
   });
 
@@ -125,8 +125,8 @@ test.describe('Calendar Markers Diagnostic', () => {
     await page.waitForTimeout(2000);
 
     // Filter relevant logs
-    const calendarLogs = consoleMessages.filter(msg => 
-      msg.text.includes('Calendar') || 
+    const calendarLogs = consoleMessages.filter(msg =>
+      msg.text.includes('Calendar') ||
       msg.text.includes('📚') ||
       msg.text.includes('📅') ||
       msg.text.includes('📌') ||
@@ -158,12 +158,12 @@ test.describe('Calendar Markers Diagnostic', () => {
     // Check for days with has-events class
     const daysWithEvents = await page.locator('.calendar-day.has-events');
     const count = await daysWithEvents.count();
-    
+
     console.log(`Days with .has-events class: ${count}`);
 
     if (count > 0) {
       console.log('✅ Found days with events!');
-      
+
       // Get first few days with events
       const first5 = await daysWithEvents.first().locator('.calendar-day-number').textContent();
       console.log(`  First day with events: ${first5}`);
@@ -180,7 +180,7 @@ test.describe('Calendar Markers Diagnostic', () => {
       // Get color of first dot
       if (dotCount > 0) {
         const firstDot = eventDots.first();
-        const bgColor = await firstDot.evaluate(el => 
+        const bgColor = await firstDot.evaluate(el =>
           window.getComputedStyle(el).backgroundColor
         );
         console.log(`  First dot background color: ${bgColor}`);
@@ -188,7 +188,7 @@ test.describe('Calendar Markers Diagnostic', () => {
 
     } else {
       console.log('❌ No days with .has-events class found');
-      
+
       // Check if events were added to linearCalendar
       const eventsInCalendar = await page.evaluate(() => {
         if (window.app && window.app.linearCalendar) {
@@ -197,7 +197,7 @@ test.describe('Calendar Markers Diagnostic', () => {
         }
         return 0;
       });
-      
+
       console.log(`  Events in linearCalendar state: ${eventsInCalendar}`);
     }
 
@@ -216,14 +216,14 @@ test.describe('Calendar Markers Diagnostic', () => {
     // Get HTML of first week
     const firstWeek = await page.locator('.calendar-week').first();
     const weekHTML = await firstWeek.innerHTML();
-    
+
     console.log('First week HTML (truncated):');
     console.log(weekHTML.substring(0, 500) + '...');
 
     // Get one day's full HTML
     const firstDay = await page.locator('.calendar-day').first();
     const dayHTML = await firstDay.innerHTML();
-    
+
     console.log('\nFirst day HTML:');
     console.log(dayHTML);
 
@@ -237,7 +237,7 @@ test.describe('Calendar Markers Diagnostic', () => {
         overflow: styles.overflow
       };
     });
-    
+
     console.log('\nLinear calendar computed styles:');
     console.log(containerStyles);
   });
@@ -262,7 +262,7 @@ test.describe('Calendar Markers Diagnostic', () => {
 
         // Check if it was added
         const events = window.app.linearCalendar.getEvents('2025-01-15');
-        
+
         return {
           success: true,
           eventsCount: events.length,
@@ -286,7 +286,7 @@ test.describe('Calendar Markers Diagnostic', () => {
       // Check if the day now has the marker
       const dayWithEvent = await page.locator('.calendar-day.has-events').first();
       const exists = await dayWithEvent.count() > 0;
-      
+
       console.log(`Day with event exists after manual add: ${exists}`);
 
       if (exists) {

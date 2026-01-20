@@ -68,18 +68,37 @@ class GitHubStorageAdapter extends StorageAdapterBase {
   }
 
   async request(endpoint, options = {}) {
-    if (!this.isConfigured()) {
+    // Pour /user, on a seulement besoin du token
+    const needsFullConfig = !endpoint.startsWith('/user');
+
+    if (needsFullConfig && !this.isConfigured()) {
       throw new Error('GitHub adapter not configured');
     }
 
-    const token = await this.getToken();
+    if (!this.token) {
+      throw new Error('GitHub token not available');
+    }
+
+    // Nettoyer le token (enlever espaces, retours chariot, etc.)
+    const token = (await this.getToken()).trim().replace(/[\r\n\t]/g, '');
     const url = `${this.baseUrl}${endpoint}`;
+
+    // Construire headers en s'assurant qu'ils sont ASCII-safe
     const headers = {
       'Authorization': `token ${token}`,
       'Accept': 'application/vnd.github.v3+json',
-      'Content-Type': 'application/json',
-      ...options.headers
+      'Content-Type': 'application/json'
     };
+
+    // Ajouter options.headers seulement si présents et valides
+    if (options.headers) {
+      Object.entries(options.headers).forEach(([key, value]) => {
+        // Vérifier que key et value sont des strings ASCII-safe
+        if (typeof key === 'string' && typeof value === 'string') {
+          headers[key] = value;
+        }
+      });
+    }
 
     const response = await fetch(url, {
       ...options,
@@ -87,8 +106,15 @@ class GitHubStorageAdapter extends StorageAdapterBase {
     });
 
     if (!response.ok) {
-      const error = await response.json();
-      throw new Error(`GitHub API error: ${error.message || response.statusText}`);
+      const errorText = await response.text();
+      let errorMessage = response.statusText;
+      try {
+        const error = JSON.parse(errorText);
+        errorMessage = error.message || response.statusText;
+      } catch (e) {
+        errorMessage = errorText || response.statusText;
+      }
+      throw new Error(`GitHub API error (${response.status}): ${errorMessage}`);
     }
 
     return response.json();

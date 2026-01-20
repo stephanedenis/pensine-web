@@ -332,3 +332,37 @@
 .wizard-skip-link:hover {
     color: var(--text);
 }
+
+/* Token input with toggle visibility button */
+.token-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.token-input-wrapper input {
+    flex: 1;
+    padding-right: 45px;
+}
+
+.toggle-token-btn {
+    position: absolute;
+    right: 8px;
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+    line-height: 1;
+}
+
+.toggle-token-btn:hover:not(:disabled) {
+    background-color: var(--bg-hover);
+}
+
+.toggle-token-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}

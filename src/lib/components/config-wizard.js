@@ -236,12 +236,21 @@ class ConfigWizard {
                         Token d'accès personnel
                         <span class="field-help">(requis, avec scope 'repo')</span>
                     </label>
-                    <input type="password"
-                           id="wizard-token"
-                           value="${this.config.git.token}"
-                           placeholder="ghp_..."
-                           ${this.tokenValidated ? 'disabled' : ''}
-                           required>
+                    <div class="token-input-wrapper">
+                        <input type="password"
+                               id="wizard-token"
+                               value="${this.config.git.token}"
+                               placeholder="ghp_..."
+                               ${this.tokenValidated ? 'disabled' : ''}
+                               required>
+                        <button type="button"
+                                id="toggle-token-visibility"
+                                class="toggle-token-btn"
+                                title="Afficher/masquer le token"
+                                ${this.tokenValidated ? 'disabled' : ''}>
+                            👁️
+                        </button>
+                    </div>
                     <button type="button"
                             id="validate-token-btn"
                             class="wizard-btn wizard-btn-secondary"
@@ -381,7 +390,22 @@ class ConfigWizard {
             ${this.availableRepos.length > 0 ? `
                 <div class="wizard-info-box">
                     <h4>📚 Vos repositories :</h4>
-                    <div class="wizard-repo-list" style="max-height: 300px; overflow-y: auto;">
+                    
+                    <!-- Filtres et recherche -->
+                    <div style="display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap;">
+                        <input type="text" 
+                               id="wizard-repo-search" 
+                               placeholder="🔍 Rechercher un repository..." 
+                               style="flex: 1; min-width: 200px; padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px;">
+                        <select id="wizard-repo-filter" 
+                                style="padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px;">
+                            <option value="all">Tous les repos</option>
+                            <option value="private">🔒 Privés uniquement</option>
+                            <option value="public">🌐 Publics uniquement</option>
+                        </select>
+                    </div>
+                    
+                    <div class="wizard-repo-list" id="wizard-repo-list" style="max-height: 300px; overflow-y: auto;">
                         ${this.availableRepos.map(repo => {
             const selected = this.selectedRepos.includes(repo.name);
             return `
@@ -721,24 +745,28 @@ class ConfigWizard {
             return;
         }
 
+        // Nettoyer le token (enlever espaces, retours chariot invisibles)
+        this.config.git.token = this.config.git.token.trim().replace(/[\r\n\t]/g, '');
+
+        if (!this.config.git.token) {
+            this.validationError = 'Le token ne peut pas être vide.';
+            this.renderStep();
+            return;
+        }
+
         this.isValidatingToken = true;
         this.validationError = null;
         this.renderStep();
 
         try {
             // Import GitHubStorageAdapter dynamiquement
-            // Add version query string to bypass cache
-            const version = new Date().getTime(); // Or use window.cacheBuster?.APP_VERSION
+            const version = new Date().getTime();
             const { default: GitHubStorageAdapter } = await import(`/src/lib/adapters/github-storage-adapter.js?v=${version}`);
 
-            // Configure temporary adapter to test token
+            // Configure temporary adapter avec seulement le token (suffisant pour /user)
             const tempAdapter = new GitHubStorageAdapter();
-            tempAdapter.configure({
-                token: this.config.git.token,
-                owner: 'test', // Temporary, will be replaced
-                repo: 'test',
-                branch: 'main'
-            });
+            tempAdapter.token = this.config.git.token;
+            tempAdapter.mode = 'pat';
 
             // Call GitHub API to validate token and get user info
             const userInfo = await tempAdapter.request('/user');
@@ -756,10 +784,14 @@ class ConfigWizard {
             this.tokenValidated = false;
             this.authenticatedUser = null;
 
-            if (error.message.includes('401') || error.message.includes('Bad credentials')) {
+            if (error.message.includes('does not provide an export') || error.message.includes('MODULE_NOT_FOUND')) {
+                this.validationError = `Erreur de cache du navigateur. <a href="/tests/manual/clear-cache.html" target="_blank" style="color: #e74c3c; text-decoration: underline;">Cliquez ici pour vider le cache</a> puis rechargez la page (Ctrl+Shift+R).`;
+            } else if (error.message.includes('401') || error.message.includes('Bad credentials')) {
                 this.validationError = 'Token invalide. Vérifiez que vous avez copié le bon token.';
             } else if (error.message.includes('403')) {
                 this.validationError = 'Token valide mais permissions insuffisantes. Assurez-vous que le scope "repo" est activé.';
+            } else if (error.message.includes('ISO-8859-1')) {
+                this.validationError = 'Le token contient des caractères invalides. Assurez-vous de copier seulement le token (ghp_...) sans espaces ni retours à la ligne.';
             } else {
                 this.validationError = `Erreur de connexion: ${error.message}`;
             }
@@ -779,7 +811,8 @@ class ConfigWizard {
             const { default: GitHubStorageAdapter } = await import(`/src/lib/adapters/github-storage-adapter.js?v=${Date.now()}`);
 
             const tempAdapter = new GitHubStorageAdapter();
-            tempAdapter.configure({
+            await tempAdapter.configure({
+                authMode: 'pat',
                 token: this.config.git.token,
                 owner: this.config.git.owner,
                 repo: 'test',
@@ -789,15 +822,14 @@ class ConfigWizard {
             // Get user's repositories
             const repos = await tempAdapter.request('/user/repos?type=all&per_page=100&sort=updated');
 
-            // Filter repos containing "Pensine" (case insensitive) or show all
-            this.availableRepos = repos.filter(repo =>
-                repo.name.toLowerCase().includes('pensine')
-            );
+            // Exclude technical repos (pensine-web and pensine-plugin-*)
+            this.availableRepos = repos.filter(repo => {
+                const name = repo.name.toLowerCase();
+                return name !== 'pensine-web' && !name.startsWith('pensine-plugin-');
+            });
 
-            // If no Pensine repos, show all repos
-            if (this.availableRepos.length === 0) {
-                this.availableRepos = repos.slice(0, 20); // Limit to 20 for UI
-            }
+            // Sort alphabetically
+            this.availableRepos.sort((a, b) => a.name.localeCompare(b.name));
 
             this.renderStep();
         } catch (error) {
@@ -818,7 +850,8 @@ class ConfigWizard {
             const { default: GitHubStorageAdapter } = await import(`/src/lib/adapters/github-storage-adapter.js?v=${Date.now()}`);
 
             const tempAdapter = new GitHubStorageAdapter();
-            tempAdapter.configure({
+            await tempAdapter.configure({
+                authMode: 'pat',
                 token: this.config.git.token,
                 owner: this.config.git.owner,
                 repo: 'test',
@@ -852,6 +885,34 @@ class ConfigWizard {
                 alert(`❌ Erreur lors de la création: ${error.message}`);
             }
         }
+    }
+
+    filterRepositories(searchTerm, visibility) {
+        const repoItems = document.querySelectorAll('.wizard-repo-item');
+        const searchLower = searchTerm.toLowerCase();
+
+        repoItems.forEach(item => {
+            const repoName = item.dataset.repoName.toLowerCase();
+            const repoPrivate = item.querySelector('.wizard-repo-icon').textContent.includes('🔒');
+
+            // Check search match
+            const matchesSearch = !searchTerm || repoName.includes(searchLower);
+
+            // Check visibility filter
+            let matchesVisibility = true;
+            if (visibility === 'private' && !repoPrivate) {
+                matchesVisibility = false;
+            } else if (visibility === 'public' && repoPrivate) {
+                matchesVisibility = false;
+            }
+
+            // Show/hide based on filters
+            if (matchesSearch && matchesVisibility) {
+                item.style.display = '';
+            } else {
+                item.style.display = 'none';
+            }
+        });
     }
 
     attachListeners() {
@@ -909,10 +970,32 @@ class ConfigWizard {
         const tokenInput = document.getElementById('wizard-token');
         if (tokenInput) {
             tokenInput.addEventListener('input', (e) => {
-                this.config.git.token = e.target.value;
+                // Nettoyer le token en temps réel (enlever espaces invisibles)
+                const cleanedToken = e.target.value.trim().replace(/[\r\n\t]/g, '');
+                this.config.git.token = cleanedToken;
+                // Mettre à jour le champ avec le token nettoyé
+                if (e.target.value !== cleanedToken) {
+                    e.target.value = cleanedToken;
+                }
                 this.tokenValidated = false;
                 this.validationError = null;
                 this.updateNextButton();
+            });
+        }
+
+        // Toggle token visibility
+        const toggleTokenBtn = document.getElementById('toggle-token-visibility');
+        if (toggleTokenBtn && tokenInput) {
+            toggleTokenBtn.addEventListener('click', () => {
+                if (tokenInput.type === 'password') {
+                    tokenInput.type = 'text';
+                    toggleTokenBtn.textContent = '🙈';
+                    toggleTokenBtn.title = 'Masquer le token';
+                } else {
+                    tokenInput.type = 'password';
+                    toggleTokenBtn.textContent = '👁️';
+                    toggleTokenBtn.title = 'Afficher le token';
+                }
             });
         }
 
@@ -950,6 +1033,23 @@ class ConfigWizard {
                 this.renderStep();
             });
         });
+
+        // Repository search and filter
+        const repoSearch = document.getElementById('wizard-repo-search');
+        const repoFilter = document.getElementById('wizard-repo-filter');
+        const repoList = document.getElementById('wizard-repo-list');
+
+        if (repoSearch && repoList) {
+            repoSearch.addEventListener('input', () => {
+                this.filterRepositories(repoSearch.value, repoFilter?.value || 'all');
+            });
+        }
+
+        if (repoFilter && repoList) {
+            repoFilter.addEventListener('change', () => {
+                this.filterRepositories(repoSearch?.value || '', repoFilter.value);
+            });
+        }
 
         // Create repository button
         const createRepoBtn = document.getElementById('create-repo-btn');
@@ -1052,7 +1152,7 @@ class ConfigWizard {
         if (this.currentStep < this.steps.length - 1 && this.canProceedFromStep()) {
             // Avant de passer à l'étape suivante, sauvegarder les repos sélectionnés
             const currentStepId = this.steps[this.currentStep].id;
-            
+
             if (currentStepId === 'repository' && this.selectedRepos.length > 0) {
                 // Sauvegarder le premier repo sélectionné comme repo principal
                 this.config.git.repo = this.selectedRepos[0];
@@ -1061,7 +1161,7 @@ class ConfigWizard {
                 console.log('✅ Repository configured:', this.config.git.repo);
                 console.log('📦 All selected repos:', this.selectedRepos);
             }
-            
+
             this.currentStep++;
             this.renderStep();
         }
@@ -1106,6 +1206,10 @@ class ConfigWizard {
             localStorage.setItem('pensine-bootstrap', JSON.stringify(bootstrapConfig));
             console.log('✅ Bootstrap config saved:', { storageMode });
 
+            // CRITICAL: Sauvegarder aussi dans pensine-config (bootstrap.js check this)
+            localStorage.setItem('pensine-config', JSON.stringify(bootstrapConfig));
+            console.log('✅ Main config saved (pensine-config)');
+
             // Sauvegarder aussi l'ancien format pour compatibilité
             localStorage.setItem('github-owner', this.config.git.owner);
             localStorage.setItem('github-repo', this.config.git.repo);
@@ -1131,8 +1235,5 @@ class ConfigWizard {
     }
 }
 
-// Export for ES6 modules
-export default ConfigWizard;
-
-// Export class as global (backward compatibility)
+// Export class as global (compatible with classic script loading)
 window.ConfigWizard = ConfigWizard;

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head><title>Test GitHub Token</title></head>
+<body>
+<h1>Test GitHub Token</h1>
+<button onclick="testToken()">Tester le token</button>
+<pre id="result"></pre>
+
+<script>
+async function testToken() {
+  const token = 'VOTRE_TOKEN_ICI'; // Remplacer par votre vrai token
+  const owner = 'stephanedenis';
+  const repo = 'pensine-data'; // Adaptez selon votre repo
+  
+  const result = document.getElementById('result');
+  result.textContent = 'Testing...\n';
+  
+  // Test 1: User authentication
+  try {
+    const userRes = await fetch('https://api.github.com/user', {
+      headers: { 'Authorization': `token ${token}` }
+    });
+    const userData = await userRes.json();
+    result.textContent += `\n✅ User: ${userData.login || 'ERROR: ' + JSON.stringify(userData)}`;
+  } catch (e) {
+    result.textContent += `\n❌ User test failed: ${e.message}`;
+  }
+  
+  // Test 2: Repo access
+  try {
+    const repoRes = await fetch(`https://api.github.com/repos/${owner}/${repo}`, {
+      headers: { 'Authorization': `token ${token}` }
+    });
+    const repoData = await repoRes.json();
+    result.textContent += `\n✅ Repo: ${repoData.full_name || 'ERROR: ' + JSON.stringify(repoData)}`;
+  } catch (e) {
+    result.textContent += `\n❌ Repo test failed: ${e.message}`;
+  }
+  
+  // Test 3: List files
+  try {
+    const filesRes = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/journals`, {
+      headers: { 'Authorization': `token ${token}` }
+    });
+    const filesData = await filesRes.json();
+    result.textContent += `\n✅ Files: ${Array.isArray(filesData) ? filesData.length + ' files' : 'ERROR: ' + JSON.stringify(filesData)}`;
+  } catch (e) {
+    result.textContent += `\n❌ Files test failed: ${e.message}`;
+  }
+}
+</script>
+</body>
+</html>

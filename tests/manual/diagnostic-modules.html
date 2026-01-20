@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diagnostic - Modules JavaScript</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .test-section {
+            background: #252526;
+            border: 1px solid #3e3e42;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .success { color: #4ec9b0; }
+        .error { color: #f48771; }
+        .warning { color: #dcdcaa; }
+        .test-name {
+            font-weight: bold;
+            color: #569cd6;
+            margin-bottom: 10px;
+        }
+        pre {
+            background: #1e1e1e;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+            border-left: 3px solid #007acc;
+        }
+        button {
+            background: #007acc;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+            font-family: inherit;
+        }
+        button:hover { background: #005a9e; }
+        #summary {
+            background: #252526;
+            border: 2px solid #007acc;
+            padding: 20px;
+            border-radius: 4px;
+            margin-top: 20px;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔬 Diagnostic - Modules JavaScript</h1>
+    <p>Ce test vérifie que tous les modules se chargent correctement</p>
+
+    <button id="runTests">▶️ Lancer les tests</button>
+    <button id="clearCache">🗑️ Vider localStorage</button>
+
+    <div id="results"></div>
+    <div id="summary"></div>
+
+    <script type="module">
+        const resultsDiv = document.getElementById('results');
+        const summaryDiv = document.getElementById('summary');
+
+        let passCount = 0;
+        let failCount = 0;
+
+        function addTest(name, status, details) {
+            const section = document.createElement('div');
+            section.className = 'test-section';
+
+            const statusClass = status === 'PASS' ? 'success' :
+                               status === 'FAIL' ? 'error' : 'warning';
+
+            section.innerHTML = `
+                <div class="test-name">${status === 'PASS' ? '✅' : '❌'} ${name}</div>
+                <div class="${statusClass}">Status: ${status}</div>
+                ${details ? `<pre>${details}</pre>` : ''}
+            `;
+
+            resultsDiv.appendChild(section);
+
+            if (status === 'PASS') passCount++;
+            else if (status === 'FAIL') failCount++;
+        }
+
+        async function runTests() {
+            resultsDiv.innerHTML = '';
+            summaryDiv.innerHTML = '';
+            passCount = 0;
+            failCount = 0;
+
+            // Test 1: Storage Adapter Base
+            try {
+                console.log('Test 1: Importing storage-adapter-base.js...');
+                const baseModule = await import('/src/lib/adapters/storage-adapter-base.js?' + Date.now());
+                if (baseModule.default) {
+                    addTest('Storage Adapter Base', 'PASS',
+                        `Module loaded\nExport: ${baseModule.default.name}\nType: ${typeof baseModule.default}`);
+                } else {
+                    addTest('Storage Adapter Base', 'FAIL',
+                        'Module loaded but no default export\nAvailable exports: ' + Object.keys(baseModule).join(', '));
+                }
+            } catch (error) {
+                addTest('Storage Adapter Base', 'FAIL',
+                    `Error: ${error.message}\n\nStack:\n${error.stack}`);
+            }
+
+            // Test 2: GitHub Storage Adapter
+            try {
+                console.log('Test 2: Importing github-storage-adapter.js...');
+                const githubModule = await import('/src/lib/adapters/github-storage-adapter.js?' + Date.now());
+                if (githubModule.default) {
+                    const adapter = new githubModule.default();
+                    addTest('GitHub Storage Adapter', 'PASS',
+                        `Module loaded\nClass: ${adapter.constructor.name}\nMethods: ${Object.getOwnPropertyNames(Object.getPrototypeOf(adapter)).join(', ')}`);
+                } else {
+                    addTest('GitHub Storage Adapter', 'FAIL',
+                        'Module loaded but no default export\nAvailable exports: ' + Object.keys(githubModule).join(', '));
+                }
+            } catch (error) {
+                addTest('GitHub Storage Adapter', 'FAIL',
+                    `Error: ${error.message}\n\nStack:\n${error.stack}`);
+            }
+
+            // Test 3: Config Wizard
+            try {
+                console.log('Test 3: Importing config-wizard.js...');
+                const wizardModule = await import('/src/lib/components/config-wizard.js?' + Date.now());
+                if (wizardModule.default) {
+                    addTest('Config Wizard', 'PASS',
+                        `Module loaded\nClass: ${wizardModule.default.name}`);
+                } else {
+                    addTest('Config Wizard', 'FAIL',
+                        'Module loaded but no default export\nAvailable exports: ' + Object.keys(wizardModule).join(', '));
+                }
+            } catch (error) {
+                addTest('Config Wizard', 'FAIL',
+                    `Error: ${error.message}\n\nStack:\n${error.stack}`);
+            }
+
+            // Test 4: Token Storage
+            try {
+                console.log('Test 4: Importing token-storage.js...');
+                const tokenModule = await import('/src/lib/services/token-storage.js?' + Date.now());
+                if (tokenModule.default) {
+                    addTest('Token Storage', 'PASS',
+                        `Module loaded\nClass: ${tokenModule.default.name}`);
+                } else {
+                    addTest('Token Storage', 'FAIL',
+                        'Module loaded but no default export');
+                }
+            } catch (error) {
+                addTest('Token Storage', 'FAIL',
+                    `Error: ${error.message}\n\nStack:\n${error.stack}`);
+            }
+
+            // Test 5: Create GitHub Adapter Instance
+            try {
+                console.log('Test 5: Creating GitHub adapter instance...');
+                const { default: GitHubStorageAdapter } = await import('/src/lib/adapters/github-storage-adapter.js?' + Date.now());
+                const adapter = new GitHubStorageAdapter();
+                adapter.token = 'test_token';
+                adapter.mode = 'pat';
+
+                addTest('GitHub Adapter Instantiation', 'PASS',
+                    `Instance created\nMode: ${adapter.mode}\nToken set: ${!!adapter.token}\nBase URL: ${adapter.baseUrl}`);
+            } catch (error) {
+                addTest('GitHub Adapter Instantiation', 'FAIL',
+                    `Error: ${error.message}\n\nStack:\n${error.stack}`);
+            }
+
+            // Test 6: Test /user endpoint preparation (no actual call)
+            try {
+                console.log('Test 6: Testing adapter request preparation...');
+                const { default: GitHubStorageAdapter } = await import('/src/lib/adapters/github-storage-adapter.js?' + Date.now());
+                const adapter = new GitHubStorageAdapter();
+                adapter.token = 'ghp_test123';
+                adapter.mode = 'pat';
+
+                // Check if request method exists
+                if (typeof adapter.request === 'function') {
+                    addTest('Adapter Request Method', 'PASS',
+                        `request() method exists\nSignature: ${adapter.request.toString().split('\n')[0]}`);
+                } else {
+                    addTest('Adapter Request Method', 'FAIL',
+                        'request() method not found');
+                }
+            } catch (error) {
+                addTest('Adapter Request Method', 'FAIL',
+                    `Error: ${error.message}\n\nStack:\n${error.stack}`);
+            }
+
+            // Summary
+            const total = passCount + failCount;
+            const successRate = total > 0 ? Math.round((passCount / total) * 100) : 0;
+
+            summaryDiv.innerHTML = `
+                <h2>📊 Résumé</h2>
+                <div>Tests passés: <span class="success">${passCount}</span></div>
+                <div>Tests échoués: <span class="error">${failCount}</span></div>
+                <div>Total: ${total}</div>
+                <div>Taux de réussite: ${successRate}%</div>
+                <hr>
+                ${failCount === 0 ?
+                    '<div class="success">✅ Tous les tests sont passés ! Le wizard devrait fonctionner.</div>' :
+                    '<div class="error">❌ Certains tests ont échoué. Vérifiez les détails ci-dessus.</div>'
+                }
+            `;
+        }
+
+        document.getElementById('runTests').addEventListener('click', runTests);
+        document.getElementById('clearCache').addEventListener('click', () => {
+            localStorage.clear();
+            sessionStorage.clear();
+            alert('✅ Cache vidé ! Rechargez la page (Ctrl+Shift+R)');
+        });
+
+        // Auto-run on load
+        window.addEventListener('load', () => {
+            console.log('Page loaded, running tests...');
+            setTimeout(runTests, 500);
+        });
+    </script>
+</body>
+</html>

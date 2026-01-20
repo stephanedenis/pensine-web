@@ -20,7 +20,7 @@ test.describe('Calendar Quick Diagnostic', () => {
     page.on('console', msg => {
       const text = msg.text();
       consoleMessages.push({ type: msg.type(), text });
-      
+
       if (msg.type() === 'error') {
         consoleErrors.push(text);
       }
@@ -36,7 +36,7 @@ test.describe('Calendar Quick Diagnostic', () => {
 
     console.log('\n=== LOADING PAGE ===\n');
     await page.goto(BASE_URL, { waitUntil: 'networkidle', timeout: 30000 });
-    
+
     // Wait for app to initialize
     await page.waitForTimeout(5000);
 
@@ -65,8 +65,8 @@ test.describe('Calendar Quick Diagnostic', () => {
     }
 
     console.log('\n=== CALENDAR INITIALIZATION LOGS ===\n');
-    const calendarLogs = consoleMessages.filter(msg => 
-      msg.text.includes('Calendar') || 
+    const calendarLogs = consoleMessages.filter(msg =>
+      msg.text.includes('Calendar') ||
       msg.text.includes('📚') ||
       msg.text.includes('📅') ||
       msg.text.includes('📌') ||
@@ -85,7 +85,7 @@ test.describe('Calendar Quick Diagnostic', () => {
     }
 
     console.log('\n=== CALENDAR STRUCTURE ===\n');
-    
+
     const calendarContainer = await page.locator('#calendar-container');
     const containerVisible = await calendarContainer.isVisible().catch(() => false);
     console.log(`Calendar container visible: ${containerVisible}`);
@@ -101,7 +101,7 @@ test.describe('Calendar Quick Diagnostic', () => {
     console.log(`Scroll container count: ${scrollCount}`);
 
     console.log('\n=== EVENT MARKERS CHECK ===\n');
-    
+
     const daysWithEvents = await page.locator('.calendar-day.has-events').count();
     console.log(`Days with .has-events class: ${daysWithEvents}`);
 
@@ -113,12 +113,12 @@ test.describe('Calendar Quick Diagnostic', () => {
       if (!window.app || !window.app.linearCalendar) {
         return { error: 'linearCalendar not found on window.app' };
       }
-      
+
       try {
         const allEvents = window.app.linearCalendar.getAllEvents();
         const sampleDate = '2025-01-15';
         const sampleEvents = window.app.linearCalendar.getEvents(sampleDate);
-        
+
         return {
           totalDatesWithEvents: allEvents.size,
           sampleDate: sampleDate,
@@ -134,7 +134,7 @@ test.describe('Calendar Quick Diagnostic', () => {
     console.log(JSON.stringify(calendarState, null, 2));
 
     console.log('\n=== LOCALSTORAGE ===\n');
-    
+
     const storage = await page.evaluate(() => {
       return {
         bootstrap: localStorage.getItem('pensine-bootstrap'),
@@ -158,11 +158,11 @@ test.describe('Calendar Quick Diagnostic', () => {
     });
 
     // Take screenshots
-    await page.screenshot({ 
+    await page.screenshot({
       path: 'test-results/diagnostic-full-page.png',
-      fullPage: true 
+      fullPage: true
     });
-    
+
     if (containerVisible) {
       await page.locator('#calendar-container').screenshot({
         path: 'test-results/diagnostic-calendar.png'

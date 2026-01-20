@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Test - Token Validation</title>
+    <style>
+        body {
+            font-family: monospace;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .success { color: green; }
+        .error { color: red; }
+        input { width: 100%; padding: 8px; margin: 10px 0; }
+        button { padding: 10px 20px; margin: 5px; }
+        #result {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #ccc;
+            background: #f5f5f5;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <h1>Test - Validation Token GitHub</h1>
+
+    <label>Token GitHub (ghp_...):</label>
+    <input type="password" id="token" placeholder="ghp_...">
+
+    <button id="testBtn">🔍 Tester la validation</button>
+    <button id="toggleBtn">👁️ Afficher/Masquer</button>
+
+    <div id="result"></div>
+
+    <script type="module">
+        const tokenInput = document.getElementById('token');
+        const resultDiv = document.getElementById('result');
+        const testBtn = document.getElementById('testBtn');
+        const toggleBtn = document.getElementById('toggleBtn');
+
+        toggleBtn.addEventListener('click', () => {
+            tokenInput.type = tokenInput.type === 'password' ? 'text' : 'password';
+            toggleBtn.textContent = tokenInput.type === 'password' ? '👁️ Afficher' : '🙈 Masquer';
+        });
+
+        testBtn.addEventListener('click', async () => {
+            const token = tokenInput.value.trim();
+
+            if (!token) {
+                resultDiv.innerHTML = '<span class="error">❌ Veuillez entrer un token</span>';
+                return;
+            }
+
+            // Diagnostics du token
+            console.log('Token length:', token.length);
+            console.log('Token (first 20 chars):', token.substring(0, 20));
+            console.log('Token contains \\r?', token.includes('\r'));
+            console.log('Token contains \\n?', token.includes('\n'));
+            console.log('Token contains \\t?', token.includes('\t'));
+            console.log('Token has non-ASCII?', /[^\x00-\x7F]/.test(token));
+
+            resultDiv.innerHTML = '⏳ Validation en cours...';
+            testBtn.disabled = true;
+
+            try {
+                // Import adapter
+                const { default: GitHubStorageAdapter } = await import('/src/lib/adapters/github-storage-adapter.js?v=' + Date.now());
+
+                // Créer adapter temporaire avec seulement le token
+                const adapter = new GitHubStorageAdapter();
+                adapter.token = token;
+                adapter.mode = 'pat';
+
+                console.log('🔍 Calling GitHub API /user...');
+
+                // Appeler /user pour valider
+                const userInfo = await adapter.request('/user');
+
+                console.log('✅ User info:', userInfo);
+
+                resultDiv.innerHTML = `<span class="success">✅ Token valide!</span>
+
+Username: ${userInfo.login}
+Nom: ${userInfo.name || 'N/A'}
+Email: ${userInfo.email || 'N/A'}
+Type: ${userInfo.type}
+ID: ${userInfo.id}
+
+Requête HTTP effectuée:
+  URL: https://api.github.com/user
+  Header: Authorization: token ${token.substring(0, 10)}...
+
+⚠️ Note: Le owner (${userInfo.login}) n'est PAS dans le header Authorization.
+Il est récupéré depuis la réponse de l'API /user.
+
+Token diagnostics:
+  Length: ${token.length}
+  Contains \\r: ${token.includes('\r') ? '❌ YES (problème!)' : '✅ NO'}
+  Contains \\n: ${token.includes('\n') ? '❌ YES (problème!)' : '✅ NO'}
+  Contains \\t: ${token.includes('\t') ? '❌ YES (problème!)' : '✅ NO'}
+  Non-ASCII chars: ${/[^\x00-\x7F]/.test(token) ? '❌ YES (problème!)' : '✅ NO'}`;
+
+            } catch (error) {
+                console.error('❌ Validation failed:', error);
+
+                resultDiv.innerHTML = `<span class="error">❌ Erreur de validation</span>
+
+${error.message}
+
+Stack trace:
+${error.stack}`;
+            } finally {
+                testBtn.disabled = false;
+            }
+        });
+
+        // Si token dans URL params (pour tests automatisés)
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('token')) {
+            tokenInput.value = params.get('token');
+            if (params.get('auto') === 'true') {
+                testBtn.click();
+            }
+        }
+    </script>
+</body>
+</html>

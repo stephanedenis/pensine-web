@@ -1,7 +1,7 @@
 /**
  * Calendar Real Test with GitHub Authentication
  * Tests calendar with actual GitHub data
- * 
+ *
  * Run with:
  *   GITHUB_TEST_OWNER=stephanedenis \
  *   GITHUB_TEST_TOKEN=ghp_xxx \
@@ -16,7 +16,7 @@ const GITHUB_TOKEN = process.env.GITHUB_TEST_TOKEN;
 const GITHUB_REPO = process.env.GITHUB_TEST_REPO || 'pensine-notes';
 
 test.describe('Calendar Real Test with GitHub', () => {
-  
+
   test.beforeEach(async ({ page }) => {
     if (!GITHUB_TOKEN) {
       throw new Error('GITHUB_TEST_TOKEN environment variable is required');
@@ -64,7 +64,7 @@ test.describe('Calendar Real Test with GitHub', () => {
       localStorage.setItem('pensine-config', JSON.stringify(config));
       localStorage.setItem('pensine-bootstrap', JSON.stringify(bootstrap));
       localStorage.setItem('pensine-storage-mode', 'github');
-      
+
       console.log('✅ Test: localStorage configured with GitHub credentials');
       console.log(`   Owner: ${owner}, Repo: ${repo}`);
     }, { owner: GITHUB_OWNER, token: GITHUB_TOKEN, repo: GITHUB_REPO });
@@ -93,9 +93,9 @@ test.describe('Calendar Real Test with GitHub', () => {
     console.log('\n=== LOADING PAGE WITH CONFIG ===\n');
     console.log(`GitHub: ${GITHUB_OWNER}/${GITHUB_REPO}`);
     console.log(`Token: ${GITHUB_TOKEN.substring(0, 10)}...`);
-    
+
     await page.goto(BASE_URL, { waitUntil: 'networkidle', timeout: 30000 });
-    
+
     // Check localStorage was set correctly
     const storageCheck = await page.evaluate(() => {
       const config = localStorage.getItem('pensine-config');
@@ -107,7 +107,7 @@ test.describe('Calendar Real Test with GitHub', () => {
         bootstrapParsed: bootstrap ? JSON.parse(bootstrap) : null
       };
     });
-    
+
     console.log('\n=== LOCALSTORAGE VERIFICATION ===\n');
     console.log('Has config:', storageCheck.hasConfig);
     console.log('Has bootstrap:', storageCheck.hasBootstrap);
@@ -117,7 +117,7 @@ test.describe('Calendar Real Test with GitHub', () => {
       console.log('Config has credentials.owner:', !!storageCheck.configParsed.credentials?.owner);
       console.log('Config has credentials.repo:', !!storageCheck.configParsed.credentials?.repo);
     }
-    
+
     // Wait for app initialization (not wizard!)
     console.log('\n=== WAITING FOR APP INITIALIZATION ===\n');
     await page.waitForTimeout(5000);
@@ -145,8 +145,8 @@ test.describe('Calendar Real Test with GitHub', () => {
 
     // Check for calendar logs
     console.log('\n=== CALENDAR INITIALIZATION LOGS ===\n');
-    const calendarLogs = consoleMessages.filter(msg => 
-      msg.text.includes('Calendar') || 
+    const calendarLogs = consoleMessages.filter(msg =>
+      msg.text.includes('Calendar') ||
       msg.text.includes('📚') ||
       msg.text.includes('📅') ||
       msg.text.includes('📌') ||
@@ -171,7 +171,7 @@ test.describe('Calendar Real Test with GitHub', () => {
 
     // Check calendar structure
     console.log('\n=== CALENDAR STRUCTURE CHECK ===\n');
-    
+
     const weekdaysCount = await page.locator('.linear-calendar-weekdays').count();
     console.log(`Weekdays header: ${weekdaysCount}`);
     expect(weekdaysCount).toBeGreaterThan(0);
@@ -186,7 +186,7 @@ test.describe('Calendar Real Test with GitHub', () => {
 
     // Check for events in linearCalendar state
     console.log('\n=== CALENDAR STATE CHECK ===\n');
-    
+
     const calendarState = await page.evaluate(() => {
       if (!window.app) {
         return { error: 'window.app not found' };
@@ -194,11 +194,11 @@ test.describe('Calendar Real Test with GitHub', () => {
       if (!window.app.linearCalendar) {
         return { error: 'window.app.linearCalendar not found' };
       }
-      
+
       try {
         const allEvents = window.app.linearCalendar.getAllEvents();
         const eventArray = Array.from(allEvents.entries()).slice(0, 5);
-        
+
         return {
           totalDatesWithEvents: allEvents.size,
           sampleEvents: eventArray.map(([date, events]) => ({
@@ -221,7 +221,7 @@ test.describe('Calendar Real Test with GitHub', () => {
 
     // Check for visible event markers
     console.log('\n=== EVENT MARKERS CHECK ===\n');
-    
+
     const daysWithEvents = await page.locator('.calendar-day.has-events').count();
     console.log(`Days with .has-events class: ${daysWithEvents}`);
 
@@ -233,7 +233,7 @@ test.describe('Calendar Real Test with GitHub', () => {
       const firstEventDay = await page.locator('.calendar-day.has-events').first();
       const dayNumber = await firstEventDay.locator('.calendar-day-number').textContent();
       console.log(`First day with events: ${dayNumber}`);
-      
+
       // Check dot styling
       const firstDot = await page.locator('.event-dot').first();
       const dotStyles = await firstDot.evaluate(el => {
@@ -250,11 +250,11 @@ test.describe('Calendar Real Test with GitHub', () => {
     }
 
     // Take screenshots
-    await page.screenshot({ 
+    await page.screenshot({
       path: 'test-results/calendar-real-test-full.png',
-      fullPage: true 
+      fullPage: true
     });
-    
+
     await page.locator('#calendar-container').screenshot({
       path: 'test-results/calendar-real-test-calendar.png'
     });
@@ -263,19 +263,19 @@ test.describe('Calendar Real Test with GitHub', () => {
     console.log('\n=== TEST SUMMARY ===\n');
     console.log(`✅ App initialized (wizard not shown)`);
     console.log(`✅ Calendar structure created (${weeksCount} weeks, ${daysCount} days)`);
-    
+
     if (!calendarState.error) {
       console.log(`✅ Events loaded: ${calendarState.totalDatesWithEvents} dates`);
     } else {
       console.log(`❌ Calendar state error: ${calendarState.error}`);
     }
-    
+
     if (daysWithEvents > 0) {
       console.log(`✅ Event markers visible: ${daysWithEvents} days, ${eventDots} dots`);
     } else {
       console.log(`⚠️  No event markers visible (expected if repo is empty)`);
     }
-    
+
     console.log(`📸 Screenshots saved:`);
     console.log(`   - test-results/calendar-real-test-full.png`);
     console.log(`   - test-results/calendar-real-test-calendar.png`);
@@ -284,7 +284,7 @@ test.describe('Calendar Real Test with GitHub', () => {
     expect(wizardVisible).toBe(false);
     expect(weekdaysCount).toBeGreaterThan(0);
     expect(weeksCount).toBeGreaterThan(0);
-    
+
     // If calendar state loaded, expect events (unless repo is empty)
     if (!calendarState.error && calendarState.totalDatesWithEvents === 0) {
       console.log('\n⚠️  Note: No events found. This is OK if the repo has no journal files.');

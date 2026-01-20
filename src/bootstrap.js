@@ -103,12 +103,23 @@ class PensineBootstrap {
     this.storageAdapter = null;
     this.pluginSystem = null;
     this.logger = new BootLogger();
+
+    // Promise pour synchroniser avec app.js
+    this.readyPromise = null;
+    this.resolveReady = null;
+    this.isReady = false;
   }
 
   /**
    * Point d'entrée principal
    */
   async init() {
+    // Créer Promise pour synchronisation
+    this.readyPromise = new Promise((resolve) => {
+      this.resolveReady = resolve;
+    });
+    window.bootstrapReady = this.readyPromise;
+
     this.logger.step(1, 6, 'Bootstrap initialization');
 
     // Étape 1: Charger configuration locale
@@ -210,10 +221,13 @@ class PensineBootstrap {
     this.logger.info('Configuration wizard required');
 
     try {
-      // Import wizard dynamiquement (chemin depuis racine)
-      this.logger.wait('Loading wizard module...');
-      const { default: ConfigWizard } = await import('../src/lib/components/config-wizard.js');
-      this.logger.ok('Wizard module loaded');
+      // ConfigWizard is loaded as a global (classic script)
+      this.logger.wait('Loading wizard...');
+      if (!window.ConfigWizard) {
+        throw new Error('ConfigWizard not loaded');
+      }
+      const ConfigWizard = window.ConfigWizard;
+      this.logger.ok('Wizard loaded');
 
       // Créer container wizard si absent
       let wizardContainer = document.getElementById('wizard-container');
@@ -484,7 +498,28 @@ class PensineBootstrap {
       this.logger.debug('App container visible');
     }
 
-    // Émettre événement ready
+    // Marquer comme prêt AVANT d'émettre events
+    this.isReady = true;
+
+    // Exposer references globales pour app.js
+    window.modernConfigManager = window.configManager;
+    this.logger.debug('Global references exposed: modernConfigManager');
+
+    // Résoudre la promise
+    if (this.resolveReady) {
+      this.resolveReady({
+        storageManager: window.storageManager,
+        eventBus: window.eventBus,
+        pluginSystem: window.pluginSystem,
+        configManager: window.configManager
+      });
+      this.logger.debug('bootstrapReady promise resolved');
+    }
+
+    // Émettre événements
+    window.eventBus?.emit('bootstrap:complete');
+    this.logger.debug('Event "bootstrap:complete" emitted');
+
     window.eventBus?.emit('app:ready');
     this.logger.debug('Event "app:ready" emitted');
 

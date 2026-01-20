@@ -112,7 +112,7 @@
             checks.push({
                 name: 'Version de l\'app',
                 status: shouldClear ? 'warning' : 'ok',
-                message: shouldClear 
+                message: shouldClear
                     ? `Version obsolète détectée (actuelle: ${localStorage.getItem('pensine-app-version')}, attendue: ${cacheBuster.APP_VERSION})`
                     : `Version à jour (${cacheBuster.APP_VERSION})`
             });
@@ -168,7 +168,7 @@
 
             try {
                 const success = await cacheBuster.clearAllCaches();
-                
+
                 if (success) {
                     statusDiv.innerHTML = `
                         <div class="status ok">
@@ -264,7 +264,7 @@
         function showLastError() {
             const errorDiv = document.getElementById('error');
             const lastError = localStorage.getItem('pensine-last-error');
-            
+
             if (lastError) {
                 try {
                     const error = JSON.parse(lastError);

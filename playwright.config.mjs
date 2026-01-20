@@ -21,10 +21,12 @@ export default defineConfig({
 
   projects: [
     {
-      name: 'chromium',
+      name: 'msedge',
       use: {
-        ...devices['Desktop Chrome'],
-        headless: true, // Headless par défaut
+        ...devices['Desktop Edge'],
+        channel: 'msedge', // Utiliser Microsoft Edge installé
+        headless: false, // Mode visible pour débugger
+        viewport: { width: 1920, height: 1080 },
       },
     },
   ],

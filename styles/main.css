@@ -9,20 +9,32 @@
     --border: #3e3e42;
     --error: #f48771;
     --success: #89d185;
-    
+
     /* Month colors for calendar */
-    --month-color-0: #f97316;   /* January: Orange */
-    --month-color-1: #2563eb;   /* February: Blue */
-    --month-color-2: #dc2626;   /* March: Red */
-    --month-color-3: #10b981;   /* April: Green */
-    --month-color-4: #ec4899;   /* May: Pink */
-    --month-color-5: #3b82f6;   /* June: Sky Blue */
-    --month-color-6: #fbbf24;   /* July: Yellow */
-    --month-color-7: #4338ca;   /* August: Indigo */
-    --month-color-8: #fb923c;   /* September: Peach */
-    --month-color-9: #84cc16;   /* October: Lime */
-    --month-color-10: #e11d48;  /* November: Rose */
-    --month-color-11: #06b6d4;  /* December: Cyan */
+    --month-color-0: #f97316;
+    /* January: Orange */
+    --month-color-1: #2563eb;
+    /* February: Blue */
+    --month-color-2: #dc2626;
+    /* March: Red */
+    --month-color-3: #10b981;
+    /* April: Green */
+    --month-color-4: #ec4899;
+    /* May: Pink */
+    --month-color-5: #3b82f6;
+    /* June: Sky Blue */
+    --month-color-6: #fbbf24;
+    /* July: Yellow */
+    --month-color-7: #4338ca;
+    /* August: Indigo */
+    --month-color-8: #fb923c;
+    /* September: Peach */
+    --month-color-9: #84cc16;
+    /* October: Lime */
+    --month-color-10: #e11d48;
+    /* November: Rose */
+    --month-color-11: #06b6d4;
+    /* December: Cyan */
 }
 
 * {

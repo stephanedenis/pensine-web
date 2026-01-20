@@ -21,12 +21,10 @@
     <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/es/highlight.min.js"></script>
 
     <!-- Buffer polyfill (required for isomorphic-git) -->
-    <script src="https://cdn.jsdelivr.net/npm/buffer@6.0.3/index.min.js"></script>
-    <script>
-        // Make Buffer global for isomorphic-git
-        if (typeof window.Buffer === 'undefined') {
-            window.Buffer = buffer.Buffer;
-        }
+    <!-- Using ES module version to avoid CommonJS require() issues -->
+    <script type="module">
+        import { Buffer } from 'https://cdn.jsdelivr.net/npm/buffer@6.0.3/+esm';
+        window.Buffer = Buffer;
     </script>
 
     <!-- isomorphic-git + LightningFS for Local Git mode -->
@@ -245,8 +243,8 @@
     <!-- Bootstrap - Initializes storageManager and core systems FIRST -->
     <script type="module" src="src/bootstrap.js"></script>
 
-    <!-- Main App - Must wait for bootstrap to finish (loaded as deferred classic script) -->
-    <script defer src="src/app-init.js"></script>
+    <!-- Main App - Must wait for bootstrap to finish -->
+    <script type="module" src="app.js"></script>
 </body>
 
 </html>

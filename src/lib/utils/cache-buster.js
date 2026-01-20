@@ -23,7 +23,7 @@ class CacheBuster {
    */
   isCriticalError(error) {
     const errorMessage = error?.message || String(error);
-    
+
     const criticalPatterns = [
       'StorageAdapterBase is not defined',
       'StorageAdapterBase is not a constructor',
@@ -32,7 +32,7 @@ class CacheBuster {
       'Failed to fetch dynamically imported module'
     ];
 
-    return criticalPatterns.some(pattern => 
+    return criticalPatterns.some(pattern =>
       errorMessage.toLowerCase().includes(pattern.toLowerCase())
     );
   }
@@ -124,9 +124,9 @@ class CacheBuster {
   showReloadMessage(error) {
     const message = `
       ⚠️ DÉTECTION DE CACHE OBSOLÈTE
-      
+
       Erreur détectée: ${error?.message || 'Erreur critique'}
-      
+
       L'application va nettoyer les caches et recharger.
       Cliquez sur OK pour continuer.
     `;
@@ -142,16 +142,16 @@ class CacheBuster {
    */
   async handleCriticalError(error) {
     console.error('🚨 Critical error detected:', error);
-    
+
     this.logError(error);
 
     if (this.isCriticalError(error)) {
       // Afficher notification
       const shouldReload = this.showReloadMessage(error);
-      
+
       if (shouldReload) {
         await this.clearAllCaches();
-        
+
         // Force reload with cache bypass
         window.location.reload(true);
       }
@@ -180,5 +180,5 @@ class CacheBuster {
 // Instance globale
 window.cacheBuster = new CacheBuster();
 
-// Export pour modules ES6
-export default CacheBuster;
+// Export class as global (compatible with classic script loading)
+window.CacheBuster = CacheBuster;

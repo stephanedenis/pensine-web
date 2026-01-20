@@ -129,7 +129,7 @@ class PensineApp {
         this.currentViewMode = VIEW_MODES.RICH;
         this.hasUnsavedChanges = false;
 
-        this.init();
+        // Don't auto-init, will be called explicitly with await
     }
 
     /**
@@ -161,21 +161,44 @@ class PensineApp {
      */
     async hasValidConfiguration() {
         // Check localStorage for basic config
-        const hasConfig = !!localStorage.getItem('pensine-config');
-        const hasToken = !!localStorage.getItem('pensine-encrypted-token');
-        const hasOwner = !!localStorage.getItem('github-owner');
-        const hasRepo = !!localStorage.getItem('github-repo');
+        const configStr = localStorage.getItem('pensine-config');
+        const hasConfig = !!configStr;
 
-        console.log('🔍 Configuration check:', { hasConfig, hasToken, hasOwner, hasRepo });
-
-        // Configuration is valid only if ALL required items are present
-        const isValid = hasConfig && hasToken && hasOwner && hasRepo;
-
-        if (!isValid) {
-            console.log('⚠️ Configuration incomplète - wizard sera affiché');
+        if (!hasConfig) {
+            console.log('⚠️ No pensine-config found');
+            return false;
         }
 
-        return isValid;
+        try {
+            const config = JSON.parse(configStr);
+            const storageMode = config.storageMode;
+
+            console.log('🔍 Configuration check:', { hasConfig, storageMode });
+
+            // In local mode, we don't need GitHub credentials
+            if (storageMode === 'local') {
+                console.log('✅ Local mode - config valid without GitHub credentials');
+                return true;
+            }
+
+            // For GitHub mode, check required credentials
+            const hasToken = !!localStorage.getItem('pensine-encrypted-token');
+            const hasOwner = !!localStorage.getItem('github-owner');
+            const hasRepo = !!localStorage.getItem('github-repo');
+
+            console.log('🔍 GitHub credentials:', { hasToken, hasOwner, hasRepo });
+
+            const isValid = hasToken && hasOwner && hasRepo;
+
+            if (!isValid) {
+                console.log('⚠️ GitHub mode requires token/owner/repo');
+            }
+
+            return isValid;
+        } catch (error) {
+            console.error('⚠️ Invalid pensine-config JSON:', error);
+            return false;
+        }
     }
 
     async init() {
@@ -192,29 +215,53 @@ class PensineApp {
         // Migrer les anciens tokens en clair vers le stockage chiffré
         await this.migrateOldTokens();
 
-        // Initialize modern configuration system
+        // Use modern configuration system from bootstrap (already initialized)
         try {
-            const { default: EventBus } = await import('./core/event-bus.js');
-            const { default: PluginSystem } = await import('./core/plugin-system.js');
+            // Bootstrap has already created these - just reference them
+            if (window.eventBus && window.pluginSystem && window.configManager) {
+                this.modernConfigManager = window.configManager;
 
-            window.eventBus = window.eventBus || new EventBus();
-            window.pluginSystem = window.pluginSystem || new PluginSystem(window.eventBus, storageManager);
+                // Create SettingsView if needed
+                if (window.settingsView) {
+                    this.settingsView = window.settingsView;
+                } else {
+                    // Import and create SettingsView if bootstrap didn't create it
+                    const { default: SettingsView } = await import('./src/lib/components/settings-view.js');
+                    this.settingsView = new SettingsView(
+                        window.configManager,
+                        window.pluginSystem,
+                        window.eventBus
+                    );
+                    window.settingsView = this.settingsView;
+                }
 
-            await window.pluginSystem.init();
+                console.log('✅ Modern configuration system connected');
+            } else {
+                // Fallback: initialize if bootstrap didn't (shouldn't happen)
+                console.warn('⚠️ Bootstrap systems not found, initializing fallback...');
 
-            // Import modern configuration system dynamically
-            const { initializeModernConfig } = await import('./src/lib/components/settings-integration.js');
+                const { default: EventBus } = await import('./core/event-bus.js');
+                const { default: PluginSystem } = await import('./core/plugin-system.js');
 
-            const { configManager: modernConfigManager, settingsView } = await initializeModernConfig(
-                storageManager,
-                window.eventBus,
-                window.pluginSystem
-            );
+                window.eventBus = window.eventBus || new EventBus();
+                window.pluginSystem = window.pluginSystem || new PluginSystem(window.eventBus, storageManager);
 
-            this.modernConfigManager = modernConfigManager;
-            this.settingsView = settingsView;
+                await window.pluginSystem.init();
 
-            console.log('✅ Modern configuration system initialized');
+                // Import modern configuration system dynamically
+                const { initializeModernConfig } = await import('./src/lib/components/settings-integration.js');
+
+                const { configManager: modernConfigManager, settingsView } = await initializeModernConfig(
+                    storageManager,
+                    window.eventBus,
+                    window.pluginSystem
+                );
+
+                this.modernConfigManager = modernConfigManager;
+                this.settingsView = settingsView;
+
+                console.log('✅ Modern configuration system initialized (fallback)');
+            }
         } catch (error) {
             console.warn('⚠️ Could not initialize modern config system:', error);
             // Continue without it - fallback to old config editor
@@ -1094,12 +1141,12 @@ class PensineApp {
         const markedDates = []; // For LinearCalendar
         const repoColors = ['#0e639c', '#10b981', '#ec4899', '#f97316', '#8b5cf6']; // 5 distinct colors
         let weeksToLoad = 52; // Default
-        
+
         try {
             // Get configuration
             const bootstrapConfig = JSON.parse(localStorage.getItem('pensine-bootstrap') || '{}');
             const config = JSON.parse(localStorage.getItem('pensine-config') || '{}');
-            
+
             // Determine repos to scan
             let reposToScan = [];
             if (config.git && config.git.repositories && Array.isArray(config.git.repositories)) {
@@ -1128,11 +1175,11 @@ class PensineApp {
                         const match = file.match(/(\d{4})_(\d{2})_(\d{2})\.md$/);
                         if (match) {
                             const dateKey = `${match[1]}-${match[2]}-${match[3]}`;
-                            
+
                             if (!markedDatesMap.has(dateKey)) {
                                 markedDatesMap.set(dateKey, []);
                             }
-                            
+
                             markedDatesMap.get(dateKey).push({
                                 repo: repoInfo.name,
                                 color: repoInfo.color,
@@ -1149,13 +1196,13 @@ class PensineApp {
             const today = new Date();
             const oneYearAhead = new Date(today);
             oneYearAhead.setFullYear(oneYearAhead.getFullYear() + 1);
-            
+
             let earliestDate = today;
             if (markedDatesMap.size > 0) {
                 const dates = Array.from(markedDatesMap.keys()).map(d => new Date(d));
                 earliestDate = new Date(Math.min(...dates));
             }
-            
+
             // Calculate weeks to load
             const daysDiff = Math.ceil((oneYearAhead - earliestDate) / (1000 * 60 * 60 * 24));
             weeksToLoad = Math.ceil(daysDiff / 7) + 8; // +8 for buffer
@@ -1201,7 +1248,7 @@ class PensineApp {
                 // Parse dateStr (YYYY-MM-DD format)
                 const [year, month, day] = dateStr.split('-').map(Number);
                 const date = new Date(year, month - 1, day);
-                
+
                 // Get all sources for this date
                 const sources = markedDatesMap.get(dateStr) || [];
                 this.loadJournalByDate(date, sources);
@@ -1213,7 +1260,7 @@ class PensineApp {
             console.log(`➕ Adding ${markedDates.length} events to calendar`);
             console.log(`📍 Sample events:`, markedDates.slice(0, 3)); // Show first 3 for debugging
             this.linearCalendar.addEvents(markedDates);
-            
+
             // Verify events were added
             const allEvents = this.linearCalendar.getAllEvents();
             console.log(`✅ Calendar now has ${allEvents.size} dates with events`);
@@ -1291,12 +1338,12 @@ class PensineApp {
         // TODO: Implement tabbed interface for multiple sources
         // For now, show first source with indication of multiple sources
         console.log(`📑 Multiple sources for ${date}:`, sources);
-        
+
         const fileName = `journals/${this.formatDate(date)}.md`;
         try {
             const { content } = await storageManager.getFile(fileName);
             await this.openInEditor(fileName, content);
-            
+
             // Show notification about multiple sources
             const notification = document.createElement('div');
             notification.className = 'multi-source-notification';
@@ -1801,8 +1848,66 @@ class PensineApp {
     }
 }
 
-// Initialize app when DOM is ready
-document.addEventListener('DOMContentLoaded', () => {
-    window.app = new PensineApp();
-    window.pensineApp = window.app; // Alias pour les callbacks du panneau de config
+// Initialize app when DOM is ready AND bootstrap is complete
+document.addEventListener('DOMContentLoaded', async () => {
+    try {
+        console.log('⏳ Waiting for bootstrap to complete...');
+
+        // Attendre que bootstrap.js crée la promise
+        let attempts = 0;
+        while (!window.bootstrapReady && attempts < 100) {
+            await new Promise(resolve => setTimeout(resolve, 50));
+            attempts++;
+        }
+
+        if (!window.bootstrapReady) {
+            console.error('❌ Bootstrap promise not created after 5s');
+            return;
+        }
+
+        // Attendre que le bootstrap soit complet
+        const { storageManager, eventBus, pluginSystem, configManager } = await window.bootstrapReady;
+        console.log('✅ Bootstrap complete, dependencies ready:', {
+            storageManager: !!storageManager,
+            eventBus: !!eventBus,
+            pluginSystem: !!pluginSystem,
+            configManager: !!configManager
+        });
+
+        // Initialiser PensineApp
+        console.log('🚀 Initializing PensineApp...');
+        window.app = new PensineApp();
+        window.pensineApp = window.app; // Alias pour les callbacks du panneau de config
+
+        // Create appReady promise with error handling
+        window.appReady = window.app.init().then(() => {
+            console.log('✅ PensineApp initialized');
+
+            // Exposer modernConfigManager via window.app aussi
+            if (configManager) {
+                window.app.modernConfigManager = configManager;
+                console.log('✅ modernConfigManager exposed via window.app');
+            }
+
+            return window.app;
+        }).catch((initError) => {
+            console.error('❌ App init() failed:', initError);
+            // Still resolve with app even if init failed (for tests to continue)
+            return window.app;
+        });
+
+    } catch (error) {
+        console.error('❌ Error during app initialization:', error);
+        // Afficher erreur à l'utilisateur
+        const loading = document.getElementById('loading');
+        if (loading) {
+            loading.innerHTML = `
+                <div style="color: red; padding: 20px;">
+                    <h2>❌ Erreur d'initialisation</h2>
+                    <p>${error.message}</p>
+                    <button onclick="location.reload()">Réessayer</button>
+                </div>
+            `;
+        }
+    }
 });

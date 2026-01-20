@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head><title>Test Wizard Owner Fix</title></head>
+<body>
+<h1>Test Wizard - Owner dans validateToken()</h1>
+<button onclick="runTest()">🧪 Lancer le test</button>
+<pre id="result"></pre>
+
+<script type="module">
+window.runTest = async function() {
+  const result = document.getElementById('result');
+  result.textContent = '⏳ Test en cours...\n\n';
+  
+  try {
+    // Import wizard
+    result.textContent += '1. Import ConfigWizard...\n';
+    const { default: ConfigWizard } = await import('/src/lib/components/config-wizard.js');
+    result.textContent += '   ✅ Import OK\n\n';
+    
+    // Créer instance
+    result.textContent += '2. Créer instance wizard...\n';
+    const wizard = new ConfigWizard();
+    result.textContent += '   ✅ Instance créée\n\n';
+    
+    // Simuler le DOM avec input owner
+    result.textContent += '3. Simuler DOM avec input #wizard-owner...\n';
+    const ownerInput = document.createElement('input');
+    ownerInput.id = 'wizard-owner';
+    ownerInput.value = 'stephanedenis';
+    document.body.appendChild(ownerInput);
+    result.textContent += '   ✅ Input créé: ' + ownerInput.value + '\n\n';
+    
+    // Configurer token
+    result.textContent += '4. Configurer token...\n';
+    wizard.config.git.token = 'VOTRE_TOKEN_ICI'; // Remplacer par votre vrai token
+    result.textContent += '   ✅ Token configuré\n\n';
+    
+    // Appeler validateToken() qui devrait maintenant lire le owner
+    result.textContent += '5. Appeler validateToken()...\n';
+    result.textContent += '   (devrait lire owner depuis #wizard-owner)\n';
+    await wizard.validateToken();
+    result.textContent += '   ✅ validateToken() terminé\n\n';
+    
+    // Vérifier résultat
+    result.textContent += '6. Résultats:\n';
+    result.textContent += `   tokenValidated: ${wizard.tokenValidated}\n`;
+    result.textContent += `   config.git.owner: ${wizard.config.git.owner}\n`;
+    result.textContent += `   authenticatedUser: ${wizard.authenticatedUser?.login || 'null'}\n`;
+    result.textContent += `   validationError: ${wizard.validationError || 'null'}\n\n`;
+    
+    if (wizard.tokenValidated && wizard.config.git.owner === 'stephanedenis') {
+      result.textContent += '✅ SUCCESS! Owner correctement récupéré depuis l\'input\n';
+    } else {
+      result.textContent += '❌ ÉCHEC - Owner non récupéré ou token invalide\n';
+    }
+    
+  } catch (error) {
+    result.textContent += `\n❌ ERREUR: ${error.message}\n`;
+    result.textContent += `Stack: ${error.stack}\n`;
+  }
+};
+</script>
+</body>
+</html>
