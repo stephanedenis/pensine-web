@@ -1,17 +1,19 @@
 # Pensine Web
 
-Application web pour gérer vos notes et journaux avec GitHub comme backend.
+> Le 3e hémisphère du cerveau — gestion de notes, journaux et données personnelles avec GitHub comme backend souverain.
 
-![Version](https://img.shields.io/badge/version-0.0.22-blue.svg)
+![Version](https://img.shields.io/badge/version-0.1.0--alpha-blue.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
+![Architecture](https://img.shields.io/badge/architecture-plugin--first-purple.svg)
 
 ## 🎯 Fonctionnalités
 
-- **📅 Calendrier interactif** : Visualisez et accédez à vos journaux quotidiens
+- **📅 Calendrier interactif** : Journaux quotidiens avec support multi-repo et marqueurs colorés
 - **✍️ Éditeur riche** : 3 modes de visualisation (Code / Riche / Split)
+- **🔌 Architecture plugin** : Modules activables/désactivables (journal, calendrier, inbox, reflection…)
 - **🔄 Synchronisation GitHub** : Vos données sont stockées dans votre propre repo GitHub
 - **🔐 Sécurisé** : Configuration locale, aucune donnée envoyée à des serveurs tiers
-- **⚙️ Configuration JSON** : Interface graphique pour éditer votre configuration
+- **⚙️ Configuration JSON** : Interface graphique avec validation de schéma JSON
 - **🌐 Multi-plateforme** : Fonctionne dans n'importe quel navigateur moderne
 
 ## 🚀 Démarrage rapide
@@ -27,7 +29,7 @@ Application web pour gérer vos notes et journaux avec GitHub comme backend.
 
 1. **Cloner le repository**
 \`\`\`bash
-git clone https://github.com/stephanedenis/pensine-web.git
+git clone <https://github.com/stephanedenis/pensine-web.git>
 cd pensine-web
 \`\`\`
 
@@ -38,12 +40,13 @@ python3 -m http.server 8000
 
 3. **Ouvrir dans le navigateur**
 \`\`\`
-http://localhost:8000
+<http://localhost:8000>
 \`\`\`
 
 4. **Configuration au premier lancement**
 
 L'assistant de configuration vous guidera pour :
+
 - Entrer votre token GitHub
 - Spécifier votre repository (ex: \`votre-username/Pensine\`)
 - Configurer la branche (par défaut: \`master\`)
@@ -89,26 +92,73 @@ La configuration est stockée localement dans le navigateur (localStorage). Vous
 4. Cochez le scope : \`repo\` (Full control of private repositories)
 5. Générez et copiez le token
 
+## 🏗️ Architecture
+
+Pensine Web est construit sur une architecture **plugin-first** :
+
+```
+EventBus ──► PluginSystem ──► Plugins
+                │
+            ConfigManager
+                │
+         StorageAdapter (localStorage / GitHub API)
+```
+
+| Composant | Fichier | Rôle |
+|---|---|---|
+| `EventBus` | `src/core/event-bus.js` | Communication découplée entre composants |
+| `PluginSystem` | `src/core/plugin-system.js` | Chargement, activation, cycle de vie des plugins |
+| `ConfigManager` | `src/core/config-manager.js` | Config unifiée avec validation JSON Schema |
+| `StorageAdapter` | `src/core/storage-adapter-base.js` | Abstraction localStorage / GitHub API |
+
+Chaque plugin implémente `PluginInterface` :
+```javascript
+{
+  manifest: { id, name, version },
+  async activate(context),   // context = { eventBus, configManager, storage, user }
+  async deactivate()
+}
+```
+
 ## 🛠️ Développement
 
 ### Structure du projet
 
-\`\`\`
+```
 pensine-web/
-├── index.html          # Page principale
-├── app.js              # Application principale
-├── config.js           # Configuration par défaut
-├── styles/             # Feuilles de style
-├── lib/                # Bibliothèques
-│   ├── config-wizard.js
-│   ├── github-adapter.js
-│   └── storage-manager.js
-└── TEST_README.md      # Instructions pour les tests
-\`\`\`
+├── index.html              # Point d'entrée
+├── app.js                  # Orchestration principale
+├── config/
+│   ├── config.js           # Configuration par défaut
+│   └── oauth-callback.html # Callback OAuth GitHub
+├── src/
+│   ├── core/               # EventBus, PluginSystem, ConfigManager
+│   └── lib/                # Composants UI, adapters, utilitaires
+├── plugins/                # Plugins officiels
+│   ├── pensine-plugin-journal/
+│   ├── pensine-plugin-calendar/
+│   ├── pensine-plugin-inbox/
+│   ├── pensine-plugin-reflection/
+│   └── ...
+├── packages/
+│   └── plugin-interface/   # Interface partagée (npm package)
+├── styles/                 # CSS global
+├── workers/                # Web Workers
+└── tests/                  # Tests Playwright
+```
 
 ### Tests
 
-Voir [TEST_README.md](TEST_README.md) pour les instructions de test avec Playwright.
+```bash
+# Validation syntaxe (toujours avant commit)
+node -c app.js
+
+# Tests Playwright (nécessite token GitHub)
+export GITHUB_TEST_TOKEN="votre_token"
+npx playwright test
+```
+
+Voir [docs/TESTING_CHECKLIST.md](docs/TESTING_CHECKLIST.md) pour la checklist complète.
 
 ## 🔐 Sécurité
 
@@ -116,19 +166,49 @@ Voir [TEST_README.md](TEST_README.md) pour les instructions de test avec Playwri
 - **Configuration locale** : \`.pensine-config.json\` est dans \`.gitignore\`
 - **Variables d'environnement** : Pour les tests, utiliser \`.env\` (non versionné)
 
+## �️ Roadmap
+
+Suivi via [GitHub Issues](https://github.com/stephanedenis/pensine-web/issues).
+
+### 🔴 Priorité haute (bugs/blocants)
+- [#2](https://github.com/stephanedenis/pensine-web/issues/2) Fix: Tests Playwright échouants (5 tests bloqués)
+- [#3](https://github.com/stephanedenis/pensine-web/issues/3) Fix: Supprimer duplication ConfigManager
+- [#4](https://github.com/stephanedenis/pensine-web/issues/4) Fix: Implémenter UI notifications (toasts & modals)
+
+### ✨ Améliorations en cours
+- [#5](https://github.com/stephanedenis/pensine-web/issues/5) Plugin Journal: Migrer vers PluginSystem
+- [#7](https://github.com/stephanedenis/pensine-web/issues/7) Plugin Calendar: Stabiliser support multi-repo
+
+### 🔭 Long terme
+- [#6](https://github.com/stephanedenis/pensine-web/issues/6) Auth: Implémenter OAuth GitHub
+- [#8](https://github.com/stephanedenis/pensine-web/issues/8) Migrer tous les plugins vers PluginInterface v1.0
+
 ## 📝 Changelog
 
+### v0.1.0-alpha (2026-Q1)
+
+- 🔌 Architecture : Migration vers EventBus + PluginSystem + ConfigManager
+- 📅 Calendar : Support multi-repo avec marqueurs colorés par repo
+- ✨ Wizard : Filtres de repos + correction boucle infinie
+- 🔐 Auth : Infrastructure OAuth GitHub (callback page)
+- ⚙️ Config : Validation JSON Schema sur les formulaires
+- 🐛 Fix : Race condition init storage + chargement événements calendrier
+- 📦 Plugins : 7 plugins (journal, calendar, inbox, reflection, word-counter, hello, accelerator)
+
 ### v0.0.22 (2025-12-14)
+
 - 🔐 Sécurité : Suppression des tokens du code source
-- ⚙️ Configuration : Editor de configuration avec formulaire dynamique
+- ⚙️ Configuration : Éditeur de configuration avec formulaire dynamique
 - 🔄 Live sync : Synchronisation formulaire ↔ code
-- �� Documentation : Spécifications techniques complètes
+- 📚 Documentation : Spécifications techniques complètes
 
 ### v0.0.21 (2025-12-13)
+
 - 🎨 UI : Correction layout header éditeur
 - 🐛 Fix : Suppression event listeners modal
 
 ### v0.0.20 (2025-12-13)
+
 - ✨ Nouveau : Suppression modal + Onglets éditeur
 - 🔧 Configuration : Wizard multi-plateformes
 
