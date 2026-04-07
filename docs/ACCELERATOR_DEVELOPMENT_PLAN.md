@@ -1,4 +1,5 @@
 # Plan de Développement - Plugin Accelerator
+
 ## Timeline de 4 semaines
 
 **Démarrage** : 14 janvier 2026
@@ -10,6 +11,7 @@
 ## 📅 SEMAINE 1 : Client-Side Core
 
 ### Tâches
+
 - [ ] **T1.1** : Implémenter AcceleratorIndexedDB (IndexedDB wrapper)
   - Métadonnées : Création 30 min
   - Effort : 3-4h
@@ -56,6 +58,7 @@
   - Documentation
 
 **Délivrables** :
+
 - Plugin AcceleratorPlugin complet (mode client-only)
 - IndexedDB populée avec notes GitHub
 - Search, wiki-links, graph fonctionnels
@@ -68,6 +71,7 @@
 ## 📅 SEMAINE 2 : Backend Foundation
 
 ### Tâches
+
 - [ ] **T2.1** : Setup FastAPI + PostgreSQL
   - Métadonnées : Création 15 min
   - Effort : 2h
@@ -114,6 +118,7 @@
   - Tests
 
 **Délivrables** :
+
 - FastAPI app complète
 - Toutes les routes implémentées
 - PostgreSQL schema stable
@@ -126,6 +131,7 @@
 ## 📅 SEMAINE 3 : Intégration Hybrid
 
 ### Tâches
+
 - [ ] **T3.1** : Implémenter sync client ↔ server
   - Métadonnées : Création 20 min
   - Effort : 3-4h
@@ -172,6 +178,7 @@
   - FAQ
 
 **Délivrables** :
+
 - Plugin hybride fonctionnel
 - Tests d'intégration complets
 - Documentation complète
@@ -184,6 +191,7 @@
 ## 📅 SEMAINE 4 : Déploiement & Optimisation
 
 ### Tâches
+
 - [ ] **T4.1** : Déployer sur Azure
   - Métadonnées : Création 15 min
   - Effort : 2-3h
@@ -230,6 +238,7 @@
   - Troubleshooting
 
 **Délivrables** :
+
 - Plugin en production sur Azure
 - Monitoring actif
 - Optimisé pour performance
@@ -283,6 +292,7 @@ Technical Writer     : T3.5, T4.5
 ## 🔍 Points de contrôle
 
 ### Semaine 1 : Client-side ✓
+
 - [ ] Tous les TODOs remplacés
 - [ ] Tests unitaires passent
 - [ ] Plugin fonctionne offline
@@ -291,6 +301,7 @@ Technical Writer     : T3.5, T4.5
 **Go/No-go decision** : Passer à backend ?
 
 ### Semaine 2 : Backend API ✓
+
 - [ ] Swagger docs générées
 - [ ] Endpoints testés
 - [ ] PostgreSQL stable
@@ -299,6 +310,7 @@ Technical Writer     : T3.5, T4.5
 **Go/No-go decision** : Passer à intégration ?
 
 ### Semaine 3 : Hybrid ✓
+
 - [ ] Sync bidirectionnel fonctionne
 - [ ] Fallback tested
 - [ ] Perf + offline benchmarks OK
@@ -307,6 +319,7 @@ Technical Writer     : T3.5, T4.5
 **Go/No-go decision** : Déployer en production ?
 
 ### Semaine 4 : Production ✓
+
 - [ ] Infrastructure Azure stable
 - [ ] Alertes actives
 - [ ] Load tests passent
@@ -319,6 +332,7 @@ Technical Writer     : T3.5, T4.5
 ## 📝 Critères d'acceptation
 
 ### Plugin Client-Side
+
 - ✅ Fonctionne sans serveur
 - ✅ Recherche < 500ms
 - ✅ Wiki-links résolus
@@ -326,6 +340,7 @@ Technical Writer     : T3.5, T4.5
 - ✅ Tests unitaires 80%+
 
 ### Backend Server
+
 - ✅ API toutes routes implémentées
 - ✅ Requête search < 200ms
 - ✅ 99.9% uptime SLA
@@ -333,6 +348,7 @@ Technical Writer     : T3.5, T4.5
 - ✅ Rate limiting actif
 
 ### Integration
+
 - ✅ Hybrid mode transparent
 - ✅ Fallback automatique
 - ✅ Sync fiable
@@ -340,6 +356,7 @@ Technical Writer     : T3.5, T4.5
 - ✅ Tests E2E pass
 
 ### Production
+
 - ✅ Déployé sur Azure
 - ✅ HTTPS + SSL
 - ✅ Monitoring actif
@@ -351,18 +368,21 @@ Technical Writer     : T3.5, T4.5
 ## 🚀 Après launch
 
 ### Court terme (1-2 mois)
+
 - Feedback utilisateurs
 - Performance tunning
 - Bug fixes
 - Documentation amélioration
 
 ### Moyen terme (3-6 mois)
+
 - Support multi-repo
 - Indexation temps réel (WebHooks)
 - Recommandations ML
 - Partage de graphes
 
 ### Long terme (6-12 mois)
+
 - Mode collab (plusieurs users)
 - Sync P2P (sans serveur)
 - Mobile apps

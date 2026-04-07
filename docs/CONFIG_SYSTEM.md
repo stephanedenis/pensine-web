@@ -169,6 +169,7 @@ this.context.events.on('config:plugin-updated', ({ pluginId, newConfig }) => {
 ## JSON Schema - Types supportés
 
 ### String
+
 ```javascript
 {
   type: 'string',
@@ -180,6 +181,7 @@ this.context.events.on('config:plugin-updated', ({ pluginId, newConfig }) => {
 ```
 
 ### String (Textarea)
+
 ```javascript
 {
   type: 'string',
@@ -191,6 +193,7 @@ this.context.events.on('config:plugin-updated', ({ pluginId, newConfig }) => {
 ```
 
 ### Number
+
 ```javascript
 {
   type: 'number',
@@ -202,6 +205,7 @@ this.context.events.on('config:plugin-updated', ({ pluginId, newConfig }) => {
 ```
 
 ### Boolean
+
 ```javascript
 {
   type: 'boolean',
@@ -211,6 +215,7 @@ this.context.events.on('config:plugin-updated', ({ pluginId, newConfig }) => {
 ```
 
 ### Enum (Select)
+
 ```javascript
 {
   type: 'string',
@@ -221,6 +226,7 @@ this.context.events.on('config:plugin-updated', ({ pluginId, newConfig }) => {
 ```
 
 ### Array
+
 ```javascript
 {
   type: 'array',
@@ -233,6 +239,7 @@ this.context.events.on('config:plugin-updated', ({ pluginId, newConfig }) => {
 ```
 
 ### Object (Nested)
+
 ```javascript
 {
   type: 'object',
@@ -289,32 +296,41 @@ await configManager.init();
 ### Méthodes principales
 
 #### `registerPluginSchema(pluginId, schema, defaults)`
+
 Enregistre le schéma et les valeurs par défaut d'un plugin.
 
 #### `getPluginConfig(pluginId)`
+
 Retourne la configuration complète d'un plugin (merged avec defaults).
 
 #### `setPluginConfig(pluginId, config, merge = true)`
+
 Met à jour la configuration d'un plugin.
 
 #### `getPluginValue(pluginId, key, defaultValue)`
+
 Obtient une valeur spécifique (support dot notation).
 
 #### `setPluginValue(pluginId, key, value)`
+
 Définit une valeur spécifique.
 
 #### `resetPluginConfig(pluginId)`
+
 Réinitialise aux valeurs par défaut.
 
 #### `validateConfig(config, schema)`
+
 Valide une configuration selon son schéma.
 
 ### Méthodes de persistance
 
 #### `load()`
+
 Charge `.pensine-config.json` depuis le storage.
 
 #### `save()`
+
 Sauvegarde dans `.pensine-config.json`.
 
 ## Événements
@@ -344,6 +360,7 @@ eventBus.on('config:error', ({ action, error }) => {});
 ## Bonnes pratiques
 
 ### 1. Toujours définir des valeurs par défaut
+
 ```javascript
 static getDefaultConfig() {
   return {
@@ -354,6 +371,7 @@ static getDefaultConfig() {
 ```
 
 ### 2. Documenter les propriétés
+
 ```javascript
 {
   type: 'number',
@@ -365,6 +383,7 @@ static getDefaultConfig() {
 ```
 
 ### 3. Valider les entrées utilisateur
+
 Le système valide automatiquement selon le schéma, mais vous pouvez ajouter une validation personnalisée :
 
 ```javascript
@@ -379,6 +398,7 @@ async setPluginConfig(pluginId, config) {
 ```
 
 ### 4. Utiliser des enums pour les choix
+
 Plutôt que des strings libres, utilisez des enums :
 
 ```javascript
@@ -390,6 +410,7 @@ Plutôt que des strings libres, utilisez des enums :
 ```
 
 ### 5. Grouper les settings logiquement
+
 Pour les configurations complexes, utilisez des objets imbriqués :
 
 ```javascript
@@ -421,6 +442,7 @@ Pour les configurations complexes, utilisez des objets imbriqués :
 Si vous avez des plugins utilisant l'ancien système de configuration :
 
 ### Avant (ancien système)
+
 ```javascript
 // Dans plugin
 const config = await this.context.config.get('myPlugin');
@@ -429,6 +451,7 @@ const config = await this.context.config.get('myPlugin');
 ```
 
 ### Après (nouveau système)
+
 ```javascript
 // 1. Ajouter le schéma
 static getConfigSchema() {
@@ -453,12 +476,14 @@ const value = this.context.config.getPluginValue(this.id, 'key', default);
 ## Débogage
 
 ### Afficher la configuration en cours
+
 ```javascript
 console.log('All config:', window.modernConfigManager.getAll());
 console.log('Plugin config:', window.modernConfigManager.getPluginConfig('calendar'));
 ```
 
 ### Vérifier les schémas enregistrés
+
 ```javascript
 const plugins = window.modernConfigManager.getConfiguredPlugins();
 console.log('Configured plugins:', plugins);
@@ -470,6 +495,7 @@ plugins.forEach(pluginId => {
 ```
 
 ### Tester la validation
+
 ```javascript
 const schema = CalendarPlugin.getConfigSchema();
 const testConfig = { startWeekOn: 'invalid' };
@@ -482,12 +508,14 @@ console.log('Validation result:', result);
 ## Exemples complets
 
 Voir les exemples dans :
+
 - `plugins/pensine-plugin-calendar/calendar-plugin.js` - Implémentation complète
 - `docs/EXAMPLES_CONFIG.md` - Exemples de schémas variés (à créer)
 
 ## Support et contribution
 
 Pour ajouter de nouvelles fonctionnalités au système de configuration :
+
 1. Mettre à jour `core/config-manager.js`
 2. Étendre `lib/json-schema-form-builder.js` si nouveaux types
 3. Ajuster `views/settings-view.js` pour la nouvelle UI

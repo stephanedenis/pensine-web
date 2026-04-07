@@ -28,20 +28,20 @@
 ### Installation
 
 1. **Cloner le repository**
-\`\`\`bash
-git clone <https://github.com/stephanedenis/pensine-web.git>
-cd pensine-web
-\`\`\`
+   \`\`\`bash
+   git clone <https://github.com/stephanedenis/pensine-web.git>
+   cd pensine-web
+   \`\`\`
 
 2. **Lancer le serveur local**
-\`\`\`bash
-python3 -m http.server 8000
-\`\`\`
+   \`\`\`bash
+   python3 -m http.server 8000
+   \`\`\`
 
 3. **Ouvrir dans le navigateur**
-\`\`\`
-<http://localhost:8000>
-\`\`\`
+   \`\`\`
+   <http://localhost:8000>
+   \`\`\`
 
 4. **Configuration au premier lancement**
 
@@ -59,14 +59,14 @@ Votre repository GitHub devrait contenir :
 
 \`\`\`
 journals/
-  2025_01_15.md
-  2025_01_16.md
-  ...
+2025_01_15.md
+2025_01_16.md
+...
 pages/
-  notes.md
-  projets.md
-  ...
-.pensine-config.json  (optionnel, configuration locale)
+notes.md
+projets.md
+...
+.pensine-config.json (optionnel, configuration locale)
 \`\`\`
 
 ### Configuration
@@ -75,10 +75,10 @@ La configuration est stockée localement dans le navigateur (localStorage). Vous
 
 \`\`\`json
 {
-  "owner": "votre-username",
-  "repo": "votre-repo",
-  "branch": "master",
-  "autoSync": false
+"owner": "votre-username",
+"repo": "votre-repo",
+"branch": "master",
+"autoSync": false
 }
 \`\`\`
 
@@ -104,14 +104,15 @@ EventBus ──► PluginSystem ──► Plugins
          StorageAdapter (localStorage / GitHub API)
 ```
 
-| Composant | Fichier | Rôle |
-|---|---|---|
-| `EventBus` | `src/core/event-bus.js` | Communication découplée entre composants |
-| `PluginSystem` | `src/core/plugin-system.js` | Chargement, activation, cycle de vie des plugins |
-| `ConfigManager` | `src/core/config-manager.js` | Config unifiée avec validation JSON Schema |
-| `StorageAdapter` | `src/core/storage-adapter-base.js` | Abstraction localStorage / GitHub API |
+| Composant        | Fichier                            | Rôle                                             |
+| ---------------- | ---------------------------------- | ------------------------------------------------ |
+| `EventBus`       | `src/core/event-bus.js`            | Communication découplée entre composants         |
+| `PluginSystem`   | `src/core/plugin-system.js`        | Chargement, activation, cycle de vie des plugins |
+| `ConfigManager`  | `src/core/config-manager.js`       | Config unifiée avec validation JSON Schema       |
+| `StorageAdapter` | `src/core/storage-adapter-base.js` | Abstraction localStorage / GitHub API            |
 
 Chaque plugin implémente `PluginInterface` :
+
 ```javascript
 {
   manifest: { id, name, version },
@@ -171,15 +172,18 @@ Voir [docs/TESTING_CHECKLIST.md](docs/TESTING_CHECKLIST.md) pour la checklist co
 Suivi via [GitHub Issues](https://github.com/stephanedenis/pensine-web/issues).
 
 ### 🔴 Priorité haute (bugs/blocants)
+
 - [#2](https://github.com/stephanedenis/pensine-web/issues/2) Fix: Tests Playwright échouants (5 tests bloqués)
 - [#3](https://github.com/stephanedenis/pensine-web/issues/3) Fix: Supprimer duplication ConfigManager
 - [#4](https://github.com/stephanedenis/pensine-web/issues/4) Fix: Implémenter UI notifications (toasts & modals)
 
 ### ✨ Améliorations en cours
+
 - [#5](https://github.com/stephanedenis/pensine-web/issues/5) Plugin Journal: Migrer vers PluginSystem
 - [#7](https://github.com/stephanedenis/pensine-web/issues/7) Plugin Calendar: Stabiliser support multi-repo
 
 ### 🔭 Long terme
+
 - [#6](https://github.com/stephanedenis/pensine-web/issues/6) Auth: Implémenter OAuth GitHub
 - [#8](https://github.com/stephanedenis/pensine-web/issues/8) Migrer tous les plugins vers PluginInterface v1.0
 

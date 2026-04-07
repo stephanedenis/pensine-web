@@ -33,12 +33,14 @@ MEDIUM     │ ✨ P5 (BACKLOG)                 │ 🔮 P6 (WISHLIST)
 **Localisation**: `src/app-init.js` lignes 1-90
 
 **Problème**:
+
 - Classe `ConfigManager` existe en 2 endroits:
   - `src/app-init.js` (90 lignes, legacy)
   - `src/core/config-manager.js` (443 lignes, moderne)
 - Code legacy maintenu = plus grand que nécessaire
 
 **Solution** (30 min):
+
 1. Copier exports de `src/core/config-manager.js` vers `window`
 2. Supprimer la classe legacy dans `src/app-init.js`
 3. Importer depuis core: `const { ConfigManager } = window;`
@@ -55,6 +57,7 @@ MEDIUM     │ ✨ P5 (BACKLOG)                 │ 🔮 P6 (WISHLIST)
 **Localisation**: `src/app-init.js` (chercher `addEventListener`)
 
 **Problème**:
+
 ```javascript
 // ❌ CRASH si element n'existe pas
 form.addEventListener('submit', ...);
@@ -66,6 +69,7 @@ if (form) {
 ```
 
 **Solution** (45 min):
+
 1. Chercher tous les `addEventListener` dans src/
 2. Ajouter `if (element)` avant chaque
 3. Tester dans Console: 0 erreurs
@@ -85,6 +89,7 @@ grep -r "addEventListener" src/ --include="*.js" | head -20
 **Localisation**: `src/app-init.js` (lire/écrire localStorage)
 
 **Problème**:
+
 ```javascript
 // ❌ localStorage convertit TOUT en string
 localStorage.setItem('count', 5);     // Stocke "5"
@@ -97,6 +102,7 @@ const value = input.type === 'number' ? parseFloat(input.value) :
 ```
 
 **Solution** (1h):
+
 1. Créer fonction `getTypedValue(key, expectedType)`
 2. Utiliser dans tous les `.getItem()`
 3. Tests: config se sauvegarde et se restaure avec bons types
@@ -112,12 +118,14 @@ const value = input.type === 'number' ? parseFloat(input.value) :
 **Localisation**: Créer `docs/ARCHITECTURE_DEPENDANCES.md`
 
 **Problème**:
+
 - Ordre de chargement critique dans `index.html`
 - Aucune doc sur qui dépend de quoi
 - Facile de casser en réorganisant
 
 **Solution** (1h):
 Créer diagramme Mermaid:
+
 ```mermaid
 graph LR
     Token[token-storage.js]
@@ -146,6 +154,7 @@ graph LR
 **Localisation**: `index.html` + `src/app-init.js`
 
 **Problème**:
+
 ```html
 <!-- app.js s'exécute AVANT modules ES6 -->
 <script src="src/app-init.js"></script>
@@ -157,13 +166,16 @@ graph LR
 **2 solutions possibles**:
 
 **Option A**: Convertir app-init.js en module (2h)
+
 ```html
 <script type="module" src="src/app-init.js"></script>
 ```
+
 - ✅ Moderne, cohérent
 - ❌ Tout le code doit exporter/importer
 
 **Option B**: DOMContentLoaded wrapper (1h)
+
 ```javascript
 // src/app-init.js
 document.addEventListener('DOMContentLoaded', async () => {
@@ -171,6 +183,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Reste du code
 });
 ```
+
 - ✅ Minimal
 - ✅ Garantit modules chargés
 
@@ -183,11 +196,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 **Localisation**: `src/lib/components/`
 
 **Problème**:
+
 - Nombreux fichiers s'importent les uns les autres
 - Risque de circular dependency
 - Webpack/bundlers n'aiment pas
 
 **Solution** (1-2 jours):
+
 1. Créer graphe dépendances avec `depcheck`
 2. Identifier cycles
 3. Refactorer pour hiérarchie claire
@@ -207,11 +222,13 @@ npx depcheck --weird-object-values-only
 **Localisation**: Partout dans `src/`
 
 **Problème**:
+
 - Code legacy (classes globales dans app.js)
 - Code moderne (ES6 modules dans core/)
 - Coexistent sans cohérence
 
 **Solution** (3-4 jours):
+
 1. Définir: "Tout nouveau code = ES6 modules"
 2. Migrer app.js progressivement vers modules
 3. Garder legacy pour backward compat uniquement
@@ -225,12 +242,14 @@ npx depcheck --weird-object-values-only
 **Localisation**: Partout dans `src/`
 
 **Problème**:
+
 - Certains fichiers: `try/catch`
 - Autres: `if (error) return`
 - Autres: `throw error`
 
 **Solution**:
 Créer `src/lib/services/error-handler.js`:
+
 ```javascript
 export function handleError(error, context) {
     console.error(`[${context}]`, error);
@@ -239,6 +258,7 @@ export function handleError(error, context) {
 ```
 
 **Utiliser partout**:
+
 ```javascript
 try {
     // code
@@ -254,11 +274,13 @@ try {
 **Localisation**: `src/lib/components/`
 
 **Problème**:
+
 - Chemins relatifs inconsistants
 - `../lib/` vs `./` vs `../../`
 
 **Solution**:
 Créer `jsconfig.json`:
+
 ```json
 {
   "compilerOptions": {
@@ -275,6 +297,7 @@ Créer `jsconfig.json`:
 ```
 
 Puis utiliser:
+
 ```javascript
 import EventBus from '@core/event-bus.js';
 import { parseMarkdown } from '@services/markdown-parser.js';
@@ -287,12 +310,14 @@ import { parseMarkdown } from '@services/markdown-parser.js';
 **Localisation**: Racine du projet
 
 **Solution** (2h):
+
 ```bash
 npm install --save-dev eslint
 npx eslint --init
 ```
 
 Configure:
+
 - No globals without comment
 - Consistent naming
 - Guard clauses
@@ -305,6 +330,7 @@ Configure:
 ### #5.1 **Documenter patterns réutilisables**
 
 Créer `docs/PATTERNS.md`:
+
 - Module pattern
 - Event-driven architecture
 - Adapter pattern (storage)
@@ -370,12 +396,14 @@ SPRINT SUIVANT (P3-P4)
 ## 🎯 Prochain Pas
 
 **Demain matin**:
+
 1. Lire cette liste avec l'équipe (30 min)
 2. Valider priorités (15 min)
 3. Assigner tâches (15 min)
 4. Commencer P1.1 (30 min)
 
 **Fin de jour**:
+
 - P1.1 + P1.2 complétés
 - PR créée pour review
 

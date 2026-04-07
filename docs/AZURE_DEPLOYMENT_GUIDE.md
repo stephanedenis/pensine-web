@@ -1,4 +1,5 @@
 # Déploiement Accelerator sur Azure
+
 ## Guide pas-à-pas
 
 **Abonnement** : ee35c0a9-2a11-42a7-a463-f0c6fb4d0d89
@@ -20,6 +21,7 @@
 ## Phase 1 : Setup Local
 
 ### 1.1 Cloner le code backend
+
 ```bash
 # Créer dossier backend
 mkdir -p pensine-accelerator-backend
@@ -35,6 +37,7 @@ pip install fastapi uvicorn asyncpg psycopg2-binary python-dotenv
 ```
 
 ### 1.2 Créer structure de projet
+
 ```bash
 mkdir -p {app,tests,migrations,docs}
 
@@ -53,6 +56,7 @@ pip install -r requirements.txt
 ```
 
 ### 1.3 Créer .env.local
+
 ```bash
 cat > .env.local << 'EOF'
 # Database
@@ -82,6 +86,7 @@ EOF
 ```
 
 ### 1.4 Setup PostgreSQL local (Docker)
+
 ```bash
 # Démarrer PostgreSQL
 docker run --name pensine-postgres \
@@ -96,6 +101,7 @@ psql -h localhost -U pgadmin -d pensine_dev
 ```
 
 ### 1.5 Créer schéma initial
+
 ```bash
 cat > migrations/001_init.sql << 'EOF'
 -- Create users table (optional, for future)
@@ -157,6 +163,7 @@ psql -h localhost -U pgadmin -d pensine_dev -f migrations/001_init.sql
 ```
 
 ### 1.6 Créer app principale
+
 ```bash
 cat > app/main.py << 'EOF'
 from fastapi import FastAPI, Depends, HTTPException
@@ -224,6 +231,7 @@ python app/main.py
 ## Phase 2 : Déploiement Azure
 
 ### 2.1 Login Azure
+
 ```bash
 az login
 # Sélectionner l'abonnement ee35c0a9-2a11-42a7-a463-f0c6fb4d0d89
@@ -234,6 +242,7 @@ az account show
 ```
 
 ### 2.2 Créer groupe de ressources
+
 ```bash
 az group create \
   --name pensine-accelerator \
@@ -244,6 +253,7 @@ az group show -n pensine-accelerator
 ```
 
 ### 2.3 Créer App Service Plan
+
 ```bash
 # Dev/Test (cheap)
 az appservice plan create \
@@ -261,6 +271,7 @@ az appservice plan create \
 ```
 
 ### 2.4 Créer App Service
+
 ```bash
 az webapp create \
   --resource-group pensine-accelerator \
@@ -271,6 +282,7 @@ az webapp create \
 ```
 
 ### 2.5 Créer PostgreSQL Database
+
 ```bash
 # Créer serveur PostgreSQL
 az postgres flexible-server create \
@@ -292,6 +304,7 @@ az postgres flexible-server show \
 ```
 
 ### 2.6 Créer base de données
+
 ```bash
 # Se connecter au serveur Azure
 POSTGRES_HOST=$(az postgres flexible-server show \
@@ -321,6 +334,7 @@ psql -h "$POSTGRES_HOST" \
 ```
 
 ### 2.7 Configurer App Service
+
 ```bash
 # Récupérer connection string PostgreSQL
 DB_HOST=$(az postgres flexible-server show \
@@ -341,6 +355,7 @@ az webapp config appsettings set \
 ```
 
 ### 2.8 Configurer Python Runtime
+
 ```bash
 # Créer startup script
 cat > startup.sh << 'EOF'
@@ -359,6 +374,7 @@ az webapp config set \
 ```
 
 ### 2.9 Déployer code
+
 ```bash
 # Récupérer git URL
 REPO_URL=$(az webapp show \
@@ -378,6 +394,7 @@ az webapp log tail \
 ```
 
 ### 2.10 Tester déploiement
+
 ```bash
 # Récupérer URL app
 APP_URL=$(az webapp show \
@@ -399,6 +416,7 @@ curl "https://${APP_URL}/api/v1/health"
 ## Phase 3 : Configuration HTTPS & Custom Domain
 
 ### 3.1 Ajouter certificate SSL
+
 ```bash
 # Azure gère automatiquement *.azurewebsites.net
 
@@ -412,6 +430,7 @@ az webapp config hostname add \
 ```
 
 ### 3.2 Configurer HTTPS obligatoire
+
 ```bash
 az webapp update \
   --resource-group pensine-accelerator \
@@ -424,6 +443,7 @@ az webapp update \
 ## Phase 4 : Monitoring & Maintenance
 
 ### 4.1 Activer Application Insights
+
 ```bash
 az monitor app-insights component create \
   --app pensine-insights \
@@ -445,6 +465,7 @@ az webapp config appsettings set \
 ```
 
 ### 4.2 Configurer alertes
+
 ```bash
 # Alerte si CPU > 80%
 az monitor metrics alert create \
@@ -457,6 +478,7 @@ az monitor metrics alert create \
 ```
 
 ### 4.3 Configurer backups
+
 ```bash
 # DB backup (Azure gère automatiquement)
 # App Service backup (manual)
@@ -471,6 +493,7 @@ az webapp backup create \
 ## 🔧 Troubleshooting
 
 ### App ne démarre pas
+
 ```bash
 # Vérifier logs
 az webapp log tail -n pensine-accelerator -g pensine-accelerator
@@ -487,6 +510,7 @@ az webapp restart \
 ```
 
 ### Base de données inaccessible
+
 ```bash
 # Vérifier firewall
 az postgres flexible-server firewall-rule list \
@@ -501,6 +525,7 @@ psql -h pensine-accelerator-db.postgres.database.azure.com \
 ```
 
 ### Performance lente
+
 ```bash
 # Vérifier metrics
 az monitor metrics list \

@@ -9,12 +9,14 @@
 ## 📄 Fichiers CRÉÉS (Nouveaux)
 
 ### Documentation - Audit (2 fichiers)
+
 ```
 docs/AUDIT_COHESION.md                          (5500 lignes)
 docs/ACTION_PLAN.md                             (400 lignes)
 ```
 
 ### Documentation - Plugin Accelerator (6 fichiers)
+
 ```
 docs/ACCELERATOR_START_HERE.md                  (300 lignes) ⭐ Lire en premier
 docs/ACCELERATOR_EXECUTIVE_SUMMARY.md           (450 lignes) ⭐ Pour décideurs
@@ -26,12 +28,14 @@ docs/SESSION_RECAP_2026_01_14.md                (300 lignes)  Contexte session
 ```
 
 ### Code - Plugin Template (1 fichier)
+
 ```
 plugins/pensine-plugin-accelerator/
   accelerator-plugin.js                         (500 lignes) ⭐ Code à implémenter
 ```
 
 ### Navigation (2 fichiers)
+
 ```
 ACCELERATOR_SESSION_COMPLETE.md                 (300 lignes)  Cet inventaire
 docs/ACCELERATOR_PLUGIN_INDEX.md (già listato)
@@ -54,12 +58,14 @@ docs/README.md                                  (ajout section Accelerator)
 ## 📊 Répartition par catégorie
 
 ### Audit & Quality
+
 | Fichier | Lignes | Contenu |
 |---------|--------|---------|
 | AUDIT_COHESION.md | 5500 | 18 problèmes + solutions |
 | ACTION_PLAN.md | 400 | Plan de correction Phase 1-3 |
 
 ### Executive & Planning
+
 | Fichier | Lignes | Contenu |
 |---------|--------|---------|
 | ACCELERATOR_EXECUTIVE_SUMMARY.md | 450 | Budget, timeline, approbations |
@@ -67,6 +73,7 @@ docs/README.md                                  (ajout section Accelerator)
 | SESSION_RECAP_2026_01_14.md | 300 | Contexte et résumé |
 
 ### Technical Architecture
+
 | Fichier | Lignes | Contenu |
 |---------|--------|---------|
 | PLUGIN_ACCELERATOR_ARCHITECTURE.md | 850 | Architecture complète |
@@ -74,6 +81,7 @@ docs/README.md                                  (ajout section Accelerator)
 | accelerator-plugin.js | 500 | Code template |
 
 ### Navigation & Indexing
+
 | Fichier | Lignes | Contenu |
 |---------|--------|---------|
 | ACCELERATOR_START_HERE.md | 300 | 3 chemins par rôle |
@@ -87,7 +95,9 @@ docs/README.md                                  (ajout section Accelerator)
 ## 🎯 Fichiers par Audience
 
 ### Décideurs / Product Owner
+
 **À lire** :
+
 1. SESSION_RECAP_2026_01_14.md (5 min)
 2. ACCELERATOR_EXECUTIVE_SUMMARY.md (10 min)
 3. ACCELERATOR_DEVELOPMENT_PLAN.md - Budget section (5 min)
@@ -95,7 +105,9 @@ docs/README.md                                  (ajout section Accelerator)
 **Fichiers** : 3
 
 ### Frontend Developers
+
 **À lire** :
+
 1. ACCELERATOR_START_HERE.md - Frontend section (5 min)
 2. accelerator-plugin.js (20 min)
 3. PLUGIN_ACCELERATOR_ARCHITECTURE.md - Mode 1 section (15 min)
@@ -104,7 +116,9 @@ docs/README.md                                  (ajout section Accelerator)
 **Fichiers** : 4 + code
 
 ### Backend Developers
+
 **À lire** :
+
 1. ACCELERATOR_START_HERE.md - Backend section (5 min)
 2. PLUGIN_ACCELERATOR_ARCHITECTURE.md - Mode 2 section (20 min)
 3. ACCELERATOR_DEVELOPMENT_PLAN.md - Semaine 2 (10 min)
@@ -112,7 +126,9 @@ docs/README.md                                  (ajout section Accelerator)
 **Fichiers** : 3 (Phase 2, après Phase 1)
 
 ### DevOps Engineers
+
 **À lire** :
+
 1. ACCELERATOR_START_HERE.md - DevOps section (5 min)
 2. AZURE_DEPLOYMENT_GUIDE.md (30 min)
 3. ACCELERATOR_DEVELOPMENT_PLAN.md - Semaine 4 (10 min)
@@ -120,7 +136,9 @@ docs/README.md                                  (ajout section Accelerator)
 **Fichiers** : 3 (Phase 4, après Phase 3)
 
 ### QA / Test Engineers
+
 **À lire** :
+
 1. ACCELERATOR_DEVELOPMENT_PLAN.md - Checkpoints (10 min)
 2. PLUGIN_ACCELERATOR_ARCHITECTURE.md - Tests section (10 min)
 3. ACCELERATOR_PLUGIN_INDEX.md - Tests section (5 min)
@@ -128,7 +146,9 @@ docs/README.md                                  (ajout section Accelerator)
 **Fichiers** : 3 (tout au long du projet)
 
 ### Project Manager
+
 **À lire** :
+
 1. ACCELERATOR_EXECUTIVE_SUMMARY.md (15 min)
 2. ACCELERATOR_DEVELOPMENT_PLAN.md (20 min)
 3. ACCELERATOR_PLUGIN_INDEX.md (10 min)
@@ -140,6 +160,7 @@ docs/README.md                                  (ajout section Accelerator)
 ## 🔍 Détail des contenus
 
 ### AUDIT_COHESION.md
+
 ```
 - 18 problèmes identifiés
   ├─ 5 CRITIQUES (ordre JS, duplication, etc.)
@@ -152,6 +173,7 @@ docs/README.md                                  (ajout section Accelerator)
 ```
 
 ### ACTION_PLAN.md
+
 ```
 - Phase 1 (Critique) - Ordre JS, duplication ConfigManager, dépendances
 - Phase 2 (High) - Dépendances, wiki-links, plugins TODO
@@ -161,6 +183,7 @@ docs/README.md                                  (ajout section Accelerator)
 ```
 
 ### ACCELERATOR_EXECUTIVE_SUMMARY.md
+
 ```
 - Vision du plugin (optionnel, performance, zéro breaking)
 - Business case
@@ -173,6 +196,7 @@ docs/README.md                                  (ajout section Accelerator)
 ```
 
 ### PLUGIN_ACCELERATOR_ARCHITECTURE.md
+
 ```
 - Architecture globale (client + server)
 - Mode 1: Client-only (default)
@@ -188,6 +212,7 @@ docs/README.md                                  (ajout section Accelerator)
 ```
 
 ### accelerator-plugin.js
+
 ```
 - Class AcceleratorPlugin complète
 - 25 méthodes documentées
@@ -202,6 +227,7 @@ docs/README.md                                  (ajout section Accelerator)
 ```
 
 ### AZURE_DEPLOYMENT_GUIDE.md
+
 ```
 - Phase 1: Setup local
   ├─ FastAPI setup
@@ -220,6 +246,7 @@ docs/README.md                                  (ajout section Accelerator)
 ```
 
 ### ACCELERATOR_DEVELOPMENT_PLAN.md
+
 ```
 - 4 semaines, 4 phases
 - Semaine 1: Client-side (5 tasks, 12-15h)
@@ -233,6 +260,7 @@ docs/README.md                                  (ajout section Accelerator)
 ```
 
 ### ACCELERATOR_START_HERE.md
+
 ```
 - 3 chemins d'accès (Décideur, Dev, DevOps)
 - Pour chaque rôle: 5-10 min de lecture
@@ -242,6 +270,7 @@ docs/README.md                                  (ajout section Accelerator)
 ```
 
 ### ACCELERATOR_PLUGIN_INDEX.md
+
 ```
 - Index par rôle (9 rôles différents)
 - Temps de lecture pour chaque document
@@ -252,6 +281,7 @@ docs/README.md                                  (ajout section Accelerator)
 ```
 
 ### SESSION_RECAP_2026_01_14.md
+
 ```
 - Contexte initial
 - Ce qui a été fait
@@ -268,6 +298,7 @@ docs/README.md                                  (ajout section Accelerator)
 ## 🎓 Contenu pédagogique
 
 ### Concepts couverts
+
 - ✅ Architecture client-first
 - ✅ Graceful degradation patterns
 - ✅ Plugin system design
@@ -279,6 +310,7 @@ docs/README.md                                  (ajout section Accelerator)
 - ✅ Backlinks graph building
 
 ### Code patterns fournis
+
 - ✅ Plugin lifecycle (enable/disable)
 - ✅ Async/await patterns
 - ✅ Error handling
@@ -289,6 +321,7 @@ docs/README.md                                  (ajout section Accelerator)
 - ✅ Tests patterns
 
 ### Best practices documéntées
+
 - ✅ Zero breaking changes
 - ✅ Optional backends
 - ✅ Graceful degradation

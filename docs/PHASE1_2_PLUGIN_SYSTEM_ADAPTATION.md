@@ -12,21 +12,25 @@
 Adapte les systèmes existants de Pensine aux interfaces `@panini/plugin-interface`:
 
 #### PaniniEventBusWrapper
+
 - ✅ Wrap EventBus existant
 - ✅ Namespace tracking pour cleanup automatique
 - ✅ Méthode `clearNamespace()` pour plugins
 
 #### PaniniConfigManagerWrapper
+
 - ✅ Wrap ConfigManager existant
 - ✅ Support JSON Schema validation
 - ✅ API `getPluginConfig()` / `setPluginConfig()`
 
 #### PaniniStorageAdapterWrapper
+
 - ✅ Wrap StorageManager (GitHub/Local/Local-Git)
 - ✅ API uniforme: `readFile()`, `writeFile()`, `listFiles()`
 - ✅ Détection automatique du mode storage
 
 #### Helpers
+
 - ✅ `createPaniniContext()` - Génère PaniniPluginContext complet
 - ✅ `LegacyPluginAdapter` - Backward compatibility pour plugins legacy
 - ✅ `mapPensineEvents()` - Mapping événements Pensine → Panini
@@ -51,6 +55,7 @@ const plugins = pluginSystem.getAllPlugins();
 ```
 
 **Changements clés**:
+
 - ✅ Accepte `configManager` dans constructor
 - ✅ Crée `paniniContext` partagé dans `init()`
 - ✅ `register()` détecte type de plugin (Panini vs Legacy)
@@ -70,6 +75,7 @@ word-counter/
 ```
 
 **Fonctionnalités**:
+
 - ✅ Compte mots/caractères en temps réel
 - ✅ Badge flottant configurable (position, intervalle)
 - ✅ JSON Schema validation
@@ -101,6 +107,7 @@ window.getPluginConfig('word-counter');
 ### 5. Documentation
 
 #### Migration Guide (`docs/PLUGIN_MIGRATION_GUIDE.md`)
+
 - ✅ Comparaison Legacy vs Panini
 - ✅ 7 étapes de migration
 - ✅ Exemples Before/After complets
@@ -109,6 +116,7 @@ window.getPluginConfig('word-counter');
 ### 6. Tests (`src/core/panini-integration.test.js`)
 
 Tests complets pour:
+
 - ✅ EventBusWrapper avec namespace cleanup
 - ✅ ConfigManagerWrapper avec validation
 - ✅ StorageAdapterWrapper
@@ -288,6 +296,7 @@ if (!health['critical-plugin']) {
 ## 🔗 Fichiers créés/modifiés
 
 ### Nouveaux fichiers
+
 - `src/core/panini-wrappers.js` (435 lignes)
 - `src/core/panini-integration.test.js` (290 lignes)
 - `src/app-init-panini.js` (170 lignes)
@@ -297,6 +306,7 @@ if (!health['critical-plugin']) {
 - `docs/PLUGIN_MIGRATION_GUIDE.md` (500+ lignes)
 
 ### Fichiers modifiés
+
 - `src/core/plugin-system.js` - Support dual-mode plugins
 - Documentation mise à jour
 
@@ -307,7 +317,9 @@ if (!health['critical-plugin']) {
 ## 🎉 Prochaines étapes
 
 ### Phase 1.3 (Cette semaine)
+
 1. **Publier alpha** sur NPM
+
    ```bash
    cd packages/plugin-interface
    npm version 0.1.0-alpha.1
@@ -320,11 +332,12 @@ if (!health['critical-plugin']) {
    - Valider fonctionnement
 
 ### Phase 1.4 (Semaine prochaine)
-3. **Créer `@panini/plugin-plantuml`**
+
+1. **Créer `@panini/plugin-plantuml`**
    - Premier plugin partagé réel
    - Fonctionne dans Pensine ET OntoWave
 
-4. **Porter dans OntoWave**
+2. **Porter dans OntoWave**
    - Implémenter wrappers OntoWave
    - Adapter plugin system
 

@@ -50,11 +50,13 @@ Pensine Web utilise **GitHub OAuth** pour sécuriser l'accès à vos repositorie
 ### Ce que Pensine Peut Faire
 
 Avec votre autorisation, Pensine peut :
+
 - ✅ Lire les fichiers de votre repository Pensine
 - ✅ Créer et modifier des fichiers (journaux, notes)
 - ✅ Lister vos repositories (pour configuration)
 
 Pensine **NE PEUT PAS** :
+
 - ❌ Accéder à d'autres repositories non autorisés
 - ❌ Supprimer votre repository
 - ❌ Modifier les paramètres du repository
@@ -70,7 +72,7 @@ Pensine **NE PEUT PAS** :
    - Vérifiez le nom de l'application : "Pensine Web"
 
 2. **Révoquez l'accès** si vous n'utilisez plus Pensine
-   - Allez sur https://github.com/settings/applications
+   - Allez sur <https://github.com/settings/applications>
    - Trouvez "Pensine Web"
    - Cliquez "Revoke"
 
@@ -81,14 +83,15 @@ Pensine **NE PEUT PAS** :
 
 #### Configuration GitHub OAuth App
 
-1. Allez sur https://github.com/settings/developers
+1. Allez sur <https://github.com/settings/developers>
 2. Cliquez "New OAuth App"
 3. Remplissez :
    - **Application name** : Pensine Web (Dev)
-   - **Homepage URL** : http://localhost:8001
-   - **Authorization callback URL** : http://localhost:8001/oauth/callback
+   - **Homepage URL** : <http://localhost:8001>
+   - **Authorization callback URL** : <http://localhost:8001/oauth/callback>
 4. Notez votre **Client ID** et **Client Secret**
 5. Ajoutez-les aux variables d'environnement :
+
    ```bash
    export GITHUB_CLIENT_ID="votre_client_id"
    export GITHUB_CLIENT_SECRET="votre_client_secret"
@@ -135,12 +138,14 @@ export default {
 ### XSS (Cross-Site Scripting)
 
 **Ancien risque** : Token en localStorage accessible par n'importe quel script
+
 ```javascript
 // Script malveillant pouvait faire :
 localStorage.getItem('github-token'); // ⛔ Token exposé
 ```
 
 **Nouvelle protection** : Pas de token stocké côté client
+
 ```javascript
 // Token échangé côté serveur uniquement
 // Client reçoit un access token temporaire en mémoire
@@ -150,6 +155,7 @@ localStorage.getItem('github-token'); // ⛔ Token exposé
 ### CSRF (Cross-Site Request Forgery)
 
 **Protection** : State parameter dans le flux OAuth
+
 ```javascript
 // Génère un state aléatoire
 const state = crypto.randomUUID();
@@ -164,6 +170,7 @@ if (returnedState !== expectedState) {
 ### Token Leakage
 
 **Protection** :
+
 - Tokens courte durée (1h)
 - Refresh token rotation
 - HttpOnly cookies pour refresh tokens (impossible d'accéder via JS)
@@ -192,6 +199,7 @@ if (returnedState !== expectedState) {
 ### Actions Immédiates
 
 1. **Révoquez l'accès Pensine**
+
    ```
    https://github.com/settings/applications
    → Revoke "Pensine Web"
@@ -201,17 +209,19 @@ if (returnedState !== expectedState) {
    - Si 2FA non activée, activez-la maintenant
 
 3. **Vérifiez l'historique**
+
    ```bash
    git log --all --author="votre_email"
    ```
 
 4. **Rétablissez les fichiers**
+
    ```bash
    git revert <commit_malveillant>
    ```
 
 5. **Signalez l'incident**
-   - Ouvrez une issue sur https://github.com/stephanedenis/pensine-web/issues
+   - Ouvrez une issue sur <https://github.com/stephanedenis/pensine-web/issues>
 
 ## 📚 Ressources
 
@@ -221,7 +231,7 @@ if (returnedState !== expectedState) {
 
 ## 📧 Contact Sécurité
 
-Pour signaler une faille de sécurité : security@pensine-web.dev (ou ouvrez une issue privée)
+Pour signaler une faille de sécurité : <security@pensine-web.dev> (ou ouvrez une issue privée)
 
 **Bug Bounty** : Nous n'avons pas de programme formel, mais nous remercions publiquement les chercheurs en sécurité qui signalent des vulnérabilités de manière responsable.
 

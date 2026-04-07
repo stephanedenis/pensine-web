@@ -12,6 +12,7 @@
 Accélérer les opérations courantes (wiki-links, search, indexation) avec un backend optionnel **sans casser la compatibilité client-side**.
 
 ### Performance Targets
+
 - Wiki-links resolution : < 100ms
 - Full-text search : < 500ms
 - Indexation : background (async)
@@ -21,6 +22,7 @@ Accélérer les opérations courantes (wiki-links, search, indexation) avec un b
 ## 🏗️ Architecture
 
 ### Mode 1 : Client-Side Only (Default)
+
 ```
 User's Browser
     ↓
@@ -38,6 +40,7 @@ GitHub API (pas de dépendance serveur)
 ---
 
 ### Mode 2 : Hybrid Client + Azure Backend (Optionnel)
+
 ```
 User's Browser
     ↓
@@ -111,6 +114,7 @@ Ressources recommandées :
 ## 🛠️ Tech Stack Backend
 
 ### Option A : FastAPI (Recommandé pour async)
+
 ```python
 # app/main.py
 from fastapi import FastAPI
@@ -153,6 +157,7 @@ async def get_backlinks(userId: str, noteId: str):
 ```
 
 ### Option B : Django + DRF (Plus heavyweight mais solide)
+
 ```python
 # settings.py
 INSTALLED_APPS = [
@@ -239,6 +244,7 @@ CREATE TABLE indexing_stats (
 ## 🔌 API REST Backend
 
 ### Authentication
+
 ```javascript
 // Plugin envoie header Authorization
 headers: {
@@ -251,12 +257,14 @@ headers: {
 ### Endpoints
 
 #### 1. Health Check
+
 ```
 GET /api/v1/health
 → { "status": "ok", "version": "1.0.0" }
 ```
 
 #### 2. Index Notes (Batch)
+
 ```
 POST /api/v1/index/notes
 Body: {
@@ -269,6 +277,7 @@ Body: {
 ```
 
 #### 3. Full-Text Search
+
 ```
 GET /api/v1/search?query=wiki+links&limit=20
 → {
@@ -280,6 +289,7 @@ GET /api/v1/search?query=wiki+links&limit=20
 ```
 
 #### 4. Get Backlinks
+
 ```
 GET /api/v1/backlinks/{noteId}
 → {
@@ -291,6 +301,7 @@ GET /api/v1/backlinks/{noteId}
 ```
 
 #### 5. Get Wiki Graph
+
 ```
 GET /api/v1/graph
 → {
@@ -300,6 +311,7 @@ GET /api/v1/graph
 ```
 
 #### 6. Sync Status
+
 ```
 GET /api/v1/sync/status
 → {
@@ -315,6 +327,7 @@ GET /api/v1/sync/status
 ## 📱 Client Plugin - Mode Dégradé
 
 ### Initialisation
+
 ```javascript
 // plugins/pensine-plugin-accelerator/accelerator-plugin.js
 
@@ -403,6 +416,7 @@ export default class AcceleratorPlugin {
 ```
 
 ### Fallback Pattern
+
 ```javascript
 async searchNotes(query) {
     const results = {
@@ -440,6 +454,7 @@ async searchNotes(query) {
 ## 🔄 Sync Strategy
 
 ### Sync à la demande
+
 ```javascript
 async manualSync() {
     if (!this.online) {
@@ -460,6 +475,7 @@ async manualSync() {
 ```
 
 ### Sync au fond (background)
+
 ```javascript
 startBackgroundSync(intervalMs = 300000) {
     // Toutes les 5 minutes si online
@@ -476,6 +492,7 @@ startBackgroundSync(intervalMs = 300000) {
 ## ⚙️ Déploiement Azure
 
 ### Infrastructure as Code (ARM Template)
+
 ```json
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
@@ -526,6 +543,7 @@ startBackgroundSync(intervalMs = 300000) {
 ```
 
 ### Déploiement CLI
+
 ```bash
 # 1. Créer groupe de ressources
 az group create \
@@ -553,6 +571,7 @@ curl https://pensine-accelerator.azurewebsites.net/api/v1/health
 ## 🧪 Tests Plugin
 
 ### Tests unitaires (client)
+
 ```javascript
 // tests/accelerator-plugin.spec.js
 
@@ -590,6 +609,7 @@ describe('AcceleratorPlugin - Mode Dégradé', () => {
 ```
 
 ### Tests d'intégration (server)
+
 ```python
 # tests/test_api.py
 
@@ -626,6 +646,7 @@ def test_search():
 ## 🔐 Sécurité
 
 ### OAuth avec GitHub
+
 ```python
 # app/auth.py
 from fastapi import Depends, HTTPException
@@ -653,6 +674,7 @@ async def index_notes(
 ```
 
 ### Chiffrement en transit
+
 ```
 HTTPS obligatoire (certificat Azure)
 CORS restreint à domaines connus

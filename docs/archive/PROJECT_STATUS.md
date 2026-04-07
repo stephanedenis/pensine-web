@@ -42,6 +42,7 @@
 ## 🚀 Phase 1: Plugin Accelerator - Prêt à Commencer
 
 ### Documentation Créée
+
 - ✅ `ACCELERATOR_EXECUTIVE_SUMMARY.md` (10 kB) - Pour approbation
 - ✅ `PLUGIN_ACCELERATOR_ARCHITECTURE.md` (850 lignes) - Architecture technique
 - ✅ `ACCELERATOR_DEVELOPMENT_PLAN.md` (500 lignes) - Timeline 4 semaines
@@ -50,6 +51,7 @@
 - ✅ Code template: `plugins/pensine-plugin-accelerator/accelerator-plugin.js`
 
 ### Prochaines Étapes (Phase 1)
+
 **Responsable**: Frontend developers (1-2 personnes)
 **Durée**: 2 semaines
 **Tasks**:
@@ -85,6 +87,7 @@
 ## 🔍 Audit Cohérence
 
 ### Problèmes Identifiés: 18
+
 - 🔴 **Critiques**: 5
   - Conflit ordre chargement JS (app.js avant ES6 modules)
   - Duplication ConfigManager (app.js vs core/)
@@ -110,6 +113,7 @@
 **Voir**: `docs/AUDIT_COHESION.md` (16,8 kB) pour détails complets
 
 ### Plan de Correction: 3 Phases
+
 **Durée**: 4-6 semaines
 
 - **Phase 1** (1 semaine): Critiques - ordre JS, duplication ConfigManager, plugin initialization
@@ -142,11 +146,13 @@
 ## 🔄 Dépendances et Blocages
 
 ### Pas de Blocages Actuels
+
 - ✅ Restructuration indépendante de Phase 1
 - ✅ Phase 1 (client-side) peut commencer immédiatement
 - ✅ Phase 2+ dépend d'approbation budget
 
 ### Points de Décision
+
 1. **Approval Executive** (cette semaine)
    - Lire: `ACCELERATOR_EXECUTIVE_SUMMARY.md`
    - Décider: Budget €10.5k + $32/mois OK?
@@ -167,12 +173,14 @@
 ## 🛠️ Configuration du Projet
 
 ### Environnement Développement
+
 ```bash
 python3 -m http.server 8000
 # → http://localhost:8000
 ```
 
 ### Structure Git
+
 ```bash
 # Aucun changement de tokens - tous dans localStorage
 git status
@@ -182,6 +190,7 @@ git push
 ```
 
 ### Tests
+
 ```bash
 # Playwright (si besoin)
 export GITHUB_TEST_TOKEN="..."
@@ -205,15 +214,18 @@ npx playwright test
 ## 📞 Points de Contact
 
 **Questions**?
+
 1. Lire `RESTRUCTURATION_COMPLETE.md` - Résumé complet
 2. Lire `docs/STRUCTURE_AUDIT.md` - Audit initial + recommandations
 3. Lire `ACCELERATOR_START_HERE.md` - Navigation par rôle
 
 **Pour Phase 1**:
+
 - Voir `ACCELERATOR_DEVELOPMENT_PLAN.md` - Timeline détaillée
 - Voir `plugins/pensine-plugin-accelerator/accelerator-plugin.js` - Template prêt
 
 **Pour Phase 2+**:
+
 - Voir `PLUGIN_ACCELERATOR_ARCHITECTURE.md` - Spec backend
 - Voir `AZURE_DEPLOYMENT_GUIDE.md` - Déploiement
 

@@ -95,6 +95,7 @@ Un plugin écrit une fois peut tourner dans:
    - Tests de compatibilité plugins existants
 
 2. **Publier alpha** sur NPM
+
    ```bash
    npm version 0.1.0-alpha.1
    npm publish --tag alpha
@@ -102,12 +103,12 @@ Un plugin écrit une fois peut tourner dans:
 
 ### Semaine suivante (Phase 1.2)
 
-3. **Créer premier plugin partagé**: `@panini/plugin-plantuml`
+1. **Créer premier plugin partagé**: `@panini/plugin-plantuml`
 
    - Utilise `@panini/plugin-interface`
    - Fonctionne dans Pensine ET OntoWave sans modif
 
-4. **Porter dans OntoWave**
+2. **Porter dans OntoWave**
    - Implémenter EventBus (n'existe pas encore là-bas)
    - Adapter leur plugin system
 

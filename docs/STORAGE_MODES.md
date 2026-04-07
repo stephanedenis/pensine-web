@@ -23,9 +23,11 @@ Pensine propose **4 modes de stockage** adaptés à différents besoins :
 ## 🔒 Mode OAuth (Recommandé)
 
 ### Description
+
 Authentification via GitHub OAuth App avec backend Cloudflare Worker. Le token n'est jamais stocké dans le navigateur.
 
 ### ✅ Avantages
+
 - **Sécurité maximale** : Token jamais en clair dans localStorage
 - **Protection XSS** : HttpOnly cookies pour refresh token
 - **Expiration automatique** : Access token 1h, refresh 6 mois
@@ -33,20 +35,24 @@ Authentification via GitHub OAuth App avec backend Cloudflare Worker. Le token n
 - **Scopes minimaux** : Accès `repo` uniquement
 
 ### ❌ Inconvénients
+
 - Configuration initiale complexe
 - Nécessite backend (Cloudflare Worker)
 - Dépendance externe (Cloudflare)
 
 ### 📋 Prérequis
+
 - Compte GitHub
 - Connexion Internet
 - Backend OAuth déployé (Cloudflare Worker)
 - GitHub OAuth App configurée
 
 ### 🚀 Installation
+
 Voir [`docs/OAUTH_SETUP.md`](OAUTH_SETUP.md)
 
 ### 💡 Recommandé pour
+
 - ✅ Production
 - ✅ Données sensibles
 - ✅ Équipes/collaboration
@@ -57,26 +63,31 @@ Voir [`docs/OAUTH_SETUP.md`](OAUTH_SETUP.md)
 ## 🔑 Mode PAT (Personal Access Token)
 
 ### Description
+
 Authentification classique avec Personal Access Token GitHub stocké en localStorage.
 
 ### ✅ Avantages
+
 - **Configuration rapide** : Juste copier-coller un token
 - **Pas de backend requis** : 100% client-side
 - **Compatible legacy** : Fonctionne partout
 - **Simple à débugger** : Token visible dans DevTools
 
 ### ❌ Inconvénients
+
 - **Moins sécurisé** : Token en clair dans localStorage
 - **Vulnérable XSS** : Attaque JS peut voler le token
 - **Pas d'expiration** : Token valide indéfiniment
 - **Révocation manuelle** : Doit aller sur GitHub
 
 ### 📋 Prérequis
+
 - Compte GitHub
 - Connexion Internet
 - Personal Access Token avec scope `repo`
 
 ### 🚀 Installation
+
 1. Aller sur [github.com/settings/tokens](https://github.com/settings/tokens)
 2. Créer nouveau token (classic)
 3. Scope `repo` uniquement
@@ -84,6 +95,7 @@ Authentification classique avec Personal Access Token GitHub stocké en localSto
 5. Coller dans config wizard
 
 ### 💡 Recommandé pour
+
 - ✅ Développement local
 - ✅ Tests rapides
 - ✅ Usage temporaire
@@ -94,9 +106,11 @@ Authentification classique avec Personal Access Token GitHub stocké en localSto
 ## 🏠 Mode Local (Offline)
 
 ### Description
+
 Stockage 100% local avec IndexedDB + localStorage. Aucune connexion Internet, aucun compte requis.
 
 ### ✅ Avantages
+
 - **100% offline** : Fonctionne sans Internet
 - **Données privées** : Jamais envoyées nulle part
 - **Pas de compte** : Aucun compte GitHub requis
@@ -104,21 +118,25 @@ Stockage 100% local avec IndexedDB + localStorage. Aucune connexion Internet, au
 - **Rapide** : Pas de latence réseau
 
 ### ❌ Inconvénients
+
 - **Pas de sync** : Données sur un seul appareil
 - **Backup manuel** : Doit exporter régulièrement
 - **Volatile** : Données perdues si cache effacé
 - **Pas de collaboration** : Usage solo uniquement
 
 ### 📋 Prérequis
+
 - Navigateur moderne (support IndexedDB)
 - Aucun compte
 - Aucune connexion Internet
 
 ### 🚀 Installation
+
 1. Sélectionner "Local (Offline)" dans wizard
 2. C'est tout ! Aucune configuration
 
 ### 💡 Recommandé pour
+
 - ✅ Données ultra-sensibles
 - ✅ Usage offline (avion, etc.)
 - ✅ Pas de compte GitHub
@@ -130,9 +148,11 @@ Stockage 100% local avec IndexedDB + localStorage. Aucune connexion Internet, au
 ## 🌿 Mode Local Git (Offline Pro)
 
 ### Description
+
 Vrai repo Git dans le navigateur avec **isomorphic-git** + **OPFS**. Toutes les fonctionnalités Git (commits, branches, diff, merge) + synchronisation optionnelle avec GitHub.
 
 ### ✅ Avantages
+
 - **100% offline** : Fonctionne entièrement sans Internet
 - **Vrai Git** : Commits, branches, checkout, merge, rebase
 - **Historique complet** : Pas de limite de 30 jours
@@ -144,6 +164,7 @@ Vrai repo Git dans le navigateur avec **isomorphic-git** + **OPFS**. Toutes les 
 - **Données privées** : Stockées en OPFS (Origin Private File System)
 
 ### ❌ Inconvénients
+
 - **Performance** : Git en JavaScript plus lent que natif
 - **Taille** : Historique complet peut être volumineux
 - **Complexité** : Concepts Git requis (commit, branch, merge)
@@ -151,6 +172,7 @@ Vrai repo Git dans le navigateur avec **isomorphic-git** + **OPFS**. Toutes les 
 - **Pas de UI graphique** : Opérations Git via commandes (pour l'instant)
 
 ### 📋 Prérequis
+
 - Navigateur moderne (support OPFS : Chrome 102+, Edge 102+, Opera 89+)
 - Aucun compte (mode offline pur)
 - Token GitHub + compte (si sync avec remote)
@@ -158,6 +180,7 @@ Vrai repo Git dans le navigateur avec **isomorphic-git** + **OPFS**. Toutes les 
 ### 🚀 Installation
 
 #### Mode Offline pur (pas de sync)
+
 ```javascript
 // 1. Dans wizard : Sélectionner "Local Git (Offline Pro)"
 // 2. Configurer auteur Git :
@@ -171,6 +194,7 @@ Vrai repo Git dans le navigateur avec **isomorphic-git** + **OPFS**. Toutes les 
 ```
 
 #### Mode avec sync GitHub (online + offline)
+
 ```javascript
 // 1. Créer repo GitHub vide
 // 2. Créer PAT avec scope 'repo'
@@ -192,6 +216,7 @@ Vrai repo Git dans le navigateur avec **isomorphic-git** + **OPFS**. Toutes les 
 ### 🎯 Fonctionnalités Git disponibles
 
 #### Opérations locales (offline)
+
 - ✅ `git init` - Initialisation automatique
 - ✅ `git add` - Staging automatique à chaque `putFile()`
 - ✅ `git commit` - Commit avec message + auteur
@@ -203,16 +228,19 @@ Vrai repo Git dans le navigateur avec **isomorphic-git** + **OPFS**. Toutes les 
 - ✅ `git show` - Contenu d'un fichier à un commit donné
 
 #### Opérations remote (nécessite token)
+
 - ✅ `git clone` - Cloner repo GitHub existant
 - ✅ `git push` - Envoyer commits vers GitHub
 - ✅ `git pull` - Récupérer commits depuis GitHub
 - ✅ `git remote add` - Configurer remote
 
 #### Export/Import
+
 - ✅ **Export bundle** : `.git` complet avec tout l'historique
 - ✅ **Import bundle** : Restaurer repo depuis backup
 
 ### 💡 Recommandé pour
+
 - ✅ **Développeurs** : Workflow Git familier
 - ✅ **Offline pro** : Historique complet sans Internet
 - ✅ **Expérimentation** : Branches pour tester idées
@@ -224,6 +252,7 @@ Vrai repo Git dans le navigateur avec **isomorphic-git** + **OPFS**. Toutes les 
 ### 🔧 Exemples d'utilisation
 
 #### Créer une branche feature
+
 ```javascript
 await storageManager.adapter.createBranch('feature-new-idea');
 await storageManager.adapter.checkoutBranch('feature-new-idea');
@@ -232,6 +261,7 @@ await storageManager.putFile('notes/idea.md', 'Nouvelle idée !', 'Add idea');
 ```
 
 #### Voir l'historique
+
 ```javascript
 const history = await storageManager.adapter.getHistory();
 console.log(history);
@@ -239,17 +269,20 @@ console.log(history);
 ```
 
 #### Comparer deux versions
+
 ```javascript
 const diff = await storageManager.adapter.diff('HEAD~2', 'HEAD');
 console.log(diff); // Liste des changements
 ```
 
 #### Push vers GitHub (si configuré)
+
 ```javascript
 await storageManager.adapter.push('origin', 'main');
 ```
 
 #### Exporter backup complet
+
 ```javascript
 const bundle = await storageManager.adapter.exportBundle();
 // bundle contient .git complet + métadonnées
@@ -261,6 +294,7 @@ localStorage.setItem('backup', JSON.stringify(bundle));
 ## 🔄 Migration entre modes
 
 ### OAuth → PAT
+
 ```javascript
 // 1. Révoquer OAuth sur GitHub
 // 2. Créer PAT sur github.com/settings/tokens
@@ -268,6 +302,7 @@ localStorage.setItem('backup', JSON.stringify(bundle));
 ```
 
 ### PAT → OAuth
+
 ```javascript
 // 1. Déployer backend OAuth (voir OAUTH_SETUP.md)
 // 2. Dans Pensine : Paramètres → Changer mode → OAuth
@@ -276,6 +311,7 @@ localStorage.setItem('backup', JSON.stringify(bundle));
 ```
 
 ### GitHub (OAuth/PAT) → Local
+
 ```javascript
 // 1. Exporter données depuis GitHub (optionnel)
 // 2. Dans Pensine : Paramètres → Changer mode → Local
@@ -283,6 +319,7 @@ localStorage.setItem('backup', JSON.stringify(bundle));
 ```
 
 ### Local → GitHub (OAuth/PAT)
+
 ```javascript
 // 1. Exporter données locales (Paramètres → Export)
 // 2. Dans Pensine : Paramètres → Changer mode → OAuth/PAT
@@ -307,18 +344,21 @@ localStorage.setItem('backup', JSON.stringify(bundle));
 ### Recommandations sécurité
 
 **Pour production** :
+
 1. ✅ Utiliser OAuth
 2. ✅ Activer HTTPS uniquement
 3. ✅ Monitorer tokens via GitHub
 4. ✅ Renouveler secrets régulièrement
 
 **Pour développement** :
+
 1. ✅ PAT acceptable pour tests
 2. ⚠️ Ne jamais commiter le token
 3. ✅ Utiliser token avec scope minimal
 4. ✅ Révoquer après usage
 
 **Pour usage offline** :
+
 1. ✅ Mode Local idéal (simple)
 2. ✅ Mode Local Git idéal (avec historique Git)
 3. ✅ Exporter backup régulièrement
@@ -330,6 +370,7 @@ localStorage.setItem('backup', JSON.stringify(bundle));
 ## 📦 Stockage des données
 
 ### OAuth Mode
+
 ```
 Données : GitHub repo (cloud)
 Token : In-memory (access) + KV storage (refresh)
@@ -338,6 +379,7 @@ Cache : Aucun (direct API)
 ```
 
 ### PAT Mode
+
 ```
 Données : GitHub repo (cloud)
 Token : localStorage (⚠️ clair)
@@ -346,6 +388,7 @@ Cache : Map() en mémoire (SHA)
 ```
 
 ### Local Mode
+
 ```
 Données : IndexedDB (local)
 Token : Aucun (pas d'API)
@@ -355,6 +398,7 @@ Historique : IndexedDB (30 jours)
 ```
 
 ### Local Git Mode
+
 ```
 Données : OPFS (Origin Private File System)
 Token : localStorage (si remote configuré)
@@ -386,12 +430,14 @@ Historique : Complet dans .git (illimité)
 ## 💾 Limites de stockage
 
 ### OAuth/PAT (GitHub)
+
 - **Limite fichier** : 100 MB par fichier
 - **Limite repo** : 1 GB recommandé, 100 GB max
 - **Requêtes API** : 5,000/heure (authentifié)
 - **Coût** : Gratuit (repos publics/privés)
 
 ### Local (IndexedDB)
+
 - **Limite navigateur** : Variable (50 MB - 10 GB selon navigateur)
 - **Chrome/Edge** : ~60% espace disque libre
 - **Firefox** : ~50% espace disque libre, max 2 GB par origine
@@ -399,6 +445,7 @@ Historique : Complet dans .git (illimité)
 - **Coût** : Gratuit
 
 ### Local Git (OPFS)
+
 - **Limite navigateur** : Variable selon implémentation OPFS
 - **Chrome 102+** : ~60% espace disque libre (comme IndexedDB)
 - **Edge 102+** : ~60% espace disque libre
@@ -410,21 +457,24 @@ Historique : Complet dans .git (illimité)
 
 ## 🎯 Matrice de décision
 
-### Choisir OAuth si :
+### Choisir OAuth si
+
 - ✅ Vous avez besoin de synchronisation multi-appareils
 - ✅ Vous travaillez en équipe
 - ✅ La sécurité est prioritaire
 - ✅ Vous pouvez déployer un backend Cloudflare
 - ✅ Usage production long terme
 
-### Choisir PAT si :
+### Choisir PAT si
+
 - ✅ Vous développez/testez localement
 - ✅ Vous voulez une config rapide
 - ✅ Vous n'avez pas de backend OAuth
 - ✅ Usage temporaire/personnel
 - ⚠️ Pas en production !
 
-### Choisir Local si :
+### Choisir Local si
+
 - ✅ Vous n'avez pas de compte GitHub
 - ✅ Vous travaillez offline (avion, etc.)
 - ✅ Données ultra-sensibles (pas de cloud)
@@ -432,7 +482,8 @@ Historique : Complet dans .git (illimité)
 - ✅ Usage solo uniquement
 - ✅ Simplicité maximale
 
-### Choisir Local Git si :
+### Choisir Local Git si
+
 - ✅ Vous voulez le meilleur des deux mondes (offline + Git)
 - ✅ Vous connaissez Git et ses concepts (commit, branch, merge)
 - ✅ Vous avez besoin d'historique complet (pas de limite 30 jours)
@@ -458,6 +509,7 @@ Historique : Complet dans .git (illimité)
 ### Recommandations migration
 
 **GitHub → Local** :
+
 ```bash
 # 1. Exporter depuis GitHub
 git clone https://github.com/username/pensine-notes.git
@@ -465,6 +517,7 @@ git clone https://github.com/username/pensine-notes.git
 ```
 
 **Local → GitHub** :
+
 ```bash
 # 1. Exporter depuis Local mode (JSON)
 # 2. Configurer GitHub mode
@@ -486,34 +539,44 @@ git clone https://github.com/username/pensine-notes.git
 ## ❓ FAQ
 
 ### Puis-je utiliser plusieurs modes simultanément ?
+
 Non, un seul mode actif à la fois. Mais vous pouvez changer de mode à tout moment.
 
 ### Mes données sont-elles perdues si je change de mode ?
+
 Non, les données restent dans le stockage précédent. Utilisez Export/Import pour transférer.
 
 ### Quel mode est le plus rapide ?
+
 Local > PAT > OAuth (latence réseau)
 
 ### Quel mode consomme le moins de batterie ?
+
 Local (pas de requêtes réseau)
 
 ### OAuth est-il vraiment nécessaire ?
+
 Pour production : OUI. Pour dev/tests : PAT suffit.
 
 ### Mode Local est-il sûr ?
+
 Oui, mais les données sont perdues si vous effacez le cache navigateur. Exportez régulièrement !
 
 ### Quelle est la différence entre Local et Local Git ?
+
 - **Local** : Simple, stockage clé-valeur IndexedDB, historique 30 jours
 - **Local Git** : Vrai repo Git avec branches, commits illimités, diff, merge
 
 ### Local Git fonctionne dans quels navigateurs ?
+
 Chrome 102+, Edge 102+, Opera 89+ (support OPFS requis). Safari et Firefox : pas encore.
 
 ### Puis-je synchroniser Local Git avec GitHub ?
+
 Oui ! Configurez un remote GitHub et utilisez push/pull comme un vrai repo Git.
 
 ### Local Git est-il plus lent que Local ?
+
 Légèrement, car Git fait plus de travail (commits, objects, refs). Mais acceptable pour usage normal.
 
 ---

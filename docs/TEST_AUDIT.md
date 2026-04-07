@@ -7,12 +7,14 @@
 ## 🎯 Résumé Exécutif
 
 ### État Global
+
 - ⚠️ **Tests Playwright**: Échouent (erreurs de modules)
 - ⚠️ **SCENARIOS_DE_TEST.md**: Partiellement obsolète
 - ⚠️ **TESTING_CHECKLIST.md**: Incomplet (manque architecture moderne)
 - ✅ **Coverage**: 12 tests d'intégration système config
 
 ### Score de Fiabilité: 4/10
+
 **Raison**: Tests écrits mais non exécutables, documentation désynchronisée du code
 
 ---
@@ -24,6 +26,7 @@
 **Fichier**: `tests/config-system-integration.spec.mjs`
 
 **Erreurs à l'exécution**:
+
 ```
 ❌ require is not defined
 ❌ Cannot use import statement outside a module
@@ -31,6 +34,7 @@
 ```
 
 **Diagnostic**:
+
 - Modules ES6 (`core/event-bus.js`, `core/plugin-system.js`) chargés dynamiquement dans `app.js`
 - Tests s'exécutent mais app ne s'initialise pas complètement
 - `window.eventBus`, `window.pluginSystem` restent `undefined`
@@ -42,6 +46,7 @@
 #### SCENARIOS_DE_TEST.md (858 lignes)
 
 **Scénarios obsolètes**:
+
 - ❌ **T1.1**: Référence wizard 5 étapes (actuel: 6 étapes + mode Local Git)
 - ❌ **T2.1**: Parcours GitHub seulement (manque Local Git, OAuth)
 - ❌ **T3.1**: "52 semaines affichées" (LinearCalendar V2 = scroll infini)
@@ -49,6 +54,7 @@
 - ❌ **T4**: Éditeur unifié (manque tests config moderne, settings-view)
 
 **Scénarios manquants**:
+
 - Système de configuration moderne (ConfigManager, SettingsView)
 - Plugins submodules (calendar, inbox, journal, reflection)
 - OAuth GitHub (implémentation en cours)
@@ -60,6 +66,7 @@
 #### TESTING_CHECKLIST.md (217 lignes)
 
 **Points manquants**:
+
 - ❌ Tester ouverture Settings moderne (bouton ⚙️ → SettingsView)
 - ❌ Tester navigation onglets plugins (Core, Calendar, Inbox, etc.)
 - ❌ Tester génération formulaires depuis JSON Schema
@@ -89,6 +96,7 @@ await page.addInitScript(() => {
 ```
 
 **Problème**:
+
 - Mock localStorage pour contourner wizard
 - Mais ne teste pas vraiment le wizard
 - Ne teste pas la logique de détection de config existante
@@ -99,6 +107,7 @@ await page.addInitScript(() => {
 ### 4. Absence de Tests End-to-End Réels
 
 **Scénarios critiques non testés automatiquement**:
+
 - ✅ Wizard complet (6 étapes)
 - ✅ Calendrier scroll + clic jour → ouvre journal
 - ✅ Éditeur 3 modes (Code/Rich/Split) + sauvegarde
@@ -111,6 +120,7 @@ await page.addInitScript(() => {
 ### 5. Coverage Incomplet
 
 **Modules sans tests automatisés**:
+
 ```
 core/
   ✅ config-manager.js     - Tests Playwright (mais cassés)
@@ -175,6 +185,7 @@ plugins/ (submodules)
 ## ✅ Points Positifs
 
 ### 1. Tests Playwright Bien Structurés
+
 - ✅ Configuration Playwright correcte (après fix)
 - ✅ BeforeEach setup cohérent
 - ✅ Tests organisés en suites logiques
@@ -182,11 +193,13 @@ plugins/ (submodules)
 - ✅ Capture console errors et page errors
 
 ### 2. Documentation Riche
+
 - ✅ SCENARIOS_DE_TEST.md: Très détaillé (858 lignes)
 - ✅ TESTING_CHECKLIST.md: Format clair (checklist pré-commit)
 - ✅ Données de test fournies (exemples JSON)
 
 ### 3. Intention de Coverage Complète
+
 - ✅ Tests d'initialisation
 - ✅ Tests d'interface (Settings UI)
 - ✅ Tests de validation (JSON Schema)
@@ -201,21 +214,25 @@ plugins/ (submodules)
 ## 🔧 Causes Racines Identifiées
 
 ### 1. Développement Sans TDD
+
 - Code écrit **avant** les tests
 - Tests ajoutés **après coup**
 - Manque de validation continue
 
 ### 2. Évolution Architecture Sans Mise à Jour Tests
+
 - Système config moderne ajouté (17/12/2025)
 - Tests écrits après
 - Mais SCENARIOS_DE_TEST.md pas mis à jour
 
 ### 3. Modules ES6 vs Scripts Classiques
+
 - `app.js` utilise `import()` dynamique
 - Playwright ne suit pas ces imports
 - Tests assument que modules sont chargés
 
 ### 4. Absence d'Intégration Continue (CI)
+
 - Tests jamais exécutés automatiquement
 - Pas de validation pre-commit
 - Régressions non détectées
@@ -247,13 +264,13 @@ plugins/ (submodules)
 
 ### Priorité 2 (IMPORTANT)
 
-4. **Tests Unitaires Modules Core**
+1. **Tests Unitaires Modules Core**
    - `event-bus.js`: Tests pub/sub
    - `plugin-system.js`: Tests lifecycle
    - `config-manager.js`: Tests CRUD config
    - **Temps estimé**: 3-4h
 
-5. **Tests End-to-End Critiques**
+2. **Tests End-to-End Critiques**
    - Wizard complet (happy path)
    - Calendrier → Journal → Sauvegarde
    - Settings → Modifier config → Reload
@@ -261,12 +278,12 @@ plugins/ (submodules)
 
 ### Priorité 3 (AMÉLIORATION)
 
-6. **CI/CD Pipeline**
+1. **CI/CD Pipeline**
    - GitHub Actions: Run tests on PR
    - Pre-commit hook: Syntaxe + quick tests
    - **Temps estimé**: 1-2h
 
-7. **Coverage Report**
+2. **Coverage Report**
    - Intégrer Istanbul/NYC
    - Target: 70% coverage
    - **Temps estimé**: 1h
@@ -276,6 +293,7 @@ plugins/ (submodules)
 ## 📅 Plan d'Action Proposé
 
 ### Phase 1 (Immédiat - 1 jour)
+
 - [x] Audit complet (ce document)
 - [ ] Fix Playwright config (reporter folder)
 - [ ] Fix tests Playwright (chargement modules)
@@ -283,6 +301,7 @@ plugins/ (submodules)
 - [ ] Update SCENARIOS_DE_TEST.md (sections obsolètes)
 
 ### Phase 2 (Court terme - 3 jours)
+
 - [ ] Tests unitaires event-bus.js
 - [ ] Tests unitaires plugin-system.js
 - [ ] Tests E2E wizard complet
@@ -290,6 +309,7 @@ plugins/ (submodules)
 - [ ] Update TESTING_CHECKLIST.md complet
 
 ### Phase 3 (Moyen terme - 1 semaine)
+
 - [ ] Tests OAuth (si feature complétée)
 - [ ] Tests Local Git mode
 - [ ] Tests plugins (submodules)
@@ -301,6 +321,7 @@ plugins/ (submodules)
 ## 📊 KPIs de Succès
 
 **Objectifs à atteindre**:
+
 - ✅ 100% tests Playwright passent (13/13)
 - ✅ 0% documentation obsolète (SCENARIOS + CHECKLIST)
 - ✅ 70% code coverage (modules critiques)
@@ -314,6 +335,7 @@ plugins/ (submodules)
 ## 🎯 Conclusion
 
 ### État Actuel
+
 Les tests Pensine Web sont dans un état de **qualité insuffisante** pour garantir la fiabilité de l'application :
 
 - **Tests automatisés**: Non fonctionnels (0% réussite)
@@ -321,17 +343,20 @@ Les tests Pensine Web sont dans un état de **qualité insuffisante** pour garan
 - **Coverage**: Très faible (30%)
 
 ### Risques
+
 - ⚠️ Régressions non détectées lors des commits
 - ⚠️ Bugs en production non testés
 - ⚠️ Refactoring risqué sans filet de sécurité
 - ⚠️ Perte de confiance dans la codebase
 
 ### Actions Immédiates Requises
+
 1. **Fixer les 13 tests Playwright** (URGENT)
 2. **Mettre à jour documentation** (IMPORTANT)
 3. **Ajouter tests unitaires critiques** (IMPORTANT)
 
 ### Prochaine Étape
+
 Commencer par **Phase 1 du plan d'action** (1 jour de travail estimé).
 
 ---

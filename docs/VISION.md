@@ -19,6 +19,7 @@
 **Objectif** : Unifier et contextualiser toutes les dimensions temporelles de votre vie
 
 **Fonctionnalités**:
+
 - 📅 **Calendrier unifié** : Vie personnelle + travail + événements
 - 📝 **Journal quotidien** : Réflexions, notes, apprentissages
 - ⏱️ **Timeline continue** : Vue linéaire du passé au futur
@@ -26,6 +27,7 @@
 - 🔄 **Synchronisation multi-sources** : Google, Outlook, iCal, GitHub...
 
 **Croisements intelligents**:
+
 - Journaux liés aux événements calendrier
 - Patterns temporels dans les buts atteints
 - Corrélations temps/santé (sommeil, activité...)
@@ -35,6 +37,7 @@
 **Objectif** : Suivre, comprendre et améliorer votre bien-être physique et mental
 
 **Fonctionnalités**:
+
 - 💊 **Suivi médicaments** : Prises, prescriptions, historique
 - 🏃 **Activité physique** : Exercices, sports, mobilité
 - 😴 **Sommeil** : Qualité, durée, patterns
@@ -44,6 +47,7 @@
 - 🩺 **Rendez-vous médicaux** : Historique, comptes-rendus
 
 **Croisements intelligents**:
+
 - Sommeil vs productivité (gestion du temps)
 - Exercice vs atteinte des buts (motivation)
 - Corrélations événements stressants vs santé mentale
@@ -54,6 +58,7 @@
 **Objectif** : Définir, suivre et atteindre vos objectifs à tous les niveaux
 
 **Fonctionnalités**:
+
 - 🎯 **Objectifs hiérarchiques** : Vision → Buts → Jalons → Tâches
 - 📈 **Suivi progression** : Métriques, étapes franchies
 - 💡 **Motivations** : Pourquoi, valeurs, aspirations
@@ -62,6 +67,7 @@
 - 📝 **Notes projets** : Contexte, décisions, apprentissages
 
 **Croisements intelligents**:
+
 - Temps consacré par objectif (calendrier)
 - Impact santé sur progression (énergie, focus)
 - Patterns de réussite (quand, comment, contexte)
@@ -81,6 +87,7 @@
 ### Exemples de croisements
 
 **Scénario 1: Baisse de productivité**
+
 ```
 Observation: Productivité faible cette semaine
 ↓
@@ -92,6 +99,7 @@ Action: Bloquer créneaux "no meeting" pour récupération
 ```
 
 **Scénario 2: Objectif sport non atteint**
+
 ```
 But: Courir 3x/semaine (non atteint depuis 2 mois)
 ↓
@@ -103,6 +111,7 @@ Action: Replanifier objectif ou bloquer créneaux déjeuner
 ```
 
 **Scénario 3: Patterns saisonniers**
+
 ```
 Observation: Énergie basse chaque novembre
 ↓
@@ -118,12 +127,14 @@ Action: Anticiper l'année prochaine (vitamine D, projets légers)
 ### Système de Plugins 🔌
 
 **Pourquoi plugins?**
+
 - ⚡ **Performance** : Chargement uniquement des modules nécessaires
 - 🔧 **Extensibilité** : Ajout de fonctionnalités sans toucher au core
 - 👥 **Communauté** : Plugins tiers pour cas d'usage spécifiques
 - 🎛️ **Personnalisation** : Chaque utilisateur active ce qu'il utilise
 
 **Architecture proposée**:
+
 ```
 pensine-core/
 ├── app.js           # Orchestration, routing
@@ -152,12 +163,14 @@ plugin-api/
 ### Sources de Données (Storage Plugins)
 
 **Actuels**:
+
 - ✅ GitHub (PAT)
 - ✅ GitHub (OAuth)
 - ✅ Local Storage
 - 🚧 Local Git
 
 **Futurs**:
+
 - 📧 **Email** : Gmail, Outlook (lectures, envois, contacts)
 - 📅 **Calendriers** : Google Calendar, Outlook Calendar, iCal
 - ☁️ **Cloud** : Google Drive, OneDrive, Dropbox
@@ -217,26 +230,31 @@ plugin-api/
 ## 🚀 Roadmap
 
 ### Phase 1: Fondations (Q1 2026)
+
 - ✅ Système de plugins avec API
 - ✅ Config hiérarchique avec UI dédiée
 - ✅ Refactoring code existant en plugins
 
 ### Phase 2: Enrichissement Temps (Q2 2026)
+
 - 📅 Intégrations calendriers externes (Google, Outlook)
 - 🔗 Liens journal ↔ événements
 - 📊 Visualisations timeline enrichies
 
 ### Phase 3: Module Santé (Q3 2026)
+
 - 💊 Suivi médicaments et RDV
 - 😴 Tracking sommeil/activité
 - 📈 Dashboard santé avec métriques
 
 ### Phase 4: Buts & Croisements (Q4 2026)
+
 - 🎯 Système objectifs hiérarchiques
 - 🔗 Croisements temps ↔ santé ↔ buts
 - 🤖 Suggestions contextuelles basées sur patterns
 
 ### Phase 5: Extensibilité (2027)
+
 - 🌐 Plugin marketplace
 - 📚 Documentation API développeurs
 - 👥 Contributions communauté
@@ -263,16 +281,19 @@ plugin-api/
 **Comment savoir si Pensine réussit sa mission?**
 
 ### Métriques d'usage
+
 - 📈 Consultation quotidienne (utilisateur revient chaque jour)
 - ✍️ Enrichissement régulier (ajout journal, notes, métriques)
 - 🔗 Utilisation des croisements (découverte de patterns)
 
 ### Métriques de valeur
+
 - 💡 Insights actionnables découverts
 - 🎯 Objectifs atteints grâce aux croisements
 - 🧘 Réduction stress/charge mentale (externalisation cognitive)
 
 ### Métriques techniques
+
 - ⚡ Performance (chargement < 2s, interactions fluides)
 - 🔒 Zéro fuite de données (audits sécurité réguliers)
 - 🐛 Fiabilité (uptime, absence bugs critiques)
@@ -282,11 +303,13 @@ plugin-api/
 > **"Un cerveau pour penser, un autre pour ressentir, un troisième pour se souvenir et optimiser"**
 
 Pensine n'est pas:
+
 - ❌ Un outil de productivité classique (to-do lists)
 - ❌ Un journal intime simple
 - ❌ Un tracker de données isolé
 
 Pensine est:
+
 - ✅ Une extension cognitive fiable
 - ✅ Un conseiller contextuel basé sur VOS données
 - ✅ Un outil de connaissance de soi par les patterns

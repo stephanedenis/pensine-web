@@ -1,0 +1,4 @@
+# Husky + Lint-Staged Setup
+
+node_modules/
+.git/

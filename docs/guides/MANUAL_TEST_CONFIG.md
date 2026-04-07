@@ -1,6 +1,7 @@
 # Test Manuel du Système de Configuration
 
 ## Pré-requis
+
 ```bash
 # Démarrer le serveur local
 python3 -m http.server 8000
@@ -14,11 +15,13 @@ firefox http://localhost:8000
 ### 1. Initialisation (Console Browser - F12)
 
 Vérifier dans la console :
+
 ```javascript
 // Doit afficher "✅ Modern configuration system initialized"
 ```
 
 Vérifier les objets globaux :
+
 ```javascript
 console.log('EventBus:', !!window.eventBus);
 console.log('PluginSystem:', !!window.pluginSystem);
@@ -32,6 +35,7 @@ console.log('SettingsView:', !!window.app.settingsView);
 **Action** : Cliquer sur le bouton Settings (⚙️)
 
 **Résultat attendu** :
+
 - ✅ Modal overlay s'affiche
 - ✅ Panneau centré avec titre "Settings"
 - ✅ Sidebar avec tabs : "Core" visible
@@ -43,6 +47,7 @@ console.log('SettingsView:', !!window.app.settingsView);
 **Action** : Cliquer sur l'onglet "Core"
 
 **Résultat attendu** :
+
 - ✅ Formulaire avec champs :
   - Theme (select : auto/light/dark)
   - Language (select : fr/en)
@@ -53,10 +58,12 @@ console.log('SettingsView:', !!window.app.settingsView);
 ### 4. Modification et Sauvegarde
 
 **Action** :
+
 1. Modifier une valeur (ex: Language → en)
 2. Cliquer sur "Save"
 
 **Résultat attendu** :
+
 - ✅ Notification "Settings saved successfully" (toast vert)
 - ✅ Toast disparaît après 3 secondes
 - ✅ Config sauvegardée dans localStorage
@@ -67,22 +74,27 @@ console.log('SettingsView:', !!window.app.settingsView);
 **Si plugin calendar disponible** :
 
 **Action** :
+
 1. Aller dans l'onglet "📅 Calendar"
 2. Modifier une valeur
 3. Cliquer sur "Reset to Defaults"
 
 **Résultat attendu** :
+
 - ✅ Valeurs reviennent aux defaults du plugin
 - ✅ Notification "Settings reset to defaults"
 
 ### 6. Export Configuration
 
 **Action** :
+
 1. Cliquer sur "Export"
 
 **Résultat attendu** :
+
 - ✅ Téléchargement d'un fichier `pensine-config-YYYYMMDD-HHMMSS.json`
 - ✅ Fichier contient structure JSON valide :
+
 ```json
 {
   "core": { ... },
@@ -93,11 +105,13 @@ console.log('SettingsView:', !!window.app.settingsView);
 ### 7. Import Configuration
 
 **Action** :
+
 1. Modifier quelques valeurs
 2. Cliquer sur "Import"
 3. Sélectionner le fichier exporté précédemment
 
 **Résultat attendu** :
+
 - ✅ Dialog de sélection de fichier s'ouvre
 - ✅ Après import : valeurs restaurées
 - ✅ Notification "Configuration imported successfully"
@@ -105,11 +119,13 @@ console.log('SettingsView:', !!window.app.settingsView);
 ### 8. Validation des Erreurs
 
 **Action** :
+
 1. Si champ numérique présent (ex: monthsToDisplay dans calendar)
 2. Entrer valeur hors limites (ex: 20 alors que max=12)
 3. Cliquer Save
 
 **Résultat attendu** :
+
 - ✅ Notification d'erreur (rouge)
 - ✅ Message indique la contrainte violée
 - ✅ Formulaire reste ouvert
@@ -118,11 +134,13 @@ console.log('SettingsView:', !!window.app.settingsView);
 ### 9. Fermeture du Panneau
 
 **Action** :
+
 - Cliquer sur le bouton × en haut à droite
 - OU cliquer sur l'overlay (fond gris transparent)
 - OU appuyer sur Escape
 
 **Résultat attendu** :
+
 - ✅ Panneau se ferme avec transition
 - ✅ Retour à la vue normale
 
@@ -131,11 +149,13 @@ console.log('SettingsView:', !!window.app.settingsView);
 **Test de régression** :
 
 **Action** :
+
 1. Ouvrir DevTools
 2. Dans Console, exécuter : `delete window.app.settingsView;`
 3. Cliquer sur bouton Settings
 
 **Résultat attendu** :
+
 - ✅ Message console : "⚠️ Modern settings view not available, falling back to config editor"
 - ✅ Éditeur JSON brut s'ouvre avec .pensine-config.json
 - ✅ Application ne plante pas
@@ -143,6 +163,7 @@ console.log('SettingsView:', !!window.app.settingsView);
 ## Résultats Attendus Global
 
 Sur 10 tests :
+
 - **10/10 ✅** : Système parfaitement opérationnel
 - **8-9/10 ✅** : Fonctionnel, quelques détails à ajuster
 - **<8/10** : Problèmes nécessitant debug
@@ -150,6 +171,7 @@ Sur 10 tests :
 ## Debugging en Cas d'Échec
 
 ### Console Errors
+
 ```javascript
 // Vérifier les imports
 console.log(window.modernConfigManager);
@@ -158,6 +180,7 @@ console.log(window.app.settingsView);
 ```
 
 ### Check DOM
+
 ```javascript
 // Vérifier que le CSS est chargé
 const link = document.querySelector('link[href*="settings.css"]');
@@ -168,6 +191,7 @@ console.log('Scripts:', Array.from(document.querySelectorAll('script[type="modul
 ```
 
 ### Check localStorage
+
 ```javascript
 // Voir la config actuelle
 console.log(JSON.parse(localStorage.getItem('pensine-settings')));
@@ -176,6 +200,7 @@ console.log(JSON.parse(localStorage.getItem('pensine-settings')));
 ## Prochaines Étapes Après Tests
 
 Si tous les tests passent :
+
 1. ✅ Committer les résultats
 2. ✅ Pusher vers GitHub
 3. ✅ Documenter dans journal de bord

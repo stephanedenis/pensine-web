@@ -8,6 +8,7 @@
 ## 🎯 Documents par Rôle
 
 ### Pour le Product Owner / Décideurs
+
 1. **[ACCELERATOR_EXECUTIVE_SUMMARY.md](./ACCELERATOR_EXECUTIVE_SUMMARY.md)** ⭐ **LIRE EN PREMIER**
    - Vision du plugin
    - Business case
@@ -16,6 +17,7 @@
    - **Temps lecture** : 10 min
 
 ### Pour les Architectes
+
 1. **[PLUGIN_ACCELERATOR_ARCHITECTURE.md](./PLUGIN_ACCELERATOR_ARCHITECTURE.md)** ⭐ **RÉFÉRENCE TECHNIQUE**
    - Architecture globale (client + server)
    - Design decisions
@@ -25,6 +27,7 @@
    - **Temps lecture** : 30 min
 
 ### Pour les Développeurs Frontend
+
 1. **[accelerator-plugin.js](../plugins/pensine-plugin-accelerator/accelerator-plugin.js)** ⭐ **CODE À COMPLÉTER**
    - Template du plugin
    - Tous les TODOs listés
@@ -43,6 +46,7 @@
    - Critères acceptation
 
 ### Pour les Développeurs Backend
+
 1. **[PLUGIN_ACCELERATOR_ARCHITECTURE.md - Section "Mode 2"](./PLUGIN_ACCELERATOR_ARCHITECTURE.md#mode-2--hybrid-client--azure-backend-optionnel)**
    - Architecture backend
    - FastAPI app template
@@ -60,6 +64,7 @@
    - Critères acceptation
 
 ### Pour les DevOps / Infrastructure
+
 1. **[AZURE_DEPLOYMENT_GUIDE.md](./AZURE_DEPLOYMENT_GUIDE.md)** ⭐ **DÉPLOIEMENT COMPLET**
    - Infrastructure setup (App Service, PostgreSQL)
    - Abonnement : ee35c0a9-2a11-42a7-a463-f0c6fb4d0d89
@@ -75,6 +80,7 @@
    - Production readiness
 
 ### Pour les QA / Test Engineers
+
 1. **[ACCELERATOR_DEVELOPMENT_PLAN.md - Section "Points de contrôle"](./ACCELERATOR_DEVELOPMENT_PLAN.md#-points-de-contrôle)**
    - Tests par phase
    - Critères acceptation
@@ -86,6 +92,7 @@
    - Exemples de code
 
 ### Pour les Project Manager
+
 1. **[ACCELERATOR_DEVELOPMENT_PLAN.md](./ACCELERATOR_DEVELOPMENT_PLAN.md)** ⭐ **TIMELINE & ALLOCATION**
    - 4 semaines, 4-6 personnes
    - Effort par task
@@ -102,7 +109,9 @@
 ## 📖 Lecture Recommandée par Phase
 
 ### Phase 0 : Décision (30 min)
+
 Pour décider si on lance le projet :
+
 1. ACCELERATOR_EXECUTIVE_SUMMARY.md (10 min)
 2. PLUGIN_ACCELERATOR_ARCHITECTURE.md - section "Vue d'ensemble" (10 min)
 3. ACCELERATOR_DEVELOPMENT_PLAN.md - section "Timeline" (10 min)
@@ -110,7 +119,9 @@ Pour décider si on lance le projet :
 **Résultat** : Go/No-go decision
 
 ### Phase 1 : Client-Side (1-2 semaines)
+
 Pour implémenter le plugin offline :
+
 1. accelerator-plugin.js (comme référence)
 2. PLUGIN_ACCELERATOR_ARCHITECTURE.md - "Mode 1" (10 min)
 3. ACCELERATOR_DEVELOPMENT_PLAN.md - "Semaine 1" (15 min)
@@ -118,7 +129,9 @@ Pour implémenter le plugin offline :
 5. Référencer PLUGIN_ACCELERATOR_ARCHITECTURE.md pour FAQ
 
 ### Phase 2 : Backend (1 semaine)
+
 Pour implémenter FastAPI :
+
 1. AZURE_DEPLOYMENT_GUIDE.md - "Phase 1" (20 min)
 2. PLUGIN_ACCELERATOR_ARCHITECTURE.md - "Tech Stack" (10 min)
 3. PLUGIN_ACCELERATOR_ARCHITECTURE.md - "Schema PostgreSQL" (10 min)
@@ -126,7 +139,9 @@ Pour implémenter FastAPI :
 5. Tests intégration
 
 ### Phase 3 : Intégration (1 semaine)
+
 Pour connecter client + server :
+
 1. PLUGIN_ACCELERATOR_ARCHITECTURE.md - "Sync Strategy" (10 min)
 2. ACCELERATOR_DEVELOPMENT_PLAN.md - "Semaine 3" (15 min)
 3. Implémenter sync + fallback
@@ -134,7 +149,9 @@ Pour connecter client + server :
 5. Docs utilisateur
 
 ### Phase 4 : Production (1 semaine)
+
 Pour déployer sur Azure :
+
 1. AZURE_DEPLOYMENT_GUIDE.md - Phase 2-4 (30 min)
 2. ACCELERATOR_DEVELOPMENT_PLAN.md - "Semaine 4" (15 min)
 3. Exécuter déploiement
@@ -202,27 +219,35 @@ Pour déployer sur Azure :
 ## ❓ FAQ Rapides
 
 ### Q: Faut-il déployer le backend pour Phase 1 ?
+
 **A**: Non ! Phase 1 = client-side uniquement. Backend est Phase 2 (optionnel).
 
 ### Q: Le plugin fonctionne offline ?
+
 **A**: Oui, toujours. Mode offline = local search seulement (légèrement plus lent).
 
 ### Q: Quel est l'effort ?
+
 **A**: 4-6 semaines, 4-6 personnes. Ou 2-3 semaines en full-team parallel.
 
 ### Q: Combien coûte Azure ?
+
 **A**: ~$32/mois en production (App Service B1 + PostgreSQL).
 
 ### Q: Quels données vont à Azure ?
+
 **A**: Index de notes pour recherche. Aucune donnée de contenu (reste dans GitHub).
 
 ### Q: Comment on déploie sur l'abonnement Azure ?
+
 **A**: Voir AZURE_DEPLOYMENT_GUIDE.md. Abonnement : ee35c0a9-2a11-42a7-a463-f0c6fb4d0d89
 
 ### Q: C'est un breaking change ?
+
 **A**: Non. Plugin optionnel, zéro dépendance. Pensine fonctionne exactement comme avant.
 
 ### Q: Qui décide quoi faire après Phase 1 ?
+
 **A**: Product Owner. Phase 2 est optionnel selon feedback utilisateurs.
 
 ---
@@ -230,6 +255,7 @@ Pour déployer sur Azure :
 ## 🔗 Quick Links
 
 **Pour démarrer immédiatement** :
+
 ```bash
 # 1. Lire exécutif
 less docs/ACCELERATOR_EXECUTIVE_SUMMARY.md
@@ -245,6 +271,7 @@ less docs/ACCELERATOR_DEVELOPMENT_PLAN.md
 ```
 
 **Pour déployer sur Azure** (après Phase 1) :
+
 ```bash
 # 1. Setup local
 bash docs/AZURE_DEPLOYMENT_GUIDE.md  # Sections "Phase 1"

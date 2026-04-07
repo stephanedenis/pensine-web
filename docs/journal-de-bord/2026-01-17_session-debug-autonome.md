@@ -297,25 +297,25 @@ const deps = await window.bootstrapReady;
 
 ### Court terme (cette semaine)
 
-3. **Fixer tests interactions**
+1. **Fixer tests interactions**
 
    - Test 2 : Click intercepted by overlay
    - Test 4 : `window.app.showSettings is not a function`
    - Test 6 : Selector ambiguity (2 .settings-panel)
 
-4. **Documenter patterns**
+2. **Documenter patterns**
    - Module system best practices
    - Test configuration template
    - Bootstrap synchronization guide
 
 ### Moyen terme (semaine prochaine)
 
-5. **Error routing** (ADR issue #7)
+1. **Error routing** (ADR issue #7)
 
    - Implémenter router intelligent
    - PAT expiré → Settings ciblé (pas wizard)
 
-6. **Multi-repos Phase 1**
+2. **Multi-repos Phase 1**
    - Spec complète dans ARCHITECTURE_MULTI_REPOS.md
    - Commencer implémentation localStorage
 

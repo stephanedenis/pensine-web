@@ -28,6 +28,7 @@ HÉRITAGE:
 ## ✅ CE QUI VA BIEN
 
 ### 1. **Dossier `/styles`** (4 fichiers logiques)
+
 ```
 styles/
 ├── main.css          ✅ Styles globaux
@@ -35,11 +36,13 @@ styles/
 ├── editor.css        ✅ Spécifique feature
 └── wizard.css        ✅ Spécifique feature
 ```
+
 **Score** : 9/10 (bien organisé par feature)
 
 ---
 
 ### 2. **Dossier `/core`** (4 fichiers modernes)
+
 ```
 core/
 ├── config-manager.js    ✅ Moderne (443 lignes)
@@ -47,11 +50,13 @@ core/
 ├── plugin-system.js     ✅ Architecture plugin
 └── router.js            ✅ Routeur
 ```
+
 **Score** : 8/10 (bon, mais importe `lib/*` ancien code)
 
 ---
 
 ### 3. **Dossier `/plugins`** (5 plugins)
+
 ```
 plugins/
 ├── pensine-plugin-accelerator/    ✅ Nouveau (structuré)
@@ -60,11 +65,13 @@ plugins/
 ├── pensine-plugin-journal/        ✅ Isolé
 └── pensine-plugin-reflection/     ✅ Isolé
 ```
+
 **Score** : 9/10 (chaque plugin isolé et indépendant)
 
 ---
 
 ### 4. **Dossier `/docs`** (14+ fichiers)
+
 ```
 docs/
 ├── SPECIFICATIONS_TECHNIQUES.md   ✅ Complète
@@ -73,6 +80,7 @@ docs/
 ├── journal-de-bord/               ✅ Historique
 └── ...
 ```
+
 **Score** : 9/10 (bien organisé, peut être rangé en sous-dossiers)
 
 ---
@@ -82,6 +90,7 @@ docs/
 ### 1. **Fichiers à la racine (CHAOS)**
 
 **Problème** : 30+ fichiers à la racine
+
 ```
 pensine-web/
 ├── app.js              🔴 CODE PRINCIPAL (1493 lignes)
@@ -97,6 +106,7 @@ pensine-web/
 ```
 
 **Impact** :
+
 - Difficile de voir la structure d'un coup d'œil
 - Mélange code + docs + images + config
 - Git très bruyant au commit
@@ -108,6 +118,7 @@ pensine-web/
 ### 2. **Dossier `/lib` (MÉLANGE)**
 
 **Problème** : 17 fichiers sans cohérence
+
 ```
 lib/
 ├── ANCIEN (legacy non-modular):
@@ -134,6 +145,7 @@ lib/
 ```
 
 **Impact** :
+
 - Pas clair quel code utiliser (ancien vs nouveau)
 - Duplication (storage.js vs storage-adapter-base.js)
 - Dépendances circulaires possibles
@@ -145,6 +157,7 @@ lib/
 ### 3. **Duplication ConfigManager**
 
 **Localisation** :
+
 - `app.js` lignes ~1-90 : classe ConfigManager (simple, legacy)
 - `core/config-manager.js` lignes 1-443 : classe ConfigManager (moderne, complex)
 
@@ -171,12 +184,14 @@ lib/
 **Localisation** : `core/plugin-system.js`
 
 **Problème** :
+
 - Définit l'API plugin (register, enable, disable)
 - Mais `lib/config-wizard.js` n'utilise PAS le système
 - Plugins dans `plugins/` n'utilisent pas tous plugin-system.js
 - Déclaration de plugins COMMENT? Où?
 
 **Impact** :
+
 - Pas clair comment créer un nouveau plugin
 - Migration des plugins vers système unifié incomplet
 
@@ -189,6 +204,7 @@ lib/
 **Localisation** : `core/router.js`
 
 **Problème** :
+
 - Fichier existe mais `app.js` gère la navigation
 - Pas d'API cohérente `router.navigate()` ou similaire
 - Conditions de course possibles sur changement de vue
@@ -200,48 +216,58 @@ lib/
 ## 🟡 PROBLÈMES MINEURS
 
 ### 1. **Dossier `/views` (vide ou mal placé)**
+
 ```
 views/
 └── settings-view.js  (1 seul fichier)
 ```
+
 → Devrait être dans `lib/components/` ou `lib/views/`
 
 ---
 
 ### 2. **Dossier `/tests` vs `/test-results`**
+
 ```
 tests/                    (1 fichier .mjs)
 test-results/            (output playwright)
 playwright-report/       (output playwright)
 ```
+
 → Consolider: tous les tests générés dans `test-results/`
 
 ---
 
 ### 3. **Dossier `/workers` (orphelin?)**
+
 ```
 workers/
 ├── oauth.js
 └── wrangler.toml
 ```
+
 → Cloudflare Workers? Utilisé? Documenté?
 
 ---
 
 ### 4. **Dossier `/journals` (pourquoi pas dans `/docs/journal-de-bord`?)**
+
 ```
 journals/
 └── 2025-12-16.md
 ```
+
 → À déplacer dans `docs/journal-de-bord/`
 
 ---
 
 ### 5. **Dossier `/scripts` (mal documenté)**
+
 ```
 scripts/
 └── init-plugins.sh
 ```
+
 → Documenter usage et dépendances
 
 ---
@@ -357,6 +383,7 @@ pensine-web/
 ## 🔧 PLAN DE RESTRUCTURATION
 
 ### Phase 0: Préparation (1h)
+
 ```bash
 # 1. Créer nouvelle structure
 mkdir -p src/{core,lib/{adapters,services,components},plugins}
@@ -371,6 +398,7 @@ git branch backup-before-restructure
 ```
 
 ### Phase 1: Déplacer fichiers (2h)
+
 ```bash
 # Images
 mv wizard*.png assets/images/
@@ -390,6 +418,7 @@ mv TEST_README.md docs/guides/TESTING.md
 ```
 
 ### Phase 2: Reorganiser `/src/lib` (3h)
+
 ```bash
 # Créer catégories
 mkdir src/lib/adapters
@@ -415,6 +444,7 @@ mv views/settings-view.js src/lib/components/
 ```
 
 ### Phase 3: Mettre à jour imports (2h)
+
 ```bash
 # Chercher et remplacer tous les imports
 grep -r "from.*lib/" src/ --include="*.js"
@@ -424,6 +454,7 @@ grep -r "from.*lib/" src/ --include="*.js"
 ```
 
 ### Phase 4: Documenter (1h)
+
 ```bash
 # Créer STRUCTURE.md (copie de ce document)
 # Créer docs/guides/PLUGIN_CREATION.md (depuis plugin-system.js)
@@ -465,11 +496,13 @@ grep -r "from.*lib/" src/ --include="*.js"
 
 **Blocage de Phase 1 (Accelerator)** ?
 Non - peut se faire en parallèle:
+
 - Phase 1 = implémenter `accelerator-plugin.js`
 - Restructuration = déplacer fichiers existants
 - Peuvent se faire indépendamment
 
 **Recommandation** :
+
 1. **Approuver** cette structure (ce doc)
 2. **Faire la restructuration** (4-5h, peut être split en PR)
 3. **Puis commencer** Phase 1 Accelerator
@@ -477,6 +510,7 @@ Non - peut se faire en parallèle:
 ---
 
 **Score global structure** : **5/10**
+
 - ✅ Styles bien organisé (9/10)
 - ✅ Core moderne (8/10)
 - ✅ Plugins isolés (9/10)

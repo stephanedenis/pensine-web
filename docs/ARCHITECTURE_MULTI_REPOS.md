@@ -469,6 +469,7 @@ class MultiRepoManager {
    ```
 
 4. **Repo Selector Modal** (nouvelle note)
+
    ```html
    <dialog id="repo-selector">
      <h2>Dans quel repo créer cette note ?</h2>

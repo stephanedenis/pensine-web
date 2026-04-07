@@ -7,7 +7,7 @@ Exécuter AVANT chaque `git commit`:
 ### ✅ Démarrage Application
 
 - [ ] **Server lancé**: `python3 -m http.server 8000 --directory pensine-web`
-- [ ] **Page charge**: http://localhost:8000 sans erreur 404
+- [ ] **Page charge**: <http://localhost:8000> sans erreur 404
 - [ ] **Console propre**: Aucune erreur rouge dans DevTools Console (F12)
 - [ ] **Version affichée**: Header montre version correcte `v0.0.XX`
 
@@ -155,6 +155,7 @@ git push
 ```
 
 **Types valides**:
+
 - `feat`: Nouvelle fonctionnalité
 - `fix`: Correction bug
 - `refactor`: Refactorisation code
@@ -164,6 +165,7 @@ git push
 - `chore`: Maintenance (deps, config)
 
 **Exemples**:
+
 ```
 feat: Ajouter support GitLab dans wizard
 fix: Corriger layout header éditeur en mode split
@@ -220,6 +222,7 @@ git push origin v0.0.XX
 ```
 
 **Tag de restauration** (si régression future):
+
 ```bash
 git tag -a v0.0.XX-stable -m "Point de restauration stable"
 git push origin v0.0.XX-stable

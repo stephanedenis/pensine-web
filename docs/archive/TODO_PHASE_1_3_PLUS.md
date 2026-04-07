@@ -5,19 +5,22 @@
 ### Phase 1.3: Publication Alpha
 
 - [ ] **Publier sur NPM**
+
   ```bash
   cd packages/plugin-interface
   npm login
   npm publish --tag alpha
   ```
+
   Alternative: Exécuter `./PUBLISH_COMMANDS.sh`
 
 - [ ] **Vérifier publication**
-  - Visiter: https://www.npmjs.com/package/@panini/plugin-interface
+  - Visiter: <https://www.npmjs.com/package/@panini/plugin-interface>
   - Vérifier version 0.1.0-alpha.1 avec tag "alpha"
   - CLI: `npm info @panini/plugin-interface`
 
 - [ ] **Tester installation**
+
   ```bash
   cd /tmp && mkdir test-panini && cd test-panini
   npm init -y
@@ -26,10 +29,12 @@
   ```
 
 - [ ] **Créer GitHub Release**
+
   ```bash
   git tag v0.1.0-alpha.1
   git push origin v0.1.0-alpha.1
   ```
+
   Puis créer release sur GitHub UI avec notes de CHANGELOG.md
 
 - [ ] **Mettre à jour Pensine**
@@ -44,7 +49,7 @@
 ### Phase 1.4: Tests Real-World
 
 - [ ] **Charger Pensine avec nouveau système**
-  - Ouvrir http://localhost:8000
+  - Ouvrir <http://localhost:8000>
   - Console: `listPlugins()`
   - Vérifier Word Counter fonctionne
 
@@ -55,6 +60,7 @@
   - Tests + documentation
   
   Structure:
+
   ```
   packages/plugin-plantuml/
   ├── src/
@@ -89,6 +95,7 @@
   - Documenter gaps
 
 - [ ] **Créer OntoWave wrappers**
+
   ```
   ontowave/src/core/
   ├── panini-wrappers.js      # Similar to Pensine
@@ -159,18 +166,21 @@
 ## 🎯 Métriques de Succès
 
 ### Phase 1.3 (Alpha)
+
 - [ ] Package sur npmjs.com
 - [ ] Installation fonctionnelle
 - [ ] GitHub release créée
 - [ ] 0 issues critiques
 
 ### Phase 1.4 (Real Testing)
+
 - [ ] Pensine fonctionne avec package NPM
 - [ ] PlantUML plugin créé
 - [ ] 5+ alpha testers feedback
 - [ ] 0 breaking bugs
 
 ### Phase 2 (OntoWave)
+
 - [ ] EventBus implémenté
 - [ ] Wrappers fonctionnels
 - [ ] 1+ plugin partagé fonctionne
@@ -181,18 +191,22 @@
 ## 🚨 Risques Identifiés
 
 ### Publication NPM
+
 - **Risque**: Nom package déjà pris
 - **Mitigation**: Publier sous @stephanedenis si @panini unavailable
 
 ### OntoWave EventBus
+
 - **Risque**: Architecture incompatible
 - **Mitigation**: Créer shim léger, pas full refactor
 
 ### PlantUML Rendering
+
 - **Risque**: Server API rate limiting
 - **Mitigation**: Cache local, fallback server
 
 ### Cross-Platform Config
+
 - **Risque**: Namespaces conflicts
 - **Mitigation**: Strict namespace rules, validation
 
@@ -201,12 +215,14 @@
 ## 📚 Documentation à Créer
 
 ### Semaine prochaine
+
 - [ ] CONTRIBUTING.md - Guide contributeurs
 - [ ] PLUGIN_DEVELOPMENT_GUIDE.md - Développer plugins
 - [ ] CROSS_PLATFORM_GUIDE.md - Plugins cross-platform
 - [ ] API_REFERENCE.md - Référence API complète
 
 ### Plus tard
+
 - [ ] VIDEO_TUTORIAL.md - Screencasts
 - [ ] FAQ.md - Questions fréquentes
 - [ ] CHANGELOG_POLICY.md - Politique versioning
@@ -216,12 +232,14 @@
 ## 🤝 Community
 
 ### Communication
+
 - [ ] Créer Discord channel #panini-plugins
 - [ ] Post sur Reddit /r/PersonalKnowledgeManagement
 - [ ] Tweet announcement
 - [ ] Blog post technique
 
 ### Support
+
 - [ ] GitHub Discussions activées
 - [ ] Issue templates créés
 - [ ] Contributing guidelines
@@ -232,11 +250,13 @@
 ## 🎓 Formation
 
 ### Workshops
+
 - [ ] Video: "Create Your First Panini Plugin"
 - [ ] Workshop: "Migrating Legacy Plugins"
 - [ ] Tutorial: "Cross-Platform Plugin Development"
 
 ### Examples
+
 - [ ] Create example-plugins/ repo
 - [ ] 10+ example plugins
 - [ ] Best practices showcase
@@ -246,7 +266,9 @@
 ## 🔧 Tooling
 
 ### Developer Tools
+
 - [ ] Plugin CLI generator
+
   ```bash
   npx @panini/create-plugin my-plugin
   ```
@@ -256,6 +278,7 @@
 - [ ] Hot reload dev mode
 
 ### CI/CD
+
 - [ ] GitHub Actions workflows
 - [ ] Automated testing
 - [ ] Auto-publish on tag

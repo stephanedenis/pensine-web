@@ -9,6 +9,7 @@
 ## 📊 Résultats des tests d'intégration profonds
 
 ### Test 1 : Validation token GitHub API
+
 ```
 ✅ SUCCÈS
    Status: 200
@@ -21,6 +22,7 @@
 ```
 
 ### Test 2 : Import des storage adapters
+
 ```
 ✅ TOUS LES IMPORTS FONCTIONNENT
 
@@ -37,6 +39,7 @@
 ```
 
 ### Test 3 : Wizard flow complet avec token réel
+
 ```
 ✅ SUCCÈS
 
@@ -53,6 +56,7 @@
 ## 🔧 Corrections appliquées (6 commits)
 
 ### 1. **64070e1** - Fix constructor error
+
 ```
 validateToken() et createRepository() utilisaient:
   window.githubAdapter.constructor ❌
@@ -62,6 +66,7 @@ Remplacé par import dynamique:
 ```
 
 ### 2. **439f362** - GitHubStorageAdapter ES6 import/export
+
 ```
 Ajouté:
   import StorageAdapterBase from './storage-adapter-base.js';
@@ -69,6 +74,7 @@ Ajouté:
 ```
 
 ### 3. **d3ee18e** - LocalGitAdapter ES6 import/export
+
 ```
 Ajouté:
   import StorageAdapterBase from './storage-adapter-base.js';
@@ -76,6 +82,7 @@ Ajouté:
 ```
 
 ### 4. **42e10ae** - Fix loadAvailableRepos()
+
 ```
 Remplacé:
   new (window.GitHubStorageAdapter || window.githubAdapter.constructor)() ❌
@@ -85,12 +92,14 @@ Par:
 ```
 
 ### 5. **7b06a26** - Suppression boutons dupliqués wizard
+
 ```
 Supprimé système obsolète de navigation fixe
 Gardé seulement système moderne avec renderActions()
 ```
 
 ### 6. **13b2a6f** - **FIX CRITIQUE** : Suppression `<script>` tags dans index.html
+
 ```
 ROOT CAUSE:
   index.html chargeait adapters via <script src> tags (lignes 189-193)
@@ -107,6 +116,7 @@ SOLUTION:
 ## ✅ Validation finale
 
 ### Commandes de test
+
 ```bash
 # Test imports adapters
 npx playwright test deep-integration-test.spec.mjs --grep="Test all storage adapter"
@@ -122,6 +132,7 @@ npx playwright test final-index-test.spec.mjs
 ```
 
 ### Token GitHub
+
 ```bash
 curl -H "Authorization: Bearer REMOVED_TOKEN" \
      https://api.github.com/user
@@ -133,6 +144,7 @@ curl -H "Authorization: Bearer REMOVED_TOKEN" \
 ## 🎯 État actuel
 
 ### ✅ Fonctionnalités validées
+
 - [x] Import ES6 de tous les storage adapters
 - [x] Héritage correct (tous étendent StorageAdapterBase)
 - [x] Wizard validateToken() avec token réel
@@ -141,6 +153,7 @@ curl -H "Authorization: Bearer REMOVED_TOKEN" \
 - [x] index.html et index-minimal.html fonctionnent tous les deux
 
 ### ⚠️  Erreurs mineures restantes (non critiques)
+
 - `require is not defined` - CDN buffer.js (externe, bénin)
 - `Unexpected token 'export'` - Quelques fichiers en mode non-module (bénin)
 - `storageManager is not defined` - index.html a d'autres problèmes de chargement
@@ -153,7 +166,7 @@ curl -H "Authorization: Bearer REMOVED_TOKEN" \
 
 ### Pour tester maintenant
 
-1. **Ouvrir** : http://localhost:8001/index.html
+1. **Ouvrir** : <http://localhost:8001/index.html>
 2. **Naviguer** : Vers wizard de configuration
 3. **Remplir** :
    - Owner: stephanedenis
@@ -162,6 +175,7 @@ curl -H "Authorization: Bearer REMOVED_TOKEN" \
 4. **Cliquer** : "Valider le token"
 
 ### Résultat attendu
+
 ✅ Validation réussie (ou erreur API si repo n'existe pas)
 ❌ PLUS JAMAIS "StorageAdapterBase is not defined"
 
@@ -198,6 +212,7 @@ open http://localhost:8001/test-direct-wizard.html
 L'erreur **"StorageAdapterBase is not defined"** est **complètement éliminée**.
 
 Le problème était dû à un conflit entre :
+
 - Scripts classiques chargés via `<script src>` tags
 - Modules ES6 avec instructions `import/export`
 

@@ -1,4 +1,5 @@
 # Plan d'Action - Suite de l'Audit
+
 ## Pensine Web - Corrections Prioritaires
 
 **Créé** : 14 janvier 2026
@@ -10,11 +11,13 @@
 ## 🔴 PHASE 1 - CRITIQUE (1-2 heures)
 
 ### Task 1.1 : Fixer l'ordre de chargement JavaScript
+
 **Impact** : Élevé - Initialisation instable
 **Effort** : 30 min
 **Risque** : Medium (tests nécessaires)
 
 **Actions** :
+
 1. [ ] Ouvrir `index.html`
 2. [ ] Déplacer les scripts ES6 AVANT `<script src="app.js"></script>`
 3. [ ] Ou : Convertir app.js en `<script type="module">`
@@ -24,6 +27,7 @@
 **Fichier** : `index.html`
 
 **Option A** (minimal) :
+
 ```html
 <!-- Avant app.js -->
 <script type="module" src="core/event-bus.js"></script>
@@ -38,6 +42,7 @@
 ```
 
 **Option B** (meilleure) :
+
 ```html
 <!-- Convertir app.js en module -->
 <script type="module" src="app.js"></script>
@@ -46,11 +51,13 @@
 ---
 
 ### Task 1.2 : Supprimer duplication ConfigManager
+
 **Impact** : Élevé - Double source de vérité
 **Effort** : 45 min
 **Risque** : High (dépendances en cascade)
 
 **Actions** :
+
 1. [ ] Ouvrir `app.js`
 2. [ ] Identifier classe `ConfigManager` (lignes 1-90)
 3. [ ] Chercher tous les appels à `configManager` dans app.js
@@ -69,6 +76,7 @@ grep -n "configManager\." app.js
 ```
 
 **Si décision = supprimer** :
+
 - Importer le ConfigManager moderne
 - Adapter l'initialisation dans `init()`
 - Tester : Config se sauvegarde bien
@@ -76,6 +84,7 @@ grep -n "configManager\." app.js
 ---
 
 ### Task 1.3 : Documenter les dépendances
+
 **Impact** : Moyen - Aide au debug
 **Effort** : 20 min
 **Risque** : Low
@@ -83,6 +92,7 @@ grep -n "configManager\." app.js
 **Créer** : `docs/DEPENDENCIES.md`
 
 **Contenu** :
+
 ```markdown
 # Dépendances du Projet
 
@@ -100,6 +110,7 @@ grep -n "configManager\." app.js
 ## Graphique de dépendances
 
 ```
+
 app.js
 ├── config-manager.js (nouveau)
 │   ├── event-bus.js
@@ -117,6 +128,7 @@ settings-integration.js
 ├── views/settings-view.js
 │   └── lib/json-schema-form-builder.js
 └── event-bus.js
+
 ```
 
 ## Modules vs Scripts
@@ -139,10 +151,12 @@ Si "X is not defined" :
 ## 🟡 PHASE 2 - HAUTE PRIORITÉ (1-2 heures)
 
 ### Task 2.1 : Unifier les versions
+
 **Impact** : Faible - Cosmétique
 **Effort** : 10 min
 
 **Actions** :
+
 1. [ ] Vérifier quelle version est correcte : 0.0.22 vs 1.0.0 ?
 2. [ ] Utiliser 0.0.22 partout (config system est v1, mais app globale est 0.0.22)
 3. [ ] Mettre à jour :
@@ -153,12 +167,14 @@ Si "X is not defined" :
 ---
 
 ### Task 2.2 : Documenter l'Event-Driven Architecture
+
 **Impact** : Moyen - Aide au debug
 **Effort** : 30 min
 
 **Créer** : `docs/EVENTS_REFERENCE.md`
 
 **Contenu** :
+
 ```markdown
 # Événements Pensine Web
 
@@ -205,6 +221,7 @@ eventBus.once('app:initialized', () => {
     console.log('App prête');
 });
 ```
+
 ```
 
 ---
@@ -259,15 +276,18 @@ export default class MyPlugin {
 ## 🟢 PHASE 3 - MOYEN TERME (1-2 heures)
 
 ### Task 3.1 : Créer issue GitHub pour plugins TODO
+
 **Impact** : Faible - Organisation
 **Effort** : 20 min
 
 **Créer 3 issues** :
+
 - [ ] "Implémenter inbox-plugin" (avec checklist)
 - [ ] "Implémenter journal-plugin" (avec checklist)
 - [ ] "Implémenter reflection-plugin" (avec checklist)
 
 **Template** :
+
 ```markdown
 ## Titre: Implémenter [Plugin Name]
 
@@ -296,12 +316,14 @@ Le plugin [nom] est enregistré mais contient seulement des TODO.
 ---
 
 ### Task 3.2 : Créer "Good First Issue" guide
+
 **Impact** : Moyen - Onboarding
 **Effort** : 30 min
 
 **Créer** : `docs/FIRST_ISSUE.md`
 
 **Contenu** :
+
 ```markdown
 # Premier Issue - Guide pour Contributeurs
 
@@ -344,18 +366,21 @@ Vous pourrez faire votre premier commit en < 30 minutes.
 ## 📊 TRACKING
 
 ### Rétrospective
+
 - [ ] Nombre de issues résolues : __
 - [ ] Temps investi : __h
 - [ ] Clarté améliorée ? (avant/après)
 - [ ] Onboarding plus facile ? (oui/non)
 
 ### Tests
+
 - [ ] ConfigManager fonctionne bien
 - [ ] SettingsView s'ouvre
 - [ ] Pas d'erreurs console au startup
 - [ ] Tous les plugins se chargent
 
 ### Documentation
+
 - [ ] DEPENDENCIES.md créé et complét
 - [ ] EVENTS_REFERENCE.md créé et complét
 - [ ] PLUGIN_DEVELOPMENT.md amélioré
@@ -363,9 +388,10 @@ Vous pourrez faire votre premier commit en < 30 minutes.
 
 ---
 
-## 🎯 Succès = Quand...
+## 🎯 Succès = Quand
 
 ✅ Un nouveau développeur peut :
+
 1. Cloner, setup, lancer en 10 min
 2. Ouvrir un issue sans lire 5 fichiers
 3. Faire premier commit sans bloquant

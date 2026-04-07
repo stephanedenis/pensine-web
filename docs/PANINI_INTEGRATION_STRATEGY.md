@@ -103,7 +103,8 @@ Les deux utilisent JSON pour la configuration:
 #### 1.1 Interface Plugin Commune ✅ COMPLETE
 
 **Statut**: ✅ **Terminé le 14 janvier 2026**
-**Documentation**: 
+**Documentation**:
+
 - [`docs/PHASE1_1_PLUGIN_INTERFACE_COMPLETE.md`](PHASE1_1_PLUGIN_INTERFACE_COMPLETE.md)
 - [`docs/PHASE1_1_SUMMARY.md`](PHASE1_1_SUMMARY.md)
 
@@ -164,6 +165,7 @@ export interface PaniniPlugin {
 Pensine adapté pour utiliser `@panini/plugin-interface`:
 
 **Fichiers créés**:
+
 - [x] ✅ `src/core/panini-wrappers.js` - Adapters (435 lignes)
   - PaniniEventBusWrapper (namespace cleanup)
   - PaniniConfigManagerWrapper (JSON Schema)
@@ -175,12 +177,14 @@ Pensine adapté pour utiliser `@panini/plugin-interface`:
 - [x] ✅ `docs/PLUGIN_MIGRATION_GUIDE.md` - Migration guide (500+ lignes)
 
 **Fichiers modifiés**:
+
 - [x] ✅ `src/core/plugin-system.js` - Enhanced pour dual-mode
   - Support PaniniPlugin + Legacy
   - Shared paniniContext
   - Health monitoring
 
 **Résultats**:
+
 - [x] ✅ 24 tests unitaires (9+15) tous passent
 - [x] ✅ 0 breaking change (backward compatible)
 - [x] ✅ Word Counter plugin fonctionnel
@@ -192,6 +196,7 @@ Pensine adapté pour utiliser `@panini/plugin-interface`:
 **Documentation**: [`packages/plugin-interface/PRE_PUBLISH_CHECKLIST.md`](../packages/plugin-interface/PRE_PUBLISH_CHECKLIST.md)
 
 **Checklist**:
+
 - [x] ✅ Version bumped to 0.1.0-alpha.1
 - [x] ✅ Package built successfully
 - [x] ✅ All tests passing (24/24)

@@ -1,4 +1,5 @@
 # RÉSUMÉ EXÉCUTIF
+
 ## Plugin Accelerator pour Pensine Web
 
 **Date** : 14 janvier 2026
@@ -13,6 +14,7 @@
 **Pensine Web** reste une application **client-side-first** (zéro dépendance serveur).
 
 **Plugin Accelerator** ajoute des capacités de performance optionnelles :
+
 - Mode "Client-Only" : fonctionne totalement offline
 - Mode "Hybrid" : backend Azure optionnel pour gros volumes
 
@@ -23,6 +25,7 @@
 ## 💡 Cas d'usage
 
 ### Avant (Pensine Classic)
+
 ```
 Utilisateur avec 1000+ notes
 ├─ Search local = lent (2-5 sec)
@@ -32,6 +35,7 @@ Utilisateur avec 1000+ notes
 ```
 
 ### Après (Avec Accelerator)
+
 ```
 Utilisateur avec 1000+ notes
 ├─ Mode Client-Only
@@ -117,22 +121,26 @@ Server Unavailable → Mode Degraded  (local only, but works)
 ## 📊 Ressources requises
 
 ### Phase 1 (2 semaines) : Client-Side
+
 - 1-2 Frontend Developer
 - Effort : 12-15h
 - Livrable : Plugin offline complet
 
 ### Phase 2 (1 semaine) : Backend
+
 - 1-2 Backend Developer
 - Effort : 9-12h
 - Livrable : API FastAPI complète
 
 ### Phase 3 (1 semaine) : Intégration
+
 - 1 Integration Engineer
 - 1 QA Engineer
 - Effort : 10-13h
 - Livrable : Hybrid mode + tests
 
 ### Phase 4 (1 semaine) : Production
+
 - 1 DevOps Engineer
 - Effort : 7-10h
 - Livrable : Déploiement Azure
@@ -144,6 +152,7 @@ Server Unavailable → Mode Degraded  (local only, but works)
 ## 💰 Budget estimé
 
 ### Infrastructure Azure
+
 | Ressource | Coût/mois | Notes |
 |-----------|-----------|-------|
 | App Service B1 | $12 | Peut passer B2 si besoin |
@@ -153,6 +162,7 @@ Server Unavailable → Mode Degraded  (local only, but works)
 | **Total** | **~$32/mois** | Production ready |
 
 ### Personnel (estimation)
+
 ```
 Frontend     : 2 dev × 12h × 150€ = €3600
 Backend      : 2 dev × 10h × 150€ = €3000
@@ -184,6 +194,7 @@ Fast-track option : 2-3 weeks (full team in parallel)
 ### Pour développeurs
 
 **Démarrer plugin client-side** :
+
 ```bash
 # 1. Cloner
 git clone https://github.com/stephanedenis/pensine-web.git
@@ -207,6 +218,7 @@ git commit -m "feat(accelerator): Implement client-side components"
 ```
 
 **Déployer backend** (après Phase 1) :
+
 ```bash
 # Voir: docs/AZURE_DEPLOYMENT_GUIDE.md
 # Support: docs/PLUGIN_ACCELERATOR_ARCHITECTURE.md
@@ -234,24 +246,28 @@ git commit -m "feat(accelerator): Implement client-side components"
 
 ---
 
-## 🎯 Succès = Quand...
+## 🎯 Succès = Quand
 
 ✅ **Phase 1 OK** si :
+
 - Plugin fonctionne offline
 - Search < 500ms
 - Tests unitaires 80%+
 
 ✅ **Phase 2 OK** si :
+
 - API endpoints répondent
 - Tests intégration pass
 - PostgreSQL stable
 
 ✅ **Phase 3 OK** si :
+
 - Hybrid mode transparent
 - Fallback automatique
 - Perf benchmarks atteints
 
 ✅ **Phase 4 OK** si :
+
 - Production Azure stable
 - Monitoring actif
 - Docs opérations complètes
@@ -265,6 +281,7 @@ git commit -m "feat(accelerator): Implement client-side components"
 **DevOps Lead** : [À définir]
 
 **Escalade** :
+
 - Blocage technique → Architecture Lead
 - Problème Azure → DevOps Lead
 - Décision impact → Product Owner
@@ -296,21 +313,25 @@ Phase 4 (3-6 months) : P2P sync (IPFS integration)
 ## 🏁 Prochaines étapes
 
 **Immédiat** (cette semaine) :
+
 1. [ ] Approuver ce plan → Product Owner
 2. [ ] Allocuer 1-2 frontend dev → Phase 1
 3. [ ] Setup Git workflow → DevOps Lead
 
 **Court terme** (semaine 1) :
+
 1. [ ] Commencer client-side implementation
 2. [ ] Setup tests unitaires
 3. [ ] Daily standup + roadmap
 
 **Moyen terme** (semaine 2-3) :
+
 1. [ ] Backend API
 2. [ ] Tests intégration
 3. [ ] Azure setup
 
 **Long terme** (semaine 4) :
+
 1. [ ] Production deployment
 2. [ ] Monitoring + alertes
 3. [ ] Documentation + knowledge transfer

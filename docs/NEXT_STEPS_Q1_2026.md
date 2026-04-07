@@ -295,6 +295,7 @@ configManager.getPluginConfig("calendar").weekStart;
    ```
 
 3. **EventBus Reference**
+
    ```
    docs/EVENTBUS_REFERENCE.md
    ├─ All supported events

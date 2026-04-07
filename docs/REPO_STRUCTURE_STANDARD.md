@@ -255,6 +255,7 @@ assets/
    ```
 
 3. **`opensource-pensine/`** (🚀 Open Source)
+
    ```
    .pensine/
      config.json → color: #f59e0b (orange)

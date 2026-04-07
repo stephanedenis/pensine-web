@@ -334,6 +334,7 @@ async function openFile(filePath) {
 3. ✅ **RÉSOLU** : Test configuration invalide
 
    - **Fix appliqué** : Config test localStorage passe de `'true'` (string) à JSON valide :
+
      ```javascript
      {
        storageMode: 'local',
@@ -341,6 +342,7 @@ async function openFile(filePath) {
        version: '0.0.22'
      }
      ```
+
    - **Date** : 2026-01-17
    - **Résultat** : Bootstrap détecte config valide, initialise tous systèmes
 
@@ -690,7 +692,7 @@ Current app characteristics:
 
 ### Rationale
 
-#### Why NOT Wasm now (v0.0.x → v0.9.x):
+#### Why NOT Wasm now (v0.0.x → v0.9.x)
 
 - ❌ **Complexity**: Requires build toolchain (rustc/clang → wasm)
 - ❌ **Bundle size**: Typical Wasm modules 1-2 MB vs current <100 KB total
@@ -698,7 +700,7 @@ Current app characteristics:
 - ❌ **Premature**: Current JS performance already sufficient for typical usage
 - ✅ **Simplicity > Speed**: For notes <50 KB, JS parsing is <10ms
 
-#### Why Wasm later (v1.0+):
+#### Why Wasm later (v1.0+)
 
 - ✅ **Hot paths identified**: Real performance bottlenecks proven by metrics
 - ✅ **As plugins**: Optional, lazy-loaded, with JS fallback

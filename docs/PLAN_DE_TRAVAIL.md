@@ -126,12 +126,14 @@ tests/plugin-loading.spec.mjs
 1. Choisir plugin (recommandé: Calendar - moins couplé)
 2. Créer structure: `plugins/pensine-plugin-calendar/`
 3. Implémenter interface PaniniPlugin:
+
    ```javascript
    - constructor()
    - async activate(context)
    - async deactivate()
    - getConfigSchema()
    ```
+
 4. Migrer code depuis `lib/calendar.js`
 5. Tester: activation, UI rendering, events
 6. Documenter processus migration

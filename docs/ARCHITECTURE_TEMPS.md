@@ -11,6 +11,7 @@ L'axe **Temps** est le premier pilier de Pensine, unifiant calendrier, flux entr
 **Objectif**: Vue temporelle unifiée des événements passés, présents et futurs
 
 **Fonctionnalités**:
+
 - ✅ Timeline linéaire (déjà implémenté - LinearCalendar v2)
 - 🔄 Vue mensuelle classique
 - 📊 Vue hebdomadaire
@@ -21,6 +22,7 @@ L'axe **Temps** est le premier pilier de Pensine, unifiant calendrier, flux entr
 - 🔔 Rappels contextuels
 
 **État actuel**:
+
 ```
 ✅ lib/components/linear-calendar/
    ├── linear-calendar.js (1311 lignes) - Composant principal
@@ -31,6 +33,7 @@ L'axe **Temps** est le premier pilier de Pensine, unifiant calendrier, flux entr
 ```
 
 **Refactoring en plugin**:
+
 ```
 plugins/calendar/
 ├── plugin.json              # Métadonnées
@@ -56,6 +59,7 @@ plugins/calendar/
 **Objectif**: Capturer rapidement informations et tâches, les organiser et les traiter
 
 **Fonctionnalités**:
+
 - ➕ **Capture rapide** : Formulaire minimal (titre + texte + contexte)
 - 📥 **Inbox** : Liste non triée de tout ce qui entre
 - 🏷️ **Triage** : Classer en tâche, événement, note, référence
@@ -66,6 +70,7 @@ plugins/calendar/
 - 🔄 **Récurrence** : Tâches répétitives
 
 **Architecture**:
+
 ```
 plugins/inbox/
 ├── plugin.json
@@ -88,6 +93,7 @@ plugins/inbox/
 ```
 
 **Format données**:
+
 ```json
 {
   "id": "task-20251217-001",
@@ -110,6 +116,7 @@ plugins/inbox/
 **Objectif**: Espace réflexion quotidien avec structure flexible
 
 **Fonctionnalités**:
+
 - ✅ Entrée par jour (déjà implémenté via editor)
 - 📋 **Templates** : Daily, Weekly Review, Monthly Review
 - 🔗 **Liens auto** : Événements du jour, tâches complétées
@@ -119,6 +126,7 @@ plugins/inbox/
 - 🎨 **Markdown enrichi** : Existant + frontmatter YAML
 
 **État actuel**:
+
 ```
 ✅ lib/editor.js (755 lignes) - Éditeur unifié
 ✅ lib/markdown-parser.js - Parsing Markdown
@@ -127,6 +135,7 @@ plugins/inbox/
 ```
 
 **Refactoring en plugin**:
+
 ```
 plugins/journal/
 ├── plugin.json
@@ -152,6 +161,7 @@ plugins/journal/
 ```
 
 **Format entrée journal**:
+
 ```markdown
 ---
 date: 2025-12-17
@@ -188,6 +198,7 @@ Satisfaction: journée productive. Avancée majeure sur vision long terme.
 **Objectif**: Espace de pensée profonde, connections d'idées, apprentissages
 
 **Fonctionnalités**:
+
 - 📚 **Notes permanentes** : Idées, concepts, apprentissages
 - 🔗 **Liens bidirectionnels** : Zettelkasten-style
 - 🏷️ **Tags sémantiques** : Catégorisation flexible
@@ -198,6 +209,7 @@ Satisfaction: journée productive. Avancée majeure sur vision long terme.
 - 📈 **Progression** : Évolution pensée dans le temps
 
 **Architecture**:
+
 ```
 plugins/reflection/
 ├── plugin.json
@@ -225,6 +237,7 @@ plugins/reflection/
 ```
 
 **Format note permanente**:
+
 ```markdown
 ---
 id: note-001-zettelkasten
@@ -263,6 +276,7 @@ Méthode de prise de notes développée par Niklas Luhmann.
 ## 🔗 Intégrations entre Composants
 
 ### Calendrier ↔ Journal
+
 ```javascript
 // Clic sur jour calendrier → Ouvre/crée entrée journal
 calendar.on('day-click', (date) => {
@@ -277,6 +291,7 @@ journal.on('entry-open', (date) => {
 ```
 
 ### Inbox ↔ Calendrier
+
 ```javascript
 // Tâche avec deadline → Crée événement calendrier
 inbox.on('task-scheduled', (task) => {
@@ -297,6 +312,7 @@ calendar.on('event-create', (event) => {
 ```
 
 ### Journal ↔ Réflexions
+
 ```javascript
 // Tag dans journal → Crée/lie note permanente
 journal.on('tag-added', (tag) => {
@@ -315,6 +331,7 @@ reflection.on('note-view', (note) => {
 ```
 
 ### Inbox ↔ Réflexions
+
 ```javascript
 // Tâche récurrente → Peut générer insight
 inbox.on('task-pattern-detected', (pattern) => {
@@ -331,6 +348,7 @@ inbox.on('task-pattern-detected', (pattern) => {
 ### Plugin System Core
 
 **API commune pour tous les plugins**:
+
 ```javascript
 class PensinePlugin {
   constructor(config) {
@@ -355,6 +373,7 @@ class PensinePlugin {
 ```
 
 **Plugin manifest (plugin.json)**:
+
 ```json
 {
   "id": "calendar",
@@ -564,6 +583,7 @@ pensine-web/
 ## 🚀 Plan de Migration
 
 ### Phase 1: Fondations (2-3 semaines)
+
 1. ✅ Créer core/plugin-system.js
 2. ✅ Créer core/event-bus.js
 3. ✅ Adapter core/storage-manager.js (API unifiée)
@@ -571,6 +591,7 @@ pensine-web/
 5. ✅ Créer core/ui-framework.js (composants communs)
 
 ### Phase 2: Migration Calendar (1-2 semaines)
+
 1. ✅ Créer plugins/calendar/ avec structure
 2. ✅ Migrer lib/components/linear-calendar/ → plugins/calendar/views/linear-view.js
 3. ✅ Adapter styles
@@ -578,6 +599,7 @@ pensine-web/
 5. ✅ Tests fonctionnels
 
 ### Phase 3: Inbox & Tâches (2-3 semaines)
+
 1. ✅ Créer plugins/inbox/
 2. ✅ Implémenter capture rapide
 3. ✅ Implémenter liste tâches
@@ -585,6 +607,7 @@ pensine-web/
 5. ✅ Tests
 
 ### Phase 4: Journal (1-2 semaines)
+
 1. ✅ Créer plugins/journal/
 2. ✅ Migrer éditeur existant
 3. ✅ Templates et frontmatter
@@ -592,6 +615,7 @@ pensine-web/
 5. ✅ Tests
 
 ### Phase 5: Réflexions (2-3 semaines)
+
 1. ✅ Créer plugins/reflection/
 2. ✅ Notes permanentes
 3. ✅ Liens bidirectionnels
@@ -599,6 +623,7 @@ pensine-web/
 5. ✅ Tests
 
 ### Phase 6: Polissage (1-2 semaines)
+
 1. ✅ Optimisations performance
 2. ✅ Documentation API plugins
 3. ✅ Tests end-to-end complets
@@ -609,16 +634,19 @@ pensine-web/
 ## 📊 Success Metrics
 
 ### Performance
+
 - Chargement initial < 2s (seulement core + plugins activés)
 - Changement de vue < 200ms
 - Recherche full-text < 500ms (10k entrées)
 
 ### Fonctionnel
+
 - ✅ 4 plugins Axe Temps fonctionnels
 - ✅ Communication inter-plugins fluide
 - ✅ Données compatibles backward avec version actuelle
 
 ### Développeur
+
 - API plugin documentée
 - Template plugin disponible
 - 3+ exemples de plugins de référence

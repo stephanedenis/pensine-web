@@ -28,12 +28,15 @@ Trois types de repositories avec des finalités différentes:
 ### Étapes du wizard amélioré
 
 #### Étape 1: Bienvenue
+
 - Inchangée
 
 #### Étape 2: Plateforme
+
 - Inchangée (GitHub, GitLab, etc.)
 
 #### Étape 3: Authentification (NOUVEAU)
+
 - **Input**: Token uniquement
 - **Action**: Valider le token avec API `/user`
 - **Récupération**: Username automatique depuis l'API
@@ -42,27 +45,30 @@ Trois types de repositories avec des finalités différentes:
 - **Error**: Message clair "Token invalide"
 
 #### Étape 4: Sélection/Création Repository (NOUVEAU)
+
 - **Liste** des repos existants (depuis API `/user/repos`)
-  * Afficher nom, visibilité (🔒 privé / 🌐 public), description
-  * Filtre par nom contenant "Pensine"
-  * Click pour sélectionner
+  - Afficher nom, visibilité (🔒 privé / 🌐 public), description
+  - Filtre par nom contenant "Pensine"
+  - Click pour sélectionner
   
 - **Création** d'un nouveau repo
-  * Input: Nom du repo
-  * Checkbox: Privé/Public
-  * Textarea: Description (optionnelle)
-  * Bouton: "Créer le repository"
-  * Validation: Vérifier que le nom n'existe pas déjà
+  - Input: Nom du repo
+  - Checkbox: Privé/Public
+  - Textarea: Description (optionnelle)
+  - Bouton: "Créer le repository"
+  - Validation: Vérifier que le nom n'existe pas déjà
   
 - **Templates suggérés**:
-  * `Pensine-[VotreNom]` - Notes personnelles privées
-  * `Pensine-[Organisation]` - Notes professionnelles privées
-  * `Pensine-Public` - Connaissances publiques
+  - `Pensine-[VotreNom]` - Notes personnelles privées
+  - `Pensine-[Organisation]` - Notes professionnelles privées
+  - `Pensine-Public` - Connaissances publiques
 
 #### Étape 5: Préférences
+
 - Inchangée (langue, thème, etc.)
 
 #### Étape 6: Résumé et confirmation
+
 - Afficher le repo sélectionné
 - Option: "Ajouter un autre repository" → retour étape 4
 - Terminer la configuration
@@ -152,12 +158,14 @@ Changement de repo → Reload de l'application avec nouveau context
 ### Validation et erreurs
 
 #### Lors de la validation du token
+
 - ❌ Token vide → "Veuillez entrer un token"
 - ❌ Token invalide → "Token invalide. Vérifiez vos droits d'accès."
 - ❌ Token sans scope 'repo' → "Token valide mais manque de permissions (scope 'repo' requis)"
 - ✅ Token valide → "Authentifié en tant que [username]"
 
 #### Lors de la sélection/création de repo
+
 - ❌ Repo inexistant (si tapé manuellement) → "Ce repository n'existe pas. Voulez-vous le créer?"
 - ❌ Nom de repo invalide → "Nom invalide (caractères autorisés: a-z, 0-9, -, _)"
 - ❌ Repo déjà existant (à la création) → "Ce repository existe déjà. Sélectionnez-le ci-dessus."
@@ -166,24 +174,28 @@ Changement de repo → Reload de l'application avec nouveau context
 ## Implémentation par phases
 
 ### Phase 1: Validation de token (PRIORITÉ)
+
 - Modifier étape "credentials" pour séparer token des infos repo
 - Ajouter bouton "Valider token" avec appel API `/user`
 - Désactiver inputs repo tant que token non validé
 - **Estimé**: 2h
 
 ### Phase 2: Liste des repos existants
+
 - Appeler API `/user/repos` après validation token
 - Afficher liste cliquable des repos
 - Pré-remplir le champ "repo" au clic
 - **Estimé**: 3h
 
 ### Phase 3: Création de repo
+
 - Ajouter formulaire de création
 - Appeler API `POST /user/repos`
 - Gérer erreurs (nom existant, etc.)
 - **Estimé**: 3h
 
 ### Phase 4: Multi-repo support
+
 - Modifier localStorage schema
 - Ajouter "Ajouter un repo" dans le wizard
 - Créer dropdown dans header
@@ -191,6 +203,7 @@ Changement de repo → Reload de l'application avec nouveau context
 - **Estimé**: 5h
 
 ### Phase 5: Migration des configs existantes
+
 - Script pour migrer anciennes configs mono-repo vers multi-repo
 - **Estimé**: 2h
 

@@ -11,11 +11,13 @@ Sécuriser le stockage des tokens GitHub en les chiffrant avec AES-GCM dans le l
 ## ⚠️ Problème initial
 
 ### Sécurité compromise
+
 - **Tokens en clair** dans localStorage (`github-token` key)
 - **Tokens dans fichiers config** poussés vers GitHub (bloqués par Push Protection)
 - **Risque d'exposition** via DevTools ou accès localStorage
 
 ### GitHub Push Protection
+
 ```
 Repository rule violations found:
 Secret detected in content
@@ -67,6 +69,7 @@ class TokenStorage {
 ```
 
 **Caractéristiques de sécurité**:
+
 - ✅ **AES-GCM 256-bit** : Chiffrement authentifié (détecte altérations)
 - ✅ **IV aléatoire** : Unique par chiffrement (12 bytes), empêche les attaques par analyse de patterns
 - ✅ **Clé device-specific** : Générée et stockée en localStorage, jamais transmise
@@ -74,6 +77,7 @@ class TokenStorage {
 - ✅ **Singleton pattern** : Une seule instance (`window.tokenStorage`)
 
 **Structure localStorage**:
+
 ```json
 {
   "pensine-encryption-key": "base64_encoded_raw_key",
@@ -87,6 +91,7 @@ class TokenStorage {
 ### 2. Configuration sans token (`lib/config-wizard.js`)
 
 **Avant** (❌ DANGEREUX):
+
 ```javascript
 const config = {
   git: {
@@ -102,6 +107,7 @@ await githubAdapter.saveFile('.pensine-config.json', configContent);  // ❌ Tok
 ```
 
 **Après** (✅ SÉCURISÉ):
+
 ```javascript
 // Token exclu de la config
 const configForStorage = {
@@ -147,6 +153,7 @@ async migrateOldTokens() {
 ### 4. Mise à jour de tous les accès token
 
 #### `lib/storage-manager-unified.js`
+
 ```javascript
 // ❌ Avant
 const token = localStorage.getItem('github-token');
@@ -156,6 +163,7 @@ const token = await window.tokenStorage.getToken();
 ```
 
 #### `lib/github-storage-adapter.js`
+
 ```javascript
 // ❌ Avant
 localStorage.setItem('github-token', this.token);
@@ -165,6 +173,7 @@ await window.tokenStorage.saveToken(this.token);
 ```
 
 #### `lib/migrate-to-oauth.js`
+
 ```javascript
 // ❌ Avant
 const oldToken = localStorage.getItem('github-token');
@@ -186,6 +195,7 @@ await window.tokenStorage.removeToken();
 ```
 
 **Ordre critique**:
+
 1. `config.js` - Constantes de configuration
 2. `token-storage.js` - Système de chiffrement
 3. `storage-adapter-base.js` - Base des adapters
@@ -195,6 +205,7 @@ await window.tokenStorage.removeToken();
 ## 📊 Impact et validation
 
 ### Fichiers modifiés
+
 1. ✅ **`lib/token-storage.js`** (nouveau) - 153 lignes
 2. ✅ **`lib/config-wizard.js`** - Token exclu de config, chiffrement séparé
 3. ✅ **`lib/storage-manager-unified.js`** - Lecture token chiffré
@@ -205,6 +216,7 @@ await window.tokenStorage.removeToken();
 8. ✅ **`test-wizard-complete-flow.mjs`** - Validation token chiffré
 
 ### Recherche de tokens en clair
+
 ```bash
 $ grep -r "localStorage\.(get|set)Item('github-token'" --include="*.js"
 lib/app.js:132:  const oldToken = localStorage.getItem('github-token');
@@ -213,12 +225,14 @@ lib/app.js:132:  const oldToken = localStorage.getItem('github-token');
 ✅ **Une seule occurrence** : Dans la fonction de migration (normal, elle lit l'ancien token).
 
 ### Tests de syntaxe
+
 ```bash
 $ node -c app.js lib/*.js
 ✅ Tous les fichiers sont syntaxiquement corrects
 ```
 
 ### Tests de sécurité
+
 ```bash
 $ grep -r "ghp_" --include="*.js" --include="*.json" --include="*.mjs"
 lib/config-wizard.js:    placeholder="ghp_... ou autre selon plateforme"  # ✅ Juste placeholder UI
@@ -226,12 +240,14 @@ test-wizard-complete-flow.mjs:  const GITHUB_TOKEN = 'ghp_...'  # ⚠️ Token d
 ```
 
 ⚠️ **Note**: Le token dans `test-wizard-complete-flow.mjs` est celui de vos tests. Il faudrait:
+
 - Soit le révoquer après les tests
 - Soit utiliser une variable d'environnement : `process.env.GITHUB_TEST_TOKEN`
 
 ## 🔄 Workflow utilisateur
 
 ### Nouvelle installation (wizard)
+
 1. Utilisateur entre son token dans le wizard
 2. Wizard **exclut le token** de la config JSON
 3. Wizard **chiffre le token** avec `tokenStorage.saveToken()`
@@ -240,6 +256,7 @@ test-wizard-complete-flow.mjs:  const GITHUB_TOKEN = 'ghp_...'  # ⚠️ Token d
 6. Page reload → App déchiffre le token et initialise
 
 ### Utilisateur existant (migration)
+
 1. App détecte ancien token en clair (`github-token` key)
 2. Migration automatique :
    - Chiffrement du token → `pensine-encrypted-token`
@@ -248,6 +265,7 @@ test-wizard-complete-flow.mjs:  const GITHUB_TOKEN = 'ghp_...'  # ⚠️ Token d
 4. Aucune action requise de l'utilisateur
 
 ### Utilisation normale
+
 1. App démarre → `tokenStorage.getToken()` déchiffre le token
 2. GitHubAdapter utilise le token pour les API calls
 3. Token reste **chiffré au repos** dans localStorage
@@ -256,12 +274,14 @@ test-wizard-complete-flow.mjs:  const GITHUB_TOKEN = 'ghp_...'  # ⚠️ Token d
 ## 🛡️ Bénéfices de sécurité
 
 ### Avant (❌)
+
 - Token visible en clair dans DevTools → localStorage
 - Token dans fichiers config → commit sur GitHub (bloqué par Push Protection)
 - Token dans JSON → facile à extraire par scripts malveillants
 - Aucune protection si localStorage compromis
 
 ### Après (✅)
+
 - Token **chiffré au repos** → illisible dans DevTools
 - Token **exclu des configs** → jamais dans les commits
 - Token **authentifié** (AES-GCM) → altération détectable
@@ -271,12 +291,14 @@ test-wizard-complete-flow.mjs:  const GITHUB_TOKEN = 'ghp_...'  # ⚠️ Token d
 ## 📚 Références techniques
 
 ### Web Crypto API
-- **Spec W3C**: https://www.w3.org/TR/WebCryptoAPI/
-- **MDN**: https://developer.mozilla.org/en-US/docs/Web/API/Web_Crypto_API
+
+- **Spec W3C**: <https://www.w3.org/TR/WebCryptoAPI/>
+- **MDN**: <https://developer.mozilla.org/en-US/docs/Web/API/Web_Crypto_API>
 - **Support navigateurs**: Chrome 37+, Firefox 34+, Safari 11+, Edge 79+
 
 ### AES-GCM
-- **NIST SP 800-38D**: https://csrc.nist.gov/publications/detail/sp/800-38d/final
+
+- **NIST SP 800-38D**: <https://csrc.nist.gov/publications/detail/sp/800-38d/final>
 - **Caractéristiques**:
   - Authenticated Encryption with Associated Data (AEAD)
   - Confidentialité (chiffrement) + Intégrité (authentification)
@@ -284,7 +306,8 @@ test-wizard-complete-flow.mjs:  const GITHUB_TOKEN = 'ghp_...'  # ⚠️ Token d
   - Clé 256-bit pour sécurité maximale
 
 ### GitHub Push Protection
-- **Docs**: https://docs.github.com/en/code-security/secret-scanning/push-protection
+
+- **Docs**: <https://docs.github.com/en/code-security/secret-scanning/push-protection>
 - Détecte automatiquement 200+ types de secrets (tokens, API keys, etc.)
 - Bloque les push contenant des secrets
 - Disponible sur tous les repos publics (gratuit)
@@ -292,16 +315,19 @@ test-wizard-complete-flow.mjs:  const GITHUB_TOKEN = 'ghp_...'  # ⚠️ Token d
 ## 🚀 Prochaines étapes possibles
 
 ### Court terme
+
 - [ ] Révoquer ou déplacer le token de test vers env var
 - [ ] Tester migration avec vrais utilisateurs existants
 - [ ] Valider que GitHub ne détecte plus les tokens
 
 ### Moyen terme
+
 - [ ] Documentation utilisateur sur la sécurité des tokens
 - [ ] UI pour régénérer/changer le token (sans re-wizard)
 - [ ] Export/import config (sans token, avec instructions)
 
 ### Long terme
+
 - [ ] Support OAuth (plus sécurisé que PAT)
 - [ ] Rotation automatique des tokens (si GitHub API le permet)
 - [ ] Backup chiffré de la clé de chiffrement (recovery)
@@ -309,18 +335,21 @@ test-wizard-complete-flow.mjs:  const GITHUB_TOKEN = 'ghp_...'  # ⚠️ Token d
 ## 🎓 Leçons apprises
 
 ### Sécurité par design
+
 1. **Ne jamais stocker de secrets en clair** - Même dans localStorage
 2. **Séparer les secrets des configs** - Token ≠ configuration
 3. **Chiffrement au repos** - Web Crypto API est mature et performant
 4. **Migration transparente** - L'utilisateur ne doit rien faire
 
 ### Architecture
+
 1. **Singleton pattern** pour le chiffrement - Une seule clé, une seule instance
 2. **Ordre de chargement critique** - token-storage.js avant les adapters
 3. **Async/await partout** - Web Crypto API est asynchrone
 4. **Backward compatibility** - Migration automatique des anciens tokens
 
 ### Testing
+
 1. **Syntaxe d'abord** - `node -c` avant tout commit
 2. **Grep pour secrets** - Chercher les tokens avant push
 3. **Tests E2E** - Valider le flow complet avec chiffrement
@@ -342,6 +371,7 @@ test-wizard-complete-flow.mjs:  const GITHUB_TOKEN = 'ghp_...'  # ⚠️ Token d
 ## 📝 Notes
 
 Cette implémentation utilise le **même principe que les gestionnaires de mots de passe** :
+
 - Clé de chiffrement stockée localement (device-specific)
 - Données chiffrées au repos
 - Déchiffrement uniquement quand nécessaire (en mémoire)
@@ -350,6 +380,7 @@ Cette implémentation utilise le **même principe que les gestionnaires de mots 
 **Limitation connue** : Si l'utilisateur perd son localStorage (clear browser data), il perd la clé et doit re-configurer le wizard. C'est un compromis acceptable pour une app client-side.
 
 **Alternative envisagée mais rejetée** : Chiffrement par mot de passe utilisateur. Rejetée car :
+
 - Nécessite de demander un mot de passe à chaque démarrage
 - Friction utilisateur importante
 - Pas de récupération si oubli du mot de passe

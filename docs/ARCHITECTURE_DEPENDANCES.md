@@ -1,9 +1,11 @@
 # Architecture - Dépendances de chargement
 
 ## Vue d'ensemble
+
 Ce document décrit l'ordre de chargement et les dépendances critiques entre les modules de l'application Pensine (version legacy + système de configuration moderne).
 
 ## Séquence de démarrage
+
 ```mermaid
 graph TD
     A[index.html] --> B[storageManager.initialize]
@@ -25,6 +27,7 @@ graph TD
 ```
 
 ## Notes importantes
+
 - `storageManager.initialize()` doit être appelé avant toute opération dépendante du stockage (tokenStorage, PluginSystem, modern config).
 - `tokenStorage` et `githubAdapter` dépendent de `storageManager` et doivent être prêts avant `PensineApp.init()`.
 - Le système de configuration moderne (`settings-integration.initializeModernConfig`) est optionnel ; en cas d'échec, l'application tombe en mode legacy (LegacyConfigManager + éditeur de paramètres classique).

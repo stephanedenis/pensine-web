@@ -80,30 +80,36 @@ Toutes les clés requises sont correctement sauvegardées:
 ### Nouveautés Phase 2
 
 ✅ **Séparation des étapes**
+
 - Authentification séparée du repository
 - Meilleur flux utilisateur
 
 ✅ **Ordre logique**
+
 - Owner d'abord (comme demandé)
 - Token ensuite
 - Validation explicite
 
 ✅ **Liste des repositories**
+
 - Chargement automatique via API GitHub
 - Filtrage sur "Pensine" par défaut
 - Affichage avec icônes 🔒 (privé) / 🌐 (public)
 
 ✅ **Sélection multiple**
+
 - Clic pour sélectionner/désélectionner
 - Visual feedback (bordure verte + checkmark)
 - Box de confirmation avec nombre de repos
 
 ✅ **Création de repository**
+
 - Formulaire avec nom, privé/public, description
 - Bouton "Créer ce repository"
 - (Non testé dans ce test automatique)
 
 ✅ **Multi-repo support**
+
 - `pensine-selected-repos` sauvegardé
 - Premier repo utilisé comme principal
 - Infrastructure prête pour Phase 4 (switcher)
@@ -113,18 +119,21 @@ Toutes les clés requises sont correctement sauvegardées:
 ## 🔄 Phases suivantes
 
 ### Phase 3 - Création de repository (3h)
+
 - Tester création via API POST `/user/repos`
 - Validation nom de repo
 - Vérification existence avant création
 - Auto-sélection après création
 
 ### Phase 4 - Multi-repo switcher (5h)
+
 - Dropdown de sélection de repo dans le header
 - Changement de contexte à la volée
 - Sauvegarde de l'état par repo
 - Réinitialisation calendrier/journaux
 
 ### Phase 5 - Migration configs (2h)
+
 - Script de migration single-repo → multi-repo
 - Détection ancien format localStorage
 - Conservation données existantes

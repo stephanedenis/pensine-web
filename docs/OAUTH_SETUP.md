@@ -20,6 +20,7 @@ Cette guide vous explique comment configurer l'authentification OAuth pour Pensi
 ## Pourquoi OAuth ?
 
 ### Problèmes avec PAT (Personal Access Tokens)
+
 - ❌ Stocké en clair dans `localStorage`
 - ❌ Vulnérable aux attaques XSS
 - ❌ Pas d'expiration automatique
@@ -27,6 +28,7 @@ Cette guide vous explique comment configurer l'authentification OAuth pour Pensi
 - ❌ Scopes trop larges
 
 ### Avantages OAuth
+
 - ✅ Token jamais stocké dans le navigateur
 - ✅ Protection contre XSS (HttpOnly cookies)
 - ✅ Expiration automatique (1 heure)
@@ -67,15 +69,18 @@ Cette guide vous explique comment configurer l'authentification OAuth pour Pensi
 ## Prérequis
 
 ### GitHub
+
 - Compte GitHub avec droits admin sur le repo Pensine
 - Repo privé (recommandé) ou public
 
 ### Cloudflare
+
 - Compte Cloudflare (gratuit)
 - Workers quota : 100,000 req/jour (gratuit)
 - KV namespace pour stocker refresh tokens
 
 ### Local
+
 - Node.js 18+ (pour Wrangler CLI)
 - npm ou yarn
 
@@ -88,11 +93,13 @@ Cette guide vous explique comment configurer l'authentification OAuth pour Pensi
 1. Aller sur [github.com/settings/developers](https://github.com/settings/developers)
 2. Cliquer **New OAuth App**
 3. Remplir :
+
    ```
    Application name: Pensine
    Homepage URL: https://votre-domaine.com
    Authorization callback URL: https://votre-domaine.com/oauth-callback.html
    ```
+
 4. Cliquer **Register application**
 5. **Noter** :
    - Client ID (exemple : `Iv1.a1b2c3d4e5f6g7h8`)
@@ -126,6 +133,7 @@ wrangler kv:namespace create "OAUTH_KV" --preview
 ```
 
 Wrangler affichera les IDs :
+
 ```
 ✅ Created namespace with id "abcd1234..."
 ✅ Created preview namespace with id "efgh5678..."
@@ -165,6 +173,7 @@ wrangler deploy
 ```
 
 Wrangler affichera l'URL :
+
 ```
 ✅ Published pensine-oauth (1.23 sec)
    https://pensine-oauth.YOUR_SUBDOMAIN.workers.dev
@@ -290,6 +299,7 @@ firefox http://localhost:8000
 2. Autoriser l'app sur GitHub
 3. Vérifier redirection vers `/oauth-callback.html`
 4. Vérifier token dans DevTools :
+
    ```javascript
    window.githubOAuth.isAuthenticated()  // → true
    ```
@@ -339,6 +349,7 @@ wrangler tail
 ### Métriques
 
 Dashboard Cloudflare Workers :
+
 - Nombre de requêtes
 - Taux d'erreur
 - Latence P50/P99
@@ -346,6 +357,7 @@ Dashboard Cloudflare Workers :
 ### Alertes
 
 Configurer des alertes Cloudflare pour :
+
 - Taux d'erreur > 5%
 - Latence P99 > 2s
 - Quota dépassé
@@ -359,6 +371,7 @@ Configurer des alertes Cloudflare pour :
 **Cause** : `config.js` non chargé ou Client ID invalide
 
 **Solution** :
+
 1. Vérifier `config.js` est chargé en premier
 2. Vérifier `GITHUB_OAUTH_CLIENT_ID` est correct
 3. Console : `window.GITHUB_OAUTH_CLIENT_ID`
@@ -368,15 +381,21 @@ Configurer des alertes Cloudflare pour :
 **Cause** : Worker ne peut pas échanger le code
 
 **Solutions** :
+
 1. Vérifier `GITHUB_CLIENT_SECRET` est correct :
+
    ```bash
    wrangler secret list
    ```
+
 2. Vérifier Worker est déployé :
+
    ```bash
    curl https://pensine-oauth.YOUR_SUBDOMAIN.workers.dev/verify
    ```
+
 3. Vérifier logs :
+
    ```bash
    wrangler tail
    ```
@@ -386,6 +405,7 @@ Configurer des alertes Cloudflare pour :
 **Cause** : Attaque CSRF ou state perdu
 
 **Solution** :
+
 1. Vérifier cookies non bloqués (pas de mode strict)
 2. Relancer le flux OAuth depuis le début
 3. Vérifier `state` parameter dans URL
@@ -397,14 +417,19 @@ Configurer des alertes Cloudflare pour :
 **Cause** : Refresh automatique échoue
 
 **Solutions** :
+
 1. Vérifier `refresh_token` dans KV :
+
    ```bash
    wrangler kv:key list --namespace-id=abcd1234
    ```
+
 2. Vérifier logs refresh :
+
    ```bash
    wrangler tail | grep refresh
    ```
+
 3. Se reconnecter manuellement si nécessaire
 
 ### CORS issues
@@ -414,6 +439,7 @@ Configurer des alertes Cloudflare pour :
 **Cause** : Headers CORS manquants dans Worker
 
 **Solution** : Vérifier `oauth.js` retourne :
+
 ```javascript
 headers: {
   'Access-Control-Allow-Origin': 'https://votre-domaine.com',

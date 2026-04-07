@@ -121,6 +121,7 @@ Ce document décrit l'ordre de chargement des scripts, les dépendances entre mo
 **⚠️ IMPORTANT** : Ces modules ES6 doivent charger **AVANT** `app.js`.
 
 **Pourquoi** :
+
 - app.js appelle `initializeModernConfig()` dans `init()`
 - Cette fonction vient de `lib/settings-integration.js` (module ES6)
 - Si app.js charge en premier, `initializeModernConfig` est `undefined`
@@ -186,6 +187,7 @@ Les modules sont bien isolés, pas de cycles détectés.
 ### Modules ES6 (`<script type="module">`)
 
 **Fichiers** :
+
 - `core/event-bus.js`
 - `core/router.js`
 - `core/plugin-system.js`
@@ -196,12 +198,14 @@ Les modules sont bien isolés, pas de cycles détectés.
 - Tous les `*-plugin.js`
 
 **Caractéristiques** :
+
 - Export/import natif
 - Isolation de scope (pas de pollution globale)
 - Chargement asynchrone
 - Nécessite serveur HTTP (pas `file://`)
 
 **Accès** :
+
 ```javascript
 // Export
 export default class MyClass { ... }
@@ -216,16 +220,19 @@ window.MyClass = MyClass;
 ### Scripts Classiques (`<script src="...">`)
 
 **Fichiers** :
+
 - `app.js`
 - `config.js`
 - Tous les `lib/*.js` (sauf ceux dans core/ et views/)
 
 **Caractéristiques** :
+
 - Variables globales automatiques
 - Chargement synchrone et séquentiel
 - Ordre de `<script>` dans HTML crucial
 
 **Accès** :
+
 ```javascript
 // Déclaration globale
 class MyClass { ... }
@@ -242,11 +249,13 @@ console.log(myInstance);
 ### Erreur : "X is not defined"
 
 **Cause possible** :
+
 1. Script qui utilise X chargé avant script qui définit X
 2. Module ES6 pas encore chargé
 3. Faute de frappe dans le nom
 
 **Solution** :
+
 ```bash
 # 1. Vérifier ordre dans index.html
 grep -n "<script" index.html
@@ -263,6 +272,7 @@ grep -r "class X\|function X\|const X" lib/ core/ views/
 **Cause** : Objet pas encore initialisé.
 
 **Exemple** :
+
 ```javascript
 // ❌ MAUVAIS
 this.modernConfigManager.get('key'); // Si init() pas encore appelé
@@ -278,6 +288,7 @@ if (this.modernConfigManager) {
 **Cause** : Chemin d'import incorrect dans module ES6.
 
 **Solution** :
+
 ```javascript
 // ❌ MAUVAIS
 import MyClass from 'my-class.js'; // Chemin relatif manquant
@@ -289,11 +300,13 @@ import MyClass from '../core/my-class.js'; // Toujours relatif
 ### App bloquée sur "Chargement..."
 
 **Causes possibles** :
+
 1. Erreur JavaScript non catchée
 2. Promesse non résolue
 3. Boucle infinie
 
 **Debug** :
+
 ```javascript
 // Ajouter logs dans app.js init()
 async init() {
@@ -322,10 +335,12 @@ async init() {
 **Fichier** : `lib/token-storage.js`
 
 **Dépendances** :
+
 - WebCrypto API (natif navigateur)
 - localStorage
 
 **Support navigateur** :
+
 - ✅ Chrome 60+
 - ✅ Firefox 57+
 - ✅ Safari 11+
@@ -357,6 +372,7 @@ async init() {
 **Risque** : Version non pinée, peut changer
 
 **Recommandation** : Pinner la version
+
 ```html
 <!-- ❌ Actuel (version flottante) -->
 <script src="https://unpkg.com/isomorphic-git"></script>
@@ -372,16 +388,19 @@ async init() {
 ### 1. Bundling (optionnel)
 
 **Avantages** :
+
 - Réduction requêtes HTTP
 - Minification automatique
 - Tree-shaking
 
 **Inconvénient** :
+
 - Perd simplicité "zero-build"
 
 ### 2. Service Worker (offline)
 
 **Permettrait** :
+
 - Cache CDN assets
 - Fonctionnement offline
 - Progressive Web App (PWA)
@@ -391,6 +410,7 @@ async init() {
 **Actuellement** : Tous les modules chargent au démarrage.
 
 **Amélioration** :
+
 ```javascript
 // Charger plugin seulement quand nécessaire
 const plugin = await import(`./plugins/${pluginId}/${pluginId}-plugin.js`);
@@ -401,11 +421,13 @@ const plugin = await import(`./plugins/${pluginId}/${pluginId}-plugin.js`);
 ## 📚 Références
 
 ### Documentation interne
+
 - [SPECIFICATIONS_TECHNIQUES.md](SPECIFICATIONS_TECHNIQUES.md) - Architecture
 - [CONFIG_SYSTEM.md](CONFIG_SYSTEM.md) - Système de configuration
 - [AUDIT_COHESION.md](AUDIT_COHESION.md) - Analyse de cohérence
 
 ### Standards web
+
 - [ES6 Modules](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules)
 - [Script type="module"](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/script/type)
 - [WebCrypto API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Crypto_API)

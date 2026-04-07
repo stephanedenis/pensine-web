@@ -10,6 +10,7 @@
 ## 🎯 Objectif
 
 Implémenter un système de stockage multi-modal permettant à l'utilisateur de choisir entre :
+
 - **OAuth** (sécurisé, production)
 - **PAT** (simple, développement)
 - **Local** (offline, privé)
@@ -47,6 +48,7 @@ StorageManager (singleton, unified API)
 ### Nouveaux fichiers créés
 
 #### 1. `lib/storage-adapter-base.js`
+
 **Interface abstraite** définissant le contrat pour tous les adapters :
 
 ```javascript
@@ -62,7 +64,9 @@ class StorageAdapterBase {
 ```
 
 #### 2. `lib/local-storage-adapter.js` (433 lignes)
+
 **Adapter offline** avec :
+
 - **IndexedDB** pour stockage fichiers
 - **2 object stores** : `files` et `history`
 - **Export/Import** pour backup manuel
@@ -70,6 +74,7 @@ class StorageAdapterBase {
 - **SHA simulation** (crypto hash)
 
 **Fonctionnalités** :
+
 ```javascript
 - getFile(path) : Récupère fichier
 - putFile(path, content, message, sha) : Sauvegarde + historique
@@ -82,20 +87,24 @@ class StorageAdapterBase {
 ```
 
 **Avantages** :
+
 - ✅ 100% offline
 - ✅ Aucun compte requis
 - ✅ Données privées
 - ✅ Rapide (pas de réseau)
 
 **Limitations** :
+
 - ❌ Pas de sync multi-appareils
 - ❌ Backup manuel nécessaire
 - ❌ Volatile (effacement cache)
 
 #### 3. `lib/github-storage-adapter.js` (303 lignes)
+
 **Adapter GitHub** avec double mode :
 
 **OAuth mode** :
+
 ```javascript
 async getToken() {
   if (this.mode === 'oauth') {
@@ -105,6 +114,7 @@ async getToken() {
 ```
 
 **PAT mode** :
+
 ```javascript
 async getToken() {
   if (this.mode === 'pat') {
@@ -114,12 +124,14 @@ async getToken() {
 ```
 
 **Fonctionnalités communes** :
+
 - getFile(), putFile(), deleteFile(), listFiles()
 - getCommits(limit) : Historique GitHub
 - createBranch(name) : Créer branche
 - SHA caching pour atomic commits
 
 #### 4. `lib/storage-manager-unified.js` (261 lignes)
+
 **Gestionnaire unifié** :
 
 ```javascript
@@ -148,6 +160,7 @@ class StorageManager {
 ```
 
 **Singleton global** :
+
 ```javascript
 window.storageManager = new StorageManager();
 ```
@@ -159,6 +172,7 @@ window.storageManager = new StorageManager();
 ### `docs/STORAGE_MODES.md` (462 lignes)
 
 **Contenu** :
+
 1. **Comparaison rapide** : Tableau 8 critères
 2. **Mode OAuth** : Description, avantages, inconvénients, prérequis
 3. **Mode PAT** : Description, avantages, inconvénients, prérequis
@@ -174,6 +188,7 @@ window.storageManager = new StorageManager();
 **Highlights** :
 
 **Comparaison sécurité** :
+
 ```
 XSS       : OAuth ✅ | PAT ❌ | Local ✅
 CSRF      : OAuth ✅ | PAT ⚠️ | Local N/A
@@ -182,6 +197,7 @@ Physical  : OAuth ⚠️ | PAT ❌ | Local ⚠️
 ```
 
 **Recommandations** :
+
 - **Production** → OAuth
 - **Dev/Tests** → PAT
 - **Offline/Privé** → Local
@@ -191,7 +207,9 @@ Physical  : OAuth ⚠️ | PAT ❌ | Local ⚠️
 ## 🔧 Modifications fichiers existants
 
 ### `index.html`
+
 Ajout des nouveaux scripts dans l'ordre :
+
 ```html
 <!-- Storage Adapters -->
 <script src="lib/storage-adapter-base.js"></script>
@@ -207,7 +225,9 @@ Ajout des nouveaux scripts dans l'ordre :
 ```
 
 ### Rétrocompatibilité
+
 `lib/github-adapter.js` **préservé** tel quel pour :
+
 - Code existant qui l'utilise directement
 - Tests qui dépendent de cette API
 - Migration progressive vers `storageManager`
@@ -217,34 +237,44 @@ Ajout des nouveaux scripts dans l'ordre :
 ## 🎓 Décisions techniques
 
 ### 1. Interface abstraite (StorageAdapterBase)
+
 **Pourquoi ?**
+
 - Contrat commun pour tous les adapters
 - Facilite tests unitaires (mock)
 - Permet ajout futurs modes (Dropbox, S3, etc.)
 
 ### 2. IndexedDB pour Local mode
+
 **Pourquoi IndexedDB vs localStorage ?**
+
 - **Capacité** : 50 MB - 10 GB vs 5-10 MB
 - **Structuré** : Objets natifs vs strings JSON
 - **Async** : Pas de blocage UI
 - **Transactions** : ACID compliance
 
 ### 3. Historique local (30 jours)
+
 **Pourquoi ?**
+
 - Permet diff entre versions
 - Rollback possible
 - Audit trail
 - Cleanup automatique (pas de croissance infinie)
 
 ### 4. SHA simulation en Local mode
+
 **Pourquoi ?**
+
 - Compatibilité API avec GitHub (même interface)
 - Détection changements
 - Évite doublons
 - Crypto.subtle.digest() natif navigateur
 
 ### 5. Singleton StorageManager
+
 **Pourquoi ?**
+
 - Un seul point d'entrée
 - State global cohérent
 - Facilite changement de mode
@@ -316,6 +346,7 @@ Ajout des nouveaux scripts dans l'ordre :
 ## 🧪 Tests à effectuer
 
 ### Test mode Local
+
 ```javascript
 // 1. Créer fichier
 await storageManager.putFile(
@@ -349,6 +380,7 @@ await storageManager.deleteFile('test.md', 'Delete', file.sha);
 ```
 
 ### Test mode PAT
+
 ```javascript
 // 1. Configurer
 await storageManager.switchMode('pat', {
@@ -372,6 +404,7 @@ console.log(commits.length); // → 5
 ```
 
 ### Test mode OAuth
+
 ```javascript
 // 1. Login OAuth
 await githubOAuth.login();
@@ -400,6 +433,7 @@ const file2 = await storageManager.getFile('test2.md');
 ## 📊 Métriques implémentation
 
 **Lignes de code** :
+
 - `storage-adapter-base.js` : 97 lignes
 - `local-storage-adapter.js` : 433 lignes
 - `github-storage-adapter.js` : 303 lignes
@@ -407,6 +441,7 @@ const file2 = await storageManager.getFile('test2.md');
 - **Total** : **1,094 lignes**
 
 **Documentation** :
+
 - `STORAGE_MODES.md` : 462 lignes
 - Cette session journal : 600+ lignes
 - **Total doc** : **1,062 lignes**
@@ -420,21 +455,25 @@ const file2 = await storageManager.getFile('test2.md');
 ## 🎯 Avantages de l'architecture
 
 ### Flexibilité
+
 - ✅ 3 modes pour 3 cas d'usage différents
 - ✅ Changement de mode dynamique
 - ✅ Aucun vendor lock-in
 
 ### Maintenabilité
+
 - ✅ Interface claire (StorageAdapterBase)
 - ✅ Séparation des responsabilités
 - ✅ Tests isolés par adapter
 
 ### Évolutivité
+
 - ✅ Ajout futur modes facile (Dropbox, S3, WebDAV)
 - ✅ Chaque adapter indépendant
 - ✅ API unifiée stable
 
 ### UX
+
 - ✅ User choisit selon besoins
 - ✅ Migration entre modes possible
 - ✅ Export/Import pour portabilité
@@ -444,40 +483,47 @@ const file2 = await storageManager.getFile('test2.md');
 ## 🚀 Prochaines étapes
 
 ### Court terme
+
 1. [ ] Modifier `config-wizard.js` pour afficher choix modes
 2. [ ] Créer UI switch mode dans settings
 3. [ ] Implémenter export/import UI
 4. [ ] Tests unitaires chaque adapter
 
 ### Moyen terme
-5. [ ] Tests d'intégration multi-modes
-6. [ ] Playwright tests E2E
-7. [ ] Monitoring usage modes (analytics opt-in)
-8. [ ] Guide migration détaillé
+
+1. [ ] Tests d'intégration multi-modes
+2. [ ] Playwright tests E2E
+3. [ ] Monitoring usage modes (analytics opt-in)
+4. [ ] Guide migration détaillé
 
 ### Long terme
-9. [ ] Adapter Dropbox
-10. [ ] Adapter WebDAV (Nextcloud)
-11. [ ] Adapter S3-compatible
-12. [ ] Sync hybride (Local + GitHub)
+
+1. [ ] Adapter Dropbox
+2. [ ] Adapter WebDAV (Nextcloud)
+3. [ ] Adapter S3-compatible
+4. [ ] Sync hybride (Local + GitHub)
 
 ---
 
 ## 🐛 Problèmes potentiels identifiés
 
 ### 1. Collision SHA en Local mode
+
 **Problème** : SHA simulé avec timestamp, pourrait collisionner si 2 saves rapides
 
 **Solution** :
+
 ```javascript
 // Ajouter nonce aléatoire au hash
 const data = encoder.encode(content + Date.now() + Math.random());
 ```
 
 ### 2. IndexedDB quota dépassé
+
 **Problème** : User remplit IndexedDB, échec silencieux
 
 **Solution** :
+
 ```javascript
 // Vérifier quota avant write
 const estimate = await navigator.storage.estimate();
@@ -487,9 +533,11 @@ if (estimate.usage / estimate.quota > 0.9) {
 ```
 
 ### 3. Migration perte données
+
 **Problème** : User switch mode sans export, perd données
 
 **Solution** :
+
 ```javascript
 // Forcer export avant switch
 if (currentMode !== 'local' && newMode === 'local') {
@@ -503,18 +551,23 @@ if (currentMode !== 'local' && newMode === 'local') {
 ## 💡 Leçons apprises
 
 ### 1. Abstraction is power
+
 Interface commune permet flexibilité maximale sans casser code existant.
 
 ### 2. IndexedDB > localStorage pour données
+
 Capacité, performance, transactions ACID valent la complexité.
 
 ### 3. Multi-mode = meilleur UX
+
 User différents, besoins différents. 1 solution ≠ tous.
 
 ### 4. Export/Import crucial
+
 Permet portabilité entre modes, backup manuel, migration sans stress.
 
 ### 5. Rétrocompatibilité importante
+
 Préserver `github-adapter.js` évite breaking changes, migration progressive.
 
 ---
@@ -539,6 +592,7 @@ Préserver `github-adapter.js` évite breaking changes, migration progressive.
 **Status** : ✅ READY FOR WIZARD INTEGRATION
 
 **Commit message suggéré** :
+
 ```
 feat: multi-modal storage (OAuth/PAT/Local)
 

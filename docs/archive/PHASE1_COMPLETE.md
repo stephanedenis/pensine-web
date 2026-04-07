@@ -1,4 +1,4 @@
-# 🎉 Phase 1.1 + 1.2 Complete!
+# 🎉 Phase 1.1 + 1.2 Complete
 
 ## ✅ What's Done
 
@@ -29,6 +29,7 @@
 ```
 
 Or manually:
+
 ```bash
 cd packages/plugin-interface
 npm login

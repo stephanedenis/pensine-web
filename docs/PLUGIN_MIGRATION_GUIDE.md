@@ -7,6 +7,7 @@ Guide pour migrer les plugins Pensine vers `@panini/plugin-interface`.
 ## 📋 Vue d'ensemble
 
 La nouvelle interface Panini permet:
+
 - ✅ **Plugins partagés** entre Pensine, OntoWave, PaniniFS
 - ✅ **Cleanup automatique** via namespaces
 - ✅ **Type safety** avec TypeScript
@@ -94,6 +95,7 @@ pluginSystem.registerPaniniPlugin(NewPlugin);
 ### Step 1: Update Plugin Structure
 
 **Before:**
+
 ```javascript
 class MyPlugin {
   constructor(manifest, context) {
@@ -104,6 +106,7 @@ class MyPlugin {
 ```
 
 **After:**
+
 ```javascript
 class MyPlugin {
   manifest = {
@@ -122,12 +125,14 @@ class MyPlugin {
 ### Step 2: Rename Lifecycle Methods
 
 **Before:**
+
 ```javascript
 async enable() { }
 async disable() { }
 ```
 
 **After:**
+
 ```javascript
 async activate(context) {
   this.context = context;
@@ -141,6 +146,7 @@ async deactivate() {
 ### Step 3: Update Event Subscriptions
 
 **Before:**
+
 ```javascript
 async enable() {
   this.context.events.on('event', this.handler);
@@ -152,6 +158,7 @@ async disable() {
 ```
 
 **After:**
+
 ```javascript
 async activate(context) {
   // Add namespace for auto-cleanup!
@@ -171,12 +178,14 @@ async deactivate() {
 ### Step 4: Update Config Access
 
 **Before:**
+
 ```javascript
 const value = this.context.config.get('myKey', 'default');
 await this.context.config.set('myKey', value);
 ```
 
 **After:**
+
 ```javascript
 // 1. Register schema in activate()
 context.config.registerSchema(
@@ -204,12 +213,14 @@ await context.config.setPluginConfig(
 ### Step 5: Update Storage Access
 
 **Before:**
+
 ```javascript
 await this.context.storage.read('path/file.md');
 await this.context.storage.write('path/file.md', content);
 ```
 
 **After:**
+
 ```javascript
 await context.storage.readFile('path/file.md');
 await context.storage.writeFile('path/file.md', content, 'Commit message');
@@ -232,11 +243,13 @@ async onConfigChange(newConfig) {
 ### Step 7: Update Registration
 
 **Before:**
+
 ```javascript
 await pluginSystem.register(MyPlugin, manifest);
 ```
 
 **After:**
+
 ```javascript
 await pluginSystem.registerPaniniPlugin(MyPlugin);
 ```

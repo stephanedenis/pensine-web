@@ -3,9 +3,10 @@
 ## 🏗️ Architecture Globale
 
 ### Stack Technologique
+
 - **Frontend**: Vanilla JavaScript (ES6+)
 - **Server**: Python http.server (développement)
-- **Storage**: 
+- **Storage**:
   - IndexedDB (cache fichiers)
   - localStorage (configuration, settings)
 - **API**: GitHub REST API v3 / Bitbucket / GitLab / Gitea
@@ -40,11 +41,13 @@ pensine-web/
 ### 1. PensineApp (app.js)
 
 **Responsabilités**:
+
 - Orchestration générale de l'application
 - Gestion des vues (journal, calendrier, éditeur)
 - Coordination entre les modules
 
 **État Principal**:
+
 ```javascript
 {
     currentDate: Date,
@@ -62,6 +65,7 @@ pensine-web/
 ```
 
 **Constantes**:
+
 ```javascript
 FILE_TYPES = {
     JOURNAL: 'journal',
@@ -81,11 +85,13 @@ VIEW_MODES = {
 ### 2. Éditeur Unifié
 
 **Architecture**: Triple vue synchronisée
+
 - **Vue Code**: `<textarea id="editor-code-textarea">`
 - **Vue Enrichie**: `<div id="editor-rich-content">`
 - **Vue Split**: Code + Enrichi côte à côte
 
 **Layout Structure**:
+
 ```html
 <div id="editor-container" data-mode="rich|code|split">
   <div class="editor-header">
@@ -115,6 +121,7 @@ VIEW_MODES = {
 ```
 
 **CSS Display Logic**:
+
 ```css
 /* Mode CODE */
 #editor-container[data-mode="code"] #editor-code-view { display: block; }
@@ -135,7 +142,8 @@ VIEW_MODES = {
 }
 ```
 
-**⚠️ RÈGLE CRITIQUE**: 
+**⚠️ RÈGLE CRITIQUE**:
+
 - **JAMAIS** ajouter classe `.hidden` sur `#editor-rich-view` ou `#editor-code-view`
 - La classe `.hidden` a `display: none !important` qui surpasse le CSS
 - Laisser le CSS `[data-mode]` gérer l'affichage
@@ -143,6 +151,7 @@ VIEW_MODES = {
 ### 3. Rendu Enrichi par Type de Fichier
 
 **Détection de Type** (`detectFileType(path)`):
+
 ```javascript
 // Priorité de détection:
 1. Extension .json + nom contient "-config" → FILE_TYPES.CONFIG
@@ -153,6 +162,7 @@ VIEW_MODES = {
 ```
 
 **Rendu Correspondant** (`getRichView(content, fileType)`):
+
 ```javascript
 switch (fileType) {
     case FILE_TYPES.JOURNAL:
@@ -173,6 +183,7 @@ switch (fileType) {
 ### 4. Formulaire de Configuration Dynamique
 
 **Génération** (`renderConfigForm(jsonContent)`):
+
 ```javascript
 // Parse JSON → Génère formulaire avec préservation des types
 for (const [key, value] of Object.entries(config)) {
@@ -188,6 +199,7 @@ for (const [key, value] of Object.entries(config)) {
 ```
 
 **Synchronisation Live**:
+
 ```javascript
 form.addEventListener('input', () => {
     updateConfigFromForm(config);  // Met à jour textarea code
@@ -197,6 +209,7 @@ form.addEventListener('input', () => {
 ```
 
 **⚠️ RÈGLES**:
+
 - Pas de boutons de sauvegarde dans le formulaire (redondants avec header)
 - Synchronisation bidirectionnelle: Formulaire ↔ Code
 - Préservation stricte des types (boolean/number/string)
@@ -204,10 +217,12 @@ form.addEventListener('input', () => {
 ### 5. Calendrier Hebdomadaire
 
 **Structure**: Grille semaines × jours
+
 - **Colonne gauche**: Mois (apparaît première semaine de chaque mois)
 - **7 colonnes droite**: Jours de la semaine (configurable via `weekStartDay`)
 
 **Chargement Progressif**:
+
 ```javascript
 loadInitialWeeks():
     - Charge 52 semaines (26 avant, 25 après)
@@ -220,22 +235,26 @@ handleScroll():
 ```
 
 **Interaction**:
+
 - Clic sur jour → Ouvre journal dans éditeur (`loadJournalByDate()`)
 - Indicateur visuel pour jours avec contenu existant
 
 ### 6. Panneau Historique
 
 **Structure**: Timeline des versions
+
 - Liste des commits pour le fichier actuel
 - Affichage: date, message, auteur
 
 **Interaction**:
+
 - Clic sur version → Ouvre dans éditeur en lecture seule
 - Toggle via bouton `#toggle-history`
 
 ### 7. Wizard de Configuration
 
 **Étapes** (5 steps):
+
 1. **Plateforme**: GitHub / Bitbucket / GitLab / Gitea
 2. **Token**: Instructions spécifiques par plateforme
 3. **Dépôt**: owner, repo, branch
@@ -243,6 +262,7 @@ handleScroll():
 5. **Ergonomie**: theme, autoSync, autoSave
 
 **Structure Config Générée**:
+
 ```json
 {
     "platform": "github",
@@ -260,7 +280,8 @@ handleScroll():
 }
 ```
 
-**Sauvegarde**: 
+**Sauvegarde**:
+
 - Crée `.pensine-config.json` sur GitHub
 - Sauvegarde dans localStorage (fallback)
 
@@ -370,26 +391,32 @@ Affiche markdown rendu avec MarkdownIt
 ### 1. Gestion CSS Display
 
 **❌ MAUVAISE APPROCHE**:
+
 ```html
 <div id="editor-rich-view" class="editor-pane hidden">
 ```
+
 → Classe `.hidden` avec `!important` surpasse tout CSS
 
 **✅ BONNE APPROCHE**:
+
 ```html
 <div id="editor-rich-view" class="editor-pane">
 ```
+
 → Laisser CSS `[data-mode]` gérer
 
 ### 2. Event Listeners
 
 **❌ MAUVAIS**:
+
 ```javascript
 document.getElementById('modal-cancel-btn').addEventListener(...)
 // Si modal-cancel-btn n'existe plus → crash silencieux
 ```
 
 **✅ BON**:
+
 ```javascript
 // Avant d'attacher listener, vérifier existence
 const btn = document.getElementById('modal-cancel-btn');
@@ -408,6 +435,7 @@ document.addEventListener('click', (e) => {
 ### 3. Layout Flexbox Header
 
 **❌ MAUVAIS** (v0.0.20):
+
 ```css
 .editor-header {
     justify-content: flex-end;  /* Tout à droite */
@@ -418,6 +446,7 @@ document.addEventListener('click', (e) => {
 ```
 
 **✅ BON** (v0.0.22):
+
 ```css
 .editor-header {
     display: flex;
@@ -429,11 +458,13 @@ document.addEventListener('click', (e) => {
 ### 4. Préservation des Types JSON
 
 **❌ MAUVAIS**:
+
 ```javascript
 config[key] = formData.get(key);  // Tout devient string
 ```
 
 **✅ BON**:
+
 ```javascript
 if (typeof originalValue === 'boolean') {
     config[key] = value === 'on' || value === 'true';
@@ -451,6 +482,7 @@ if (typeof originalValue === 'boolean') {
 ### GitHubAdapter (lib/github-adapter.js)
 
 **Interface**:
+
 ```javascript
 configure(settings): void
 isConfigured(): boolean
@@ -464,6 +496,7 @@ getCommits(path, options?): Promise<Array>
 ```
 
 **Base URLs par Plateforme**:
+
 - GitHub: `https://api.github.com`
 - Bitbucket: `https://api.bitbucket.org/2.0`
 - GitLab: `https://gitlab.com/api/v4`
@@ -472,6 +505,7 @@ getCommits(path, options?): Promise<Array>
 ### StorageManager (lib/storage.js)
 
 **Interface**:
+
 ```javascript
 init(): Promise<void>
 cacheFile(path, content, sha): Promise
@@ -485,10 +519,11 @@ getRecentPages(): Array<string>
 ```
 
 **Stores**:
+
 - **IndexedDB**: `PensineDB` v1
   - `files`: {path, content, sha, timestamp}
   - `metadata`: {key, value}
-- **localStorage**: 
+- **localStorage**:
   - `pensine-settings`: Configuration JSON
   - `pensine-recent`: Array pages récentes
   - `editorViewMode`: Dernière vue éditeur
@@ -496,6 +531,7 @@ getRecentPages(): Array<string>
 ### ConfigWizard (lib/config-wizard.js)
 
 **Interface**:
+
 ```javascript
 show(): void
 hide(): void
@@ -506,6 +542,7 @@ complete(): Promise<void>
 ```
 
 **État**:
+
 ```javascript
 {
     currentStep: number,
@@ -523,6 +560,7 @@ complete(): Promise<void>
 ## 🎨 Thèmes et Variables CSS
 
 ### Variables Principales
+
 ```css
 :root {
     --bg-primary: #0d1117;
@@ -545,6 +583,7 @@ complete(): Promise<void>
 ```
 
 ### Responsive Breakpoints
+
 ```css
 @media (max-width: 768px) {
     /* Mobile adjustments */
@@ -560,14 +599,17 @@ complete(): Promise<void>
 ## 🔐 Sécurité
 
 ### Token Storage
+
 - **localStorage**: Token en clair (acceptable pour app locale)
 - **⚠️ Jamais committer** `.pensine-config.json` avec token
 
 ### CORS
+
 - GitHub API: CORS activé
 - Pour autres plateformes: Vérifier headers CORS
 
 ### Rate Limiting
+
 - GitHub: 5000 req/h (authentifié)
 - Bitbucket: 1000 req/h
 - GitLab: 2000 req/10 min
@@ -577,12 +619,14 @@ complete(): Promise<void>
 ## 📝 Conventions de Code
 
 ### Naming
+
 - Classes: PascalCase (`PensineApp`, `StorageManager`)
 - Fonctions: camelCase (`openInEditor`, `saveCurrentFile`)
 - Constantes: UPPER_SNAKE_CASE (`FILE_TYPES`, `VIEW_MODES`)
 - CSS classes: kebab-case (`editor-header`, `view-mode-btn`)
 
 ### Commentaires
+
 ```javascript
 /**
  * Description de la fonction
@@ -595,7 +639,9 @@ function exemple(param) {
 ```
 
 ### Commits
+
 Format: `type: Description courte`
+
 - `feat`: Nouvelle fonctionnalité
 - `fix`: Correction bug
 - `refactor`: Refactorisation
@@ -608,12 +654,14 @@ Format: `type: Description courte`
 ## 🚀 Performance
 
 ### Optimisations Actuelles
+
 1. **IndexedDB Cache**: Évite requêtes API répétées
 2. **Chargement Progressif**: Calendrier charge par tranches
 3. **Debounce**: Éviter saves multiples rapides
 4. **localStorage Fallback**: Accès instantané config
 
 ### Métriques Cibles
+
 - Temps chargement initial: < 2s
 - Temps switch vue éditeur: < 100ms
 - Temps ouverture journal: < 500ms (avec cache)
@@ -623,7 +671,8 @@ Format: `type: Description courte`
 ## 📚 Références API
 
 ### GitHub REST API v3
-- Docs: https://docs.github.com/en/rest
+
+- Docs: <https://docs.github.com/en/rest>
 - Endpoints utilisés:
   - `GET /repos/{owner}/{repo}/contents/{path}`
   - `PUT /repos/{owner}/{repo}/contents/{path}`
@@ -631,12 +680,14 @@ Format: `type: Description courte`
   - `GET /repos/{owner}/{repo}/commits`
 
 ### MarkdownIt
-- Docs: https://markdown-it.github.io/
+
+- Docs: <https://markdown-it.github.io/>
 - Plugins: markdown-it-anchor
 - Config: `{ html: true, breaks: true, linkify: true }`
 
 ### Highlight.js
-- Docs: https://highlightjs.org/
+
+- Docs: <https://highlightjs.org/>
 - Theme: github-dark
 - Langage detection: Automatique
 
@@ -647,6 +698,7 @@ Format: `type: Description courte`
 **Tag Stable**: `v0.0.21-stable` (point de restauration)
 
 **Changements depuis v0.0.21**:
+
 - Restauration structure v0.0.19 (boutons mode)
 - Fix: Charger config depuis localStorage prioritaire
 - Fix: Formulaire config sans boutons redondants
@@ -654,6 +706,7 @@ Format: `type: Description courte`
 - Fix: Mode RICH forcé pour fichiers CONFIG
 
 **Prochaines Étapes**:
+
 - [ ] Implémenter tests automatisés
 - [ ] Améliorer wizard (validation, preview)
 - [ ] Support multi-repos

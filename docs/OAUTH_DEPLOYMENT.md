@@ -15,7 +15,7 @@ Ce guide vous permet de configurer l'authentification OAuth pour Pensine Web ave
 
 ### 1.1 Accéder aux Paramètres Développeur
 
-1. Allez sur https://github.com/settings/developers
+1. Allez sur <https://github.com/settings/developers>
 2. Cliquez sur **"OAuth Apps"**
 3. Cliquez sur **"New OAuth App"**
 
@@ -24,6 +24,7 @@ Ce guide vous permet de configurer l'authentification OAuth pour Pensine Web ave
 Remplissez le formulaire :
 
 **Pour le développement local :**
+
 ```
 Application name: Pensine Web (Development)
 Homepage URL: http://localhost:8001
@@ -32,6 +33,7 @@ Application description: Personal knowledge management with GitHub
 ```
 
 **Pour la production :**
+
 ```
 Application name: Pensine Web
 Homepage URL: https://pensine.dev
@@ -42,6 +44,7 @@ Application description: Personal knowledge management with GitHub
 ### 1.3 Récupérer les Credentials
 
 Après création, vous obtenez :
+
 - ✅ **Client ID** : `Ov23li...` (public, peut être commité)
 - ⚠️ **Client Secret** : `gho_...` (privé, NE JAMAIS commiter)
 
@@ -244,6 +247,7 @@ wrangler tail
 ### 6.2 Métriques
 
 Dashboard Cloudflare → Workers → pensine-oauth-worker :
+
 - Requêtes par seconde
 - Taux d'erreur
 - Latence
@@ -251,6 +255,7 @@ Dashboard Cloudflare → Workers → pensine-oauth-worker :
 ### 6.3 Alertes (Optionnel)
 
 Configurer des alertes si :
+
 - Taux d'erreur > 5%
 - Latence > 1000ms
 - Échecs d'authentification > 10/min
@@ -283,7 +288,8 @@ if (rateLimit > 100) {
 ### 7.3 Monitoring GitHub
 
 Vérifier régulièrement :
-- https://github.com/settings/applications
+
+- <https://github.com/settings/applications>
 - Révoquer les tokens suspects
 
 ## 🚨 Dépannage
@@ -293,6 +299,7 @@ Vérifier régulièrement :
 **Cause** : Le state OAuth a été modifié (CSRF attack ou session expirée)
 
 **Solution** :
+
 ```javascript
 // Nettoyer la session
 sessionStorage.clear();
@@ -305,6 +312,7 @@ githubOAuth.login();
 **Cause** : Refresh token expiré (après 60 jours d'inactivité)
 
 **Solution** : Se reconnecter
+
 ```javascript
 githubOAuth.login();
 ```
@@ -312,6 +320,7 @@ githubOAuth.login();
 ### Worker ne déploie pas
 
 **Vérifier** :
+
 ```bash
 # Tester localement d'abord
 wrangler dev
@@ -325,6 +334,7 @@ wrangler secret list
 **Cause** : L'URL de callback ne correspond pas à celle configurée sur GitHub
 
 **Solution** : Vérifier que les URLs correspondent exactement :
+
 - GitHub OAuth App callback URL
 - `getCallbackUrl()` dans `github-oauth.js`
 - Routes dans `wrangler.toml`
@@ -384,7 +394,7 @@ Avant de mettre en production :
 
 ---
 
-**Questions ?** Ouvrir une issue sur https://github.com/stephanedenis/pensine-web/issues
+**Questions ?** Ouvrir une issue sur <https://github.com/stephanedenis/pensine-web/issues>
 
 **Support** : Rejoindre notre Discord (lien dans README)
 

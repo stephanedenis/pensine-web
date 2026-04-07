@@ -20,11 +20,13 @@
 ## 🔧 Problèmes rencontrés et solutions
 
 ### Problème #1 : Configuration 404 Not Found
+
 **Symptôme** : Cliquer sur ⚙️ génère une erreur "Impossible d'ouvrir le fichier"
 
 **Cause** : `openConfigFileInEditor()` ne chargeait que depuis GitHub API, pas localStorage
 
 **Solution** :
+
 ```javascript
 // Prioriser localStorage → GitHub → Wizard
 const localSettings = localStorage.getItem('pensine-settings');
@@ -40,13 +42,16 @@ if (localSettings) {
 ---
 
 ### Problème #2 : Vue riche complètement blanche
+
 **Symptôme** : Formulaire de config invisible en mode 👁️
 
-**Cause racine** : 
+**Cause racine** :
+
 - `#editor-rich-view` avait la classe `.hidden` dans le HTML
 - CSS `.hidden { display: none !important; }` écrasait tout
 
 **Solution** :
+
 1. Retirer `.hidden` du HTML
 2. Laisser CSS `[data-mode="rich"]` gérer la visibilité
 3. Forcer mode RICH pour FILE_TYPES.CONFIG
@@ -58,9 +63,11 @@ if (localSettings) {
 ---
 
 ### Problème #3 : Boutons redondants dans le formulaire
+
 **Symptôme** : Formulaire avait "💾 Save" et "< /> View Code" dupliquant le header
 
 **Solution** :
+
 1. Supprimer `<div class="config-actions">` du HTML généré
 2. Implémenter synchronisation live :
    - `form.addEventListener('input')` → `updateConfigFromForm()`
@@ -74,9 +81,11 @@ if (localSettings) {
 ---
 
 ### Problème #4 : Régression - App bloquée sur loading
+
 **Symptôme** : Après suppression des boutons, page blanche avec spinner infini
 
 **Cause** : Erreur de syntaxe JavaScript
+
 ```javascript
 // Accolades manquantes dans renderConfigForm()
 form.addEventListener('change', () => {
@@ -90,6 +99,7 @@ form.addEventListener('change', () => {
 **Diagnostic** : `node -c app.js` → `SyntaxError: Unexpected token '{'`
 
 **Solution** :
+
 ```javascript
 }); // close change listener
 } // close if (form)
@@ -112,25 +122,30 @@ updateConfigFromForm(originalConfig) { ... }
 ---
 
 ### Problème #5 : 🔴 CRITIQUE - Token GitHub exposé
+
 **Découverte** : Suite à la question "est-ce qu'on a une clé ou autre identifiants dans le code?"
 
 **Audit réalisé** :
+
 ```bash
 grep -r "ghp_" --include="*.js" --include="*.json" --include="*.md"
 ```
 
 **Résultat ALARMANT** :
+
 - `pensine-web/config.js` ligne 15 : `window.PENSINE_INITIAL_TOKEN = 'ghp_***REDACTED***';`
 - `pensine-web/test-playwright.js` ligne 97 : token hardcodé dans test
 - `TESTS_EDITEUR_v0.0.19.md` : token dans documentation
 
 **Risque** :
+
 - ⚠️ Repo public sur GitHub
 - ⚠️ Token avec accès complet (scope `repo`)
 - ⚠️ N'importe qui peut cloner et obtenir le token
 - ⚠️ Token dans l'historique git
 
 **Actions correctives** :
+
 1. ✅ Nettoyage code source :
    - `config.js` : `PENSINE_INITIAL_TOKEN = null`
    - `config.js` : `owner/repo` vidés
@@ -152,6 +167,7 @@ grep -r "ghp_" --include="*.js" --include="*.json" --include="*.md"
 Pour prévenir les régressions futures :
 
 ### SPECIFICATIONS_TECHNIQUES.md (1735+ lignes)
+
 - Architecture complète
 - Interfaces de tous les composants
 - Flows critiques avec diagrammes
@@ -159,12 +175,14 @@ Pour prévenir les régressions futures :
 - Leçons apprises des v0.0.20-21
 
 ### SCENARIOS_DE_TEST.md
+
 - 70+ scénarios de test
 - Organisation : T1-T10 (fonctionnel), R1-R4 (régression)
 - Préconditions, étapes, résultats attendus
 - Template de bug report
 
 ### TESTING_CHECKLIST.md
+
 - Checklist pré-commit (6-8 min)
 - 27 items de validation rapide
 - 4 tests de régression critiques
@@ -178,11 +196,13 @@ Pour prévenir les régressions futures :
 ## 🎯 Séparation données / application
 
 ### Problématique
+
 Repo mixte = données personnelles + code application public → Risque sécurité
 
 ### Solution : Séparation en 2 repos
 
 #### 1. Renommer repo existant
+
 ```bash
 # Via API GitHub
 curl -X PATCH https://api.github.com/repos/stephanedenis/Pensine \
@@ -190,11 +210,13 @@ curl -X PATCH https://api.github.com/repos/stephanedenis/Pensine \
 ```
 
 **Résultat** :
+
 - `Pensine` → `Pensine-StephaneDenis` (privé)
 - Conserve tout l'historique des données
 - Remote local mis à jour
 
 #### 2. Créer nouveau repo public
+
 ```bash
 # Via API GitHub
 curl -X POST https://api.github.com/user/repos \
@@ -202,6 +224,7 @@ curl -X POST https://api.github.com/user/repos \
 ```
 
 **Contenu** :
+
 - Code de l'application uniquement
 - Sans données personnelles
 - Sans tokens
@@ -210,6 +233,7 @@ curl -X POST https://api.github.com/user/repos \
 - README complet
 
 #### 3. Nettoyage
+
 ```bash
 # Supprimer pensine-web/ du repo données
 cd Pensine-StephaneDenis
@@ -219,6 +243,7 @@ git push
 ```
 
 **Commits** :
+
 - Pensine-StephaneDenis : 666203e07
 - pensine-web : c2e2d51 (initial)
 
@@ -227,6 +252,7 @@ git push
 ## 📁 Structure finale
 
 ### Repo : stephanedenis/Pensine-StephaneDenis (privé)
+
 ```
 Pensine-StephaneDenis/
 ├── journals/           # Journaux quotidiens
@@ -238,6 +264,7 @@ Pensine-StephaneDenis/
 ```
 
 ### Repo : stephanedenis/pensine-web (public)
+
 ```
 pensine-web/
 ├── index.html
@@ -262,30 +289,37 @@ pensine-web/
 ## 💡 Décisions techniques importantes
 
 ### 1. Priorité localStorage sur GitHub API
+
 **Contexte** : Config peut exister dans localStorage sans être sur GitHub
 
 **Décision** : Charger d'abord localStorage, puis GitHub, puis wizard
 
-**Justification** : 
+**Justification** :
+
 - Plus rapide (pas d'API call)
 - Fonctionne offline
 - Respecte config locale de l'utilisateur
 
 ### 2. Synchronisation live form ↔ code
+
 **Alternatives considérées** :
+
 - A) Boutons "Save" et "View Code" dans formulaire
 - B) Synchronisation automatique
 
 **Choix** : B - Sync live avec event listeners
 
 **Justification** :
+
 - UX plus fluide
 - Moins de clics
 - Feedback immédiat
 - Un seul source of truth (code textarea)
 
 ### 3. Séparation repos au lieu de branches
+
 **Alternatives considérées** :
+
 - A) Branches séparées dans même repo
 - B) Submodules
 - C) Deux repos indépendants
@@ -293,6 +327,7 @@ pensine-web/
 **Choix** : C - Repos séparés
 
 **Justification** :
+
 - Sécurité : aucune fuite possible
 - Permissions GitHub distinctes
 - Historique propre pour l'app
@@ -300,11 +335,13 @@ pensine-web/
 - Clone plus léger pour contributeurs
 
 ### 4. Documentation dans repo application
+
 **Contexte** : Où mettre SPECS/TESTS/JOURNAL ?
 
 **Décision** : `pensine-web/docs/` + `journal-de-bord/`
 
 **Justification** :
+
 - Docs techniques liées au code
 - Facilite onboarding contributeurs
 - Journal contextualise les décisions
@@ -380,6 +417,7 @@ pensine-web/
 ## 📊 Métriques de la session
 
 ### Code modifié
+
 - Fichiers édités : 5
 - Lignes ajoutées : ~2000 (docs incluses)
 - Lignes supprimées : ~40 (cleanup)
@@ -387,6 +425,7 @@ pensine-web/
 - Vulnérabilités corrigées : 1 (critique)
 
 ### Commits
+
 - Total : 6
 - Fix : 4
 - Docs : 1
@@ -394,6 +433,7 @@ pensine-web/
 - Refactor : 1 (séparation repos)
 
 ### Tests
+
 - Scénarios documentés : 70+
 - Checklist items : 27
 - Temps validation : 6-8 min
@@ -403,29 +443,35 @@ pensine-web/
 ## 🎯 État final
 
 ### Version
+
 **v0.0.22** - Stable et sécurisé
 
 ### Commits finaux
+
 - Pensine-StephaneDenis : `666203e07`
 - pensine-web : `c2e2d51` (initial)
 
 ### Repos
-- ✅ https://github.com/stephanedenis/Pensine-StephaneDenis (privé)
-- ✅ https://github.com/stephanedenis/pensine-web (public)
+
+- ✅ <https://github.com/stephanedenis/Pensine-StephaneDenis> (privé)
+- ✅ <https://github.com/stephanedenis/pensine-web> (public)
 
 ### Documentation
+
 - ✅ SPECIFICATIONS_TECHNIQUES.md (1735 lignes)
 - ✅ SCENARIOS_DE_TEST.md (70+ scénarios)
 - ✅ TESTING_CHECKLIST.md (27 items)
 - ✅ Journal de bord initialisé
 
 ### Sécurité
+
 - ✅ Tokens retirés du code source
 - ✅ `.gitignore` configuré
 - ✅ Variables d'environnement documentées
 - ⚠️ Token à révoquer (action utilisateur)
 
 ### Fonctionnalités
+
 - ✅ Configuration ouvre depuis localStorage
 - ✅ Formulaire s'affiche en mode riche
 - ✅ Synchronisation live form ↔ code
@@ -437,16 +483,19 @@ pensine-web/
 ## 🚀 Actions post-session
 
 ### Immédiat (utilisateur)
-1. [ ] Révoquer token GitHub exposé : https://github.com/settings/tokens
+
+1. [ ] Révoquer token GitHub exposé : <https://github.com/settings/tokens>
 2. [ ] Générer nouveau token (DO NOT commit)
 3. [ ] Tester app avec nouveau token
 
 ### Court terme
+
 1. [ ] Implémenter pre-commit hook (validation syntaxe)
 2. [ ] Ajouter tests Playwright pour config editor
 3. [ ] Documenter workflow contribution dans pensine-web/README.md
 
 ### Moyen terme
+
 1. [ ] Envisager nettoyage historique Git (BFG Repo-Cleaner)
 2. [ ] Setup CI/CD pour validation automatique
 3. [ ] Badges GitHub (tests, coverage) dans README
@@ -456,16 +505,20 @@ pensine-web/
 ## 📖 Références
 
 ### Issues créées
+
 - Aucune (session de fix)
 
 ### Pull Requests
+
 - Aucune (direct commits sur master)
 
 ### Liens externes
-- GitHub API Rename Repo : https://docs.github.com/en/rest/repos/repos#update-a-repository
-- BFG Repo-Cleaner : https://rtyley.github.io/bfg-repo-cleaner/
+
+- GitHub API Rename Repo : <https://docs.github.com/en/rest/repos/repos#update-a-repository>
+- BFG Repo-Cleaner : <https://rtyley.github.io/bfg-repo-cleaner/>
 
 ### Commits clés
+
 - b34da91b6 : Fix config loading from localStorage
 - b69dc95de : Remove redundant form buttons + live sync
 - 69237bff6 : Fix syntax error (missing braces)
@@ -478,6 +531,7 @@ pensine-web/
 ## 🙏 Remerciements
 
 Session productive avec GitHub Copilot qui a permis :
+
 - Identification proactive d'une faille de sécurité critique
 - Documentation exhaustive pour prévenir régressions
 - Séparation propre données/application

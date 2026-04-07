@@ -18,6 +18,7 @@ Implémenter Phase 1.1 (Interface Plugin Commune) et Phase 1.2 (Adaptation Plugi
 **Package créé**: `@panini/plugin-interface` v0.1.0-alpha.1
 
 **Structure complète:**
+
 ```
 packages/plugin-interface/
 ├── src/
@@ -47,6 +48,7 @@ packages/plugin-interface/
 ```
 
 **Métriques:**
+
 - **Lignes de code**: ~500 (TypeScript)
 - **Lignes de tests**: ~300
 - **Lignes de doc**: ~1500
@@ -55,6 +57,7 @@ packages/plugin-interface/
 - **Build**: Clean (0 erreurs)
 
 **Validation:**
+
 ```bash
 $ npm run build
 ✅ TypeScript compilation successful
@@ -110,6 +113,7 @@ $ npm version 0.1.0-alpha.1
    - getAllPlugins() retourne type: 'panini'|'legacy'
 
 **Métriques:**
+
 - **Lignes de code**: ~1200 (nouveaux fichiers)
 - **Lignes de tests**: ~300
 - **Lignes de doc**: ~1500 (migration guide + reports)
@@ -117,6 +121,7 @@ $ npm version 0.1.0-alpha.1
 - **Breaking changes**: 0
 
 **Validation:**
+
 ```bash
 $ node -c src/core/panini-wrappers.js
 ✅ No syntax errors
@@ -135,6 +140,7 @@ $ npm test src/core/panini-integration.test.js
 **Problème**: Memory leaks quand plugin désactivé mais event handlers persistent.
 
 **Solution**:
+
 ```javascript
 // PaniniEventBusWrapper
 on(event, handler, namespace) {
@@ -158,6 +164,7 @@ clearNamespace(namespace) {
 **Problème**: Configs plugin cassent l'app avec valeurs invalides.
 
 **Solution**:
+
 ```javascript
 // Plugin déclare schema
 context.config.registerSchema('my-plugin', {
@@ -180,6 +187,7 @@ await context.config.setPluginConfig('my-plugin', { theme: 'invalid' });
 **Problème**: 4 plugins existants ne suivent pas nouvelle interface.
 
 **Solution**: Wrapper automatique
+
 ```javascript
 class LegacyPluginAdapter {
   constructor(legacyPlugin) {
@@ -204,6 +212,7 @@ class LegacyPluginAdapter {
 **Problème**: Besoin de support Panini ET Legacy simultanément.
 
 **Solution**:
+
 ```javascript
 async register(PluginClass, manifest, isPaniniPlugin = false) {
   if (isPaniniPlugin) {
@@ -349,6 +358,7 @@ describe('Real World Usage', () => {
 ```
 
 **Résultats**:
+
 - 9/9 passed ✅
 - Duration: 1.01s
 - Coverage: All interfaces
@@ -393,6 +403,7 @@ describe('Plugin Lifecycle', () => {
 ```
 
 **Résultats**:
+
 - 15/15 passed ✅
 - All wrappers validated
 - Lifecycle complete
@@ -452,6 +463,7 @@ describe('Plugin Lifecycle', () => {
 **Décision**: Package contient seulement des types TypeScript.
 
 **Rationale**:
+
 - ✅ 0 runtime dependencies
 - ✅ Léger (~15 KB)
 - ✅ Compatible tous projets (JS/TS)
@@ -465,6 +477,7 @@ describe('Plugin Lifecycle', () => {
 **Décision**: EventBus track handlers par namespace.
 
 **Rationale**:
+
 - ✅ Cleanup automatique en 1 ligne
 - ✅ Pas de tracking manuel
 - ✅ Memory leak impossible
@@ -477,6 +490,7 @@ describe('Plugin Lifecycle', () => {
 **Décision**: ConfigManager valide avec JSON Schema.
 
 **Rationale**:
+
 - ✅ Validation déclarative
 - ✅ Typage fort sans TypeScript runtime
 - ✅ Erreurs claires
@@ -490,6 +504,7 @@ describe('Plugin Lifecycle', () => {
 **Décision**: LegacyPluginAdapter wrap old plugins.
 
 **Rationale**:
+
 - ✅ 0 breaking changes
 - ✅ Migration progressive
 - ✅ Tests isolés
@@ -502,6 +517,7 @@ describe('Plugin Lifecycle', () => {
 **Décision**: createPaniniContext() crée contexte partagé.
 
 **Rationale**:
+
 - ✅ DRY (pas de duplication)
 - ✅ Consistency garantie
 - ✅ Testabilité (mock factory)
@@ -609,6 +625,7 @@ describe('Plugin Lifecycle', () => {
 ### 1. Wrappers > Refactoring Total
 
 Créer des wrappers autour du code existant au lieu de tout refactorer:
+
 - ✅ Préserve backward compatibility
 - ✅ Migration progressive possible
 - ✅ Tests isolés (wrapper vs core)
@@ -617,6 +634,7 @@ Créer des wrappers autour du code existant au lieu de tout refactorer:
 ### 2. Documentation = Code
 
 Écrire la doc en même temps que le code:
+
 - ✅ Capture décisions à chaud
 - ✅ Exemples testés immédiatement
 - ✅ Pas de "dette documentation"
@@ -625,6 +643,7 @@ Créer des wrappers autour du code existant au lieu de tout refactorer:
 ### 3. TypeScript Interfaces Sans Runtime
 
 Package de types purs (0 deps runtime):
+
 - ✅ Ultra léger (~15 KB)
 - ✅ Compatible JS vanilla
 - ✅ IntelliSense gratuit
@@ -633,6 +652,7 @@ Package de types purs (0 deps runtime):
 ### 4. Tests = Confiance
 
 24 tests = confiance pour publier alpha:
+
 - ✅ Detect regressions
 - ✅ Validate wrappers
 - ✅ Document usage
@@ -641,6 +661,7 @@ Package de types purs (0 deps runtime):
 ### 5. Namespace Pattern
 
 Pattern namespace pour events:
+
 - ✅ Cleanup automatique
 - ✅ Memory safe
 - ✅ Plugin isolation
@@ -649,21 +670,26 @@ Pattern namespace pour events:
 ## 🔗 Fichiers Clés Créés
 
 ### Packages
+
 - [`packages/plugin-interface/`](../../packages/plugin-interface/) - NPM package ✅
 
 ### Core
+
 - [`src/core/panini-wrappers.js`](../../src/core/panini-wrappers.js) - Adapters
 - [`src/core/plugin-system.js`](../../src/core/plugin-system.js) - Enhanced (modifié)
 - [`src/app-init-panini.js`](../../src/app-init-panini.js) - Bootstrap
 
 ### Plugins
+
 - [`plugins/pensine-plugin-word-counter/`](../../plugins/pensine-plugin-word-counter/) - Demo
 
 ### Tests
+
 - [`packages/plugin-interface/src/index.test.ts`](../../packages/plugin-interface/src/index.test.ts) - 9 tests
 - [`src/core/panini-integration.test.js`](../../src/core/panini-integration.test.js) - 15 tests
 
 ### Documentation
+
 - [`docs/PHASE1_1_SUMMARY.md`](../PHASE1_1_SUMMARY.md)
 - [`docs/PHASE1_1_PLUGIN_INTERFACE_COMPLETE.md`](../PHASE1_1_PLUGIN_INTERFACE_COMPLETE.md)
 - [`docs/PHASE1_2_PLUGIN_SYSTEM_ADAPTATION.md`](../PHASE1_2_PLUGIN_SYSTEM_ADAPTATION.md)
@@ -672,6 +698,7 @@ Pattern namespace pour events:
 - [`docs/PANINI_INTEGRATION_STRATEGY.md`](../PANINI_INTEGRATION_STRATEGY.md) (mis à jour)
 
 ### Guides
+
 - [`packages/plugin-interface/NPM_PUBLISH_GUIDE.md`](../../packages/plugin-interface/NPM_PUBLISH_GUIDE.md)
 - [`packages/plugin-interface/PRE_PUBLISH_CHECKLIST.md`](../../packages/plugin-interface/PRE_PUBLISH_CHECKLIST.md)
 - [`packages/plugin-interface/CHANGELOG.md`](../../packages/plugin-interface/CHANGELOG.md)

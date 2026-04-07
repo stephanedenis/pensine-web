@@ -5,6 +5,7 @@
 Chaque plugin est un **repository Git indépendant**, ajouté comme submodule dans `pensine-web/plugins/`.
 
 ### Avantages
+
 - 🔄 Versioning indépendant par plugin
 - 👥 Développement communautaire facilité
 - 🔧 Réutilisation entre projets
@@ -14,26 +15,30 @@ Chaque plugin est un **repository Git indépendant**, ajouté comme submodule da
 ## 📦 Plugins Prévus
 
 ### Axe Temps
+
 1. **pensine-plugin-calendar** - Gestion calendrier (timeline, mois, semaine)
 2. **pensine-plugin-inbox** - Flux entrants & tâches
 3. **pensine-plugin-journal** - Journal quotidien
 4. **pensine-plugin-reflection** - Notes permanentes & graph
 
 ### Axe Santé (futur)
-5. **pensine-plugin-health** - Suivi santé & métriques
-6. **pensine-plugin-fitness** - Activité physique
-7. **pensine-plugin-nutrition** - Alimentation
+
+1. **pensine-plugin-health** - Suivi santé & métriques
+2. **pensine-plugin-fitness** - Activité physique
+3. **pensine-plugin-nutrition** - Alimentation
 
 ### Axe Buts (futur)
-8. **pensine-plugin-goals** - Objectifs & progression
-9. **pensine-plugin-habits** - Habitudes & routines
+
+1. **pensine-plugin-goals** - Objectifs & progression
+2. **pensine-plugin-habits** - Habitudes & routines
 
 ### Intégrations (futur)
-10. **pensine-plugin-google-calendar** - Sync Google Calendar
-11. **pensine-plugin-outlook** - Sync Outlook
-12. **pensine-plugin-github** - Intégration GitHub (issues, PRs)
-13. **pensine-plugin-weather** - Météo contextuelle
-14. **pensine-plugin-rss** - Flux RSS
+
+1. **pensine-plugin-google-calendar** - Sync Google Calendar
+2. **pensine-plugin-outlook** - Sync Outlook
+3. **pensine-plugin-github** - Intégration GitHub (issues, PRs)
+4. **pensine-plugin-weather** - Météo contextuelle
+5. **pensine-plugin-rss** - Flux RSS
 
 ## 🚀 Setup Initial
 
@@ -299,24 +304,28 @@ jobs:
 ## 🎯 Avantages Architecture Submodules
 
 ### Pour le Développement
+
 - ✅ Version control indépendant
 - ✅ Branches/tags par plugin
 - ✅ Release notes séparées
 - ✅ Tests unitaires isolés
 
 ### Pour la Communauté
+
 - ✅ Fork plugin spécifique
 - ✅ PR ciblées
 - ✅ Issues par plugin
 - ✅ Contributeurs spécialisés
 
 ### Pour la Réutilisation
+
 - ✅ Import plugin dans autre projet
 - ✅ NPM publish possible
 - ✅ Dépendances versionnées
 - ✅ Documentation dédiée
 
 ### Pour la Maintenance
+
 - ✅ Hotfix rapide sur un plugin
 - ✅ Rollback sans affecter autres
 - ✅ Migration progressive

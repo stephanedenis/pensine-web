@@ -24,6 +24,7 @@ Rendre les tests **réels, pertinents, complets et fiables** en corrigeant les 3
 ### Tâche 1.1 : Fix Playwright Tests (2-3h)
 
 #### Problème identifié
+
 ```
 ❌ require is not defined
 ❌ Cannot use import statement outside a module
@@ -34,6 +35,7 @@ Rendre les tests **réels, pertinents, complets et fiables** en corrigeant les 3
 #### Solution proposée
 
 **Option A** (Rapide): Attendre l'initialisation async
+
 ```javascript
 test.beforeEach(async ({ page }) => {
   await page.goto('http://localhost:8000');
@@ -46,6 +48,7 @@ test.beforeEach(async ({ page }) => {
 ```
 
 **Option B** (Robuste): Exposer événement init-complete
+
 ```javascript
 // Dans app.js après init()
 window.dispatchEvent(new CustomEvent('pensine:ready'));
@@ -57,6 +60,7 @@ await page.waitForEvent('pensine:ready', { timeout: 10000 });
 **Recommandation**: Option A (plus simple, moins invasif)
 
 #### Checklist
+
 - [ ] Corriger `playwright.config.mjs` (reporter folder) ✅ FAIT
 - [ ] Ajouter `waitForFunction` dans beforeEach
 - [ ] Valider que `window.app.settingsView` existe avant tests
@@ -70,6 +74,7 @@ await page.waitForEvent('pensine:ready', { timeout: 10000 });
 #### Sections à corriger
 
 **T1.1 - Premier Chargement**
+
 ```diff
 -✅ Affiche étape 1/5 (Sélection plateforme)
 +✅ Affiche étape 1/6 (Bienvenue)
@@ -77,6 +82,7 @@ await page.waitForEvent('pensine:ready', { timeout: 10000 });
 ```
 
 **T2.1 - Parcours Complet**
+
 ```diff
  #### T2.1 - Parcours Complet GitHub
 +#### T2.2 - Parcours Complet Local Git
@@ -89,6 +95,7 @@ await page.waitForEvent('pensine:ready', { timeout: 10000 });
 ```
 
 **T3.1 - Calendrier**
+
 ```diff
 -✅ 52 semaines affichées (grille 52 lignes × 8 colonnes)
 +✅ Calendrier LinearCalendar V2 affiché
@@ -97,6 +104,7 @@ await page.waitForEvent('pensine:ready', { timeout: 10000 });
 ```
 
 **Nouvelle section T5 - Système Configuration Moderne**
+
 ```markdown
 ### T5: Système Configuration Moderne
 
@@ -145,6 +153,7 @@ await page.waitForEvent('pensine:ready', { timeout: 10000 });
 ```
 
 **Nouvelle section T6 - Plugins (Submodules)**
+
 ```markdown
 ### T6: Plugins Submodules
 
@@ -180,6 +189,7 @@ await page.waitForEvent('pensine:ready', { timeout: 10000 });
 ```
 
 #### Checklist
+
 - [ ] Corriger sections T1, T2, T3
 - [ ] Ajouter section T5 (Configuration moderne)
 - [ ] Ajouter section T6 (Plugins)
@@ -193,6 +203,7 @@ await page.waitForEvent('pensine:ready', { timeout: 10000 });
 #### Ajouts nécessaires
 
 **Section "Configuration Moderne"** (après "✅ Configuration")
+
 ```markdown
 ### ✅ Configuration Moderne (Settings UI)
 
@@ -217,6 +228,7 @@ await page.waitForEvent('pensine:ready', { timeout: 10000 });
 ```
 
 #### Checklist
+
 - [ ] Ajouter section Configuration Moderne
 - [ ] Ajouter section Plugins
 - [ ] Ajuster temps estimés (actuellement 6-8min → 8-10min)
@@ -555,18 +567,21 @@ test('Settings UI modification et reload', async ({ page }) => {
 ## 📊 Résumé des Livrables
 
 ### Phase 1 (1 jour)
+
 - ✅ Playwright config fixed
 - ✅ 13/13 tests Playwright passent
 - ✅ SCENARIOS_DE_TEST.md à jour
 - ✅ TESTING_CHECKLIST.md complété
 
 ### Phase 2 (3 jours)
+
 - ✅ Tests unitaires EventBus (6 tests)
 - ✅ Tests unitaires ConfigManager (6 tests)
 - ✅ Tests unitaires PluginSystem (4 tests)
 - ✅ **Total: 16 tests unitaires**
 
 ### Phase 3 (2 jours)
+
 - ✅ Test E2E Wizard complet
 - ✅ Test E2E Calendrier → Journal
 - ✅ Test E2E Settings UI
@@ -577,6 +592,7 @@ test('Settings UI modification et reload', async ({ page }) => {
 ## 🎯 Objectifs de Succès
 
 **À la fin du plan**:
+
 - ✅ 32 tests automatisés (13 Playwright + 16 unitaires + 3 E2E)
 - ✅ 100% tests passent (32/32)
 - ✅ 0% documentation obsolète

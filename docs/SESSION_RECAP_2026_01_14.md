@@ -1,6 +1,7 @@
 # 🎉 SESSION RECAP - 14 janvier 2026
 
 ## Contexte Initial
+
 Vous aviez créé un abonnement Azure et vouliez ajouter un backend pour supporter les wiki-links et améliorer les performances.
 
 **Risque identifié** : Casser l'architecture "client-side only" de Pensine Web.
@@ -10,6 +11,7 @@ Vous aviez créé un abonnement Azure et vouliez ajouter un backend pour support
 ## ✅ Ce qui a été fait
 
 ### 1. Audit Complet ✓
+
 - [AUDIT_COHESION.md](./AUDIT_COHESION.md) : 18 problèmes identifiés
   - 5 critiques (ordre chargement JS, duplication ConfigManager, etc.)
   - Documentation détaillée avec exemples concrets
@@ -20,17 +22,20 @@ Vous aviez créé un abonnement Azure et vouliez ajouter un backend pour support
   - Checklist de réussite
 
 ### 2. Plugin Accelerator Designed ✓
+
 **Architecture** : Client-first avec backend optionnel
 
-#### Documents créés :
+#### Documents créés
 
 **[ACCELERATOR_EXECUTIVE_SUMMARY.md](./ACCELERATOR_EXECUTIVE_SUMMARY.md)** (5 pages)
+
 - Vision : Performance optionnelle, pas breaking change
 - Budget : ~$32/mois Azure + ~€10550 personnel
 - Timeline : 4 semaines, 4-6 personnes
 - Approbations requises
 
 **[PLUGIN_ACCELERATOR_ARCHITECTURE.md](./PLUGIN_ACCELERATOR_ARCHITECTURE.md)** (25+ pages) ⭐ RÉFÉRENCE
+
 - Architecture client + server
 - 2 modes : Client-Only (default) vs Hybrid (optionnel)
 - FastAPI backend template
@@ -41,6 +46,7 @@ Vous aviez créé un abonnement Azure et vouliez ajouter un backend pour support
 - Security considerations
 
 **[accelerator-plugin.js](../plugins/pensine-plugin-accelerator/accelerator-plugin.js)** (500 lignes) ⭐ CODE
+
 - Plugin template complet
 - 25 méthodes documentées
 - 4 classes à implémenter (TODOs clairs)
@@ -49,6 +55,7 @@ Vous aviez créé un abonnement Azure et vouliez ajouter un backend pour support
 - Prêt pour Phase 1
 
 **[AZURE_DEPLOYMENT_GUIDE.md](./AZURE_DEPLOYMENT_GUIDE.md)** (20+ pages) ⭐ RUNBOOK
+
 - Setup FastAPI local (Phase 1)
 - Déploiement Azure step-by-step (Phase 2)
 - Configuration infrastructure
@@ -57,6 +64,7 @@ Vous aviez créé un abonnement Azure et vouliez ajouter un backend pour support
 - Abonnement : ee35c0a9-2a11-42a7-a463-f0c6fb4d0d89
 
 **[ACCELERATOR_DEVELOPMENT_PLAN.md](./ACCELERATOR_DEVELOPMENT_PLAN.md)** (10+ pages) ⭐ TIMELINE
+
 - 4 semaines, 4 phases claires
 - Tasks détaillées par semaine
 - Effort estimé pour chaque task
@@ -65,6 +73,7 @@ Vous aviez créé un abonnement Azure et vouliez ajouter un backend pour support
 - Critères d'acceptation par phase
 
 **[ACCELERATOR_PLUGIN_INDEX.md](./ACCELERATOR_PLUGIN_INDEX.md)** (Cette page) ⭐ NAVIGATION
+
 - Index par rôle (PM, Dev, DevOps, QA, etc.)
 - Lecture recommandée par phase
 - FAQ rapides
@@ -96,6 +105,7 @@ Vous aviez créé un abonnement Azure et vouliez ajouter un backend pour support
 ```
 
 ### Features
+
 - ✅ Wiki-links resolution : `[[note-title]]`
 - ✅ Full-text search : < 500ms (local), < 200ms (server)
 - ✅ Backlinks : graphe visuel
@@ -103,6 +113,7 @@ Vous aviez créé un abonnement Azure et vouliez ajouter un backend pour support
 - ✅ Graceful degradation : fallback automatique
 
 ### Zero Breaking Changes
+
 - Plugin optionnel (ne s'ajoute pas si pas activé)
 - Mode client-only = Pensine fonctionne exactement pareil
 - Backend = amélioration de performance, pas dépendance
@@ -135,34 +146,40 @@ plugins/
 ### Immédiates (cette semaine)
 
 **Pour approuver** :
+
 1. Lire [ACCELERATOR_EXECUTIVE_SUMMARY.md](./ACCELERATOR_EXECUTIVE_SUMMARY.md)
 2. Valider budget ~€10.5k + $32/mois
 3. Approuver allocation ressources (4-6 personnes)
 4. Donner accès abonnement Azure
 
 **Pour commencer** :
+
 1. Allocuer 1-2 frontend dev
 2. Setup Git workflow
 3. Créer GitHub Issues pour Phase 1 tasks
 
 ### Phase 1 (2 semaines)
+
 - Implémenter plugin client-side
 - AcceleratorIndexedDB, WikiLinkResolver, SearchEngine, GraphBuilder
 - Tests offline mode
 - **Livrable** : Plugin fonctionne sans backend
 
 ### Phase 2 (1 semaine)
+
 - FastAPI API
 - PostgreSQL setup
 - **Livrable** : API endpoints testés
 
 ### Phase 3 (1 semaine)
+
 - Sync client ↔ server
 - Fallback strategy
 - Tests intégration
 - **Livrable** : Hybrid mode transparent
 
 ### Phase 4 (1 semaine)
+
 - Déploiement Azure
 - Monitoring + alertes
 - Production ready
@@ -188,18 +205,21 @@ plugins/
 ## 💡 Points clés
 
 ### ✅ Risques mitigation
+
 - **Breaking change ?** Non. Plugin optionnel.
 - **Données sécurisées ?** Oui. GitHub = source truth.
 - **Fonctionne offline ?** Oui. Client-only mode toujours.
 - **Coûts Azure ?** Minimal : ~$32/mois.
 
 ### ✅ Avantages
+
 - Performance : +300% search
 - Features : wiki-links + graph visualization
 - Architecture : clean, scalable, testable
 - Documentation : exhaustive (6500+ lignes)
 
 ### ✅ Suivant
+
 - Valider que la direction technique est OK
 - Confirmer allocation ressources
 - Commencer Phase 1
@@ -209,6 +229,7 @@ plugins/
 ## 🎓 Pour mieux comprendre
 
 **Lire dans cet ordre** :
+
 1. [ACCELERATOR_EXECUTIVE_SUMMARY.md](./ACCELERATOR_EXECUTIVE_SUMMARY.md) (10 min)
 2. [PLUGIN_ACCELERATOR_ARCHITECTURE.md](./PLUGIN_ACCELERATOR_ARCHITECTURE.md) - Overview section (15 min)
 3. [ACCELERATOR_DEVELOPMENT_PLAN.md](./ACCELERATOR_DEVELOPMENT_PLAN.md) - Timeline (10 min)
@@ -238,6 +259,7 @@ plugins/
 **Risque** : Breaking l'architecture client-side-only
 
 **Solution proposée** : Plugin Accelerator optionnel
+
 - Mode 1 (default) : Client-only (fonctionne exactement comme avant)
 - Mode 2 (optionnel) : Backend Azure pour perfs (utilisateur choisit)
 

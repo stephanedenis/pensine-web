@@ -418,14 +418,14 @@ PensineApp (Orchestration)
         └─ [custom plugins user]
 ```
 
-### Avantages:
+### Avantages
 
 - ✅ Extensibilité: Ajouter plugins sans modifier core
 - ✅ Maintenabilité: Chaque plugin isolé et testable
 - ✅ Scalabilité: N plugins sans dégradation perf
 - ✅ Testabilité: Mock facile avec EventBus
 
-### Timeline Recommandée:
+### Timeline Recommandée
 
 1. **Semaine 1**: Stabiliser tests (mock token + EventBus waits)
 2. **Semaine 2**: Migrer plugins legacy vers PluginSystem

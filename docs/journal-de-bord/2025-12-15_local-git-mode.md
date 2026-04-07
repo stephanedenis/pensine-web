@@ -1,17 +1,20 @@
 # Session 2025-12-15 : Mode Local Git
 
 ## 🎯 Objectif
+
 Ajouter un 4ème mode de stockage : **Local Git**, combinant les avantages du mode Local (offline, privé) avec les capacités complètes de Git (commits, branches, historique complet).
 
 ## 🌿 Mode Local Git : Vue d'ensemble
 
 ### Concept
+
 - Vrai repo Git dans le navigateur avec **isomorphic-git**
 - Stockage en **OPFS** (Origin Private File System)
 - 100% offline par défaut
 - Synchronisation GitHub **optionnelle** (push/pull)
 
 ### Avantages vs mode Local simple
+
 | Fonctionnalité | Local (IndexedDB) | Local Git (OPFS) |
 |----------------|-------------------|------------------|
 | Offline | ✅ | ✅ |
@@ -27,9 +30,11 @@ Ajouter un 4ème mode de stockage : **Local Git**, combinant les avantages du mo
 ## 📦 Implémentation
 
 ### 1. LocalGitAdapter (`lib/local-git-adapter.js`)
+
 **658 lignes** - Adapter complet avec toutes les fonctionnalités Git
 
 #### Dépendances
+
 ```javascript
 // Chargées via CDN dans index.html
 import git from 'isomorphic-git';     // Git implementation
@@ -39,6 +44,7 @@ import LightningFS from '@isomorphic-git/lightning-fs';  // Filesystem
 #### Méthodes principales
 
 ##### Initialisation
+
 ```javascript
 async configure(config) {
   // Initialise LightningFS
@@ -71,6 +77,7 @@ async initRepository() {
 ```
 
 ##### Opérations fichiers (avec commit automatique)
+
 ```javascript
 async putFile(path, content, message) {
   const fullPath = `${this.dir}/${path}`;
@@ -125,6 +132,7 @@ async deleteFile(path, message, sha) {
 ```
 
 ##### Historique et navigation
+
 ```javascript
 async getHistory(path = null, limit = 50) {
   const commits = await git.log({
@@ -182,6 +190,7 @@ async getFileAtCommit(path, commitSha) {
 ```
 
 ##### Branches
+
 ```javascript
 async createBranch(branchName) {
   await git.branch({
@@ -217,6 +226,7 @@ async getCurrentBranch() {
 ```
 
 ##### Status (working tree)
+
 ```javascript
 async status() {
   const FILE = 0, WORKDIR = 2, STAGE = 3;
@@ -248,6 +258,7 @@ async status() {
 ```
 
 ##### Export/Import (Git bundle)
+
 ```javascript
 async exportData() {
   // Lire tous les fichiers du repo
@@ -310,6 +321,7 @@ async importData(data) {
 ```
 
 ##### Opérations remote (synchronisation GitHub)
+
 ```javascript
 async addRemote(name, url, token) {
   this.remote = { name, url, token };
@@ -364,6 +376,7 @@ async clone(url, token) {
 ### 2. Intégration dans StorageManager
 
 #### Modification `lib/storage-manager-unified.js`
+
 ```javascript
 // Ajout du mode 'local-git' partout
 
@@ -465,15 +478,16 @@ static getAvailableModes() {
 ### 4. Documentation mise à jour
 
 #### `docs/STORAGE_MODES.md`
+
 - ✅ Tableau comparatif : ajout colonne "Local Git"
 - ✅ Section complète "Mode Local Git" avec :
-  * Description détaillée
-  * Avantages/Inconvénients
-  * Prérequis navigateur (OPFS)
-  * Installation (2 modes : offline pur, avec sync GitHub)
-  * Liste complète des fonctionnalités Git
-  * Exemples d'utilisation (branches, diff, push)
-  * Comparaison avec mode Local simple
+  - Description détaillée
+  - Avantages/Inconvénients
+  - Prérequis navigateur (OPFS)
+  - Installation (2 modes : offline pur, avec sync GitHub)
+  - Liste complète des fonctionnalités Git
+  - Exemples d'utilisation (branches, diff, push)
+  - Comparaison avec mode Local simple
 - ✅ Matrice de décision : "Choisir Local Git si..."
 - ✅ Limites de stockage OPFS
 - ✅ FAQ : 4 nouvelles questions sur Local Git
@@ -481,12 +495,14 @@ static getAvailableModes() {
 ## 🧪 Tests
 
 ### Validation syntaxe
+
 ```bash
 node --check lib/local-git-adapter.js        # ✅
 node --check lib/storage-manager-unified.js   # ✅
 ```
 
 ### Tests manuels recommandés
+
 ```javascript
 // 1. Initialisation
 const adapter = new LocalGitAdapter();
@@ -518,6 +534,7 @@ console.log(status); // { modified: [], staged: [], untracked: [] }
 ```
 
 ### Tests d'intégration
+
 1. **Wizard** : Ajouter option "Local Git" dans sélecteur de mode
 2. **Settings** : Permettre switch vers Local Git
 3. **Editor** : Vérifier que save/load fonctionnent
@@ -528,21 +545,25 @@ console.log(status); // { modified: [], staged: [], untracked: [] }
 ## 📝 Décisions techniques
 
 ### Pourquoi isomorphic-git ?
+
 1. **Pure JavaScript** : Pas de compilation native, fonctionne dans le navigateur
 2. **API compatible Git** : Commandes familières (commit, branch, checkout)
 3. **Communauté active** : Bien maintenu, nombreux exemples
 4. **OPFS support** : Via LightningFS, stockage persistant moderne
 
 ### Pourquoi OPFS (pas IndexedDB) ?
+
 1. **Performance** : Accès fichier plus rapide que key-value
 2. **Structure Git** : OPFS préserve structure `.git/` native
 3. **Outils compatibles** : Bundle exporté = vrai repo Git
 4. **Sécurité** : Origin Private = isolation entre sites
 
 ### Commit automatique vs manuel ?
+
 **Choix** : Automatique à chaque `putFile()`
 
 **Raisons** :
+
 - Cohérent avec modes GitHub (commit = save)
 - Simplifie UX (pas de "git add" explicite)
 - Garantit historique complet
@@ -551,9 +572,11 @@ console.log(status); // { modified: [], staged: [], untracked: [] }
 **Inconvénient** : Beaucoup de micro-commits (mais c'est acceptable pour un journal)
 
 ### Push/Pull vs sync automatique ?
+
 **Choix** : Push/Pull manuel (pas de sync auto)
 
 **Raisons** :
+
 - Contrôle total utilisateur (quand push)
 - Pas de conflits automatiques
 - Fonctionne offline par défaut
@@ -564,6 +587,7 @@ console.log(status); // { modified: [], staged: [], untracked: [] }
 ## ⚠️ Limitations connues
 
 ### Navigateurs
+
 - ❌ **Safari** : Pas encore de support OPFS stable
 - ❌ **Firefox** : OPFS derrière flag, pas production-ready
 - ✅ **Chrome 102+** : Support complet
@@ -571,11 +595,13 @@ console.log(status); // { modified: [], staged: [], untracked: [] }
 - ✅ **Opera 89+** : Support complet
 
 ### Performance
+
 - **Slow on large repos** : Git en JS plus lent que natif
 - **First init** : Peut prendre 1-2 secondes
 - **Deep history** : `git log` sur milliers de commits = lent
 
 ### Fonctionnalités Git manquantes
+
 - ❌ **Rebase interactif** : Complexe, pas prioritaire
 - ❌ **Submodules** : Pas nécessaire pour journaux
 - ❌ **Stash** : Possible mais complexe
@@ -583,6 +609,7 @@ console.log(status); // { modified: [], staged: [], untracked: [] }
 - ✅ **Merge** : Implémenté (fast-forward uniquement pour l'instant)
 
 ### UI
+
 - Pas d'interface graphique Git (pour l'instant)
 - Opérations Git via API uniquement
 - Futur : UI pour voir branches, diff visuel, history tree
@@ -590,6 +617,7 @@ console.log(status); // { modified: [], staged: [], untracked: [] }
 ## 🚀 Prochaines étapes
 
 ### Court terme (v0.2.1)
+
 1. ✅ LocalGitAdapter implémenté
 2. ✅ StorageManager intégration
 3. ✅ Documentation complète
@@ -598,6 +626,7 @@ console.log(status); // { modified: [], staged: [], untracked: [] }
 6. ⏳ **Tests** : Scénarios de test dans SCENARIOS_DE_TEST.md
 
 ### Moyen terme (v0.3.0)
+
 1. **UI Git** : Panel pour voir branches
 2. **UI Git** : Bouton "Create branch" dans editor
 3. **UI Git** : Historique visual (timeline commits)
@@ -605,6 +634,7 @@ console.log(status); // { modified: [], staged: [], untracked: [] }
 5. **Auto-push** : Option dans settings
 
 ### Long terme (v0.4.0)
+
 1. **Merge UI** : Interface graphique pour résoudre conflits
 2. **Blame UI** : Annotations dans éditeur (qui a écrit quoi)
 3. **Search commits** : Recherche dans messages de commit
@@ -614,19 +644,23 @@ console.log(status); // { modified: [], staged: [], untracked: [] }
 ## 📊 Résultats
 
 ### Fichiers créés
+
 - ✅ `lib/local-git-adapter.js` (658 lignes)
 
 ### Fichiers modifiés
+
 - ✅ `lib/storage-manager-unified.js` (+30 lignes)
 - ✅ `index.html` (+3 lignes CDN)
 - ✅ `docs/STORAGE_MODES.md` (+150 lignes)
 
 ### Validation
+
 - ✅ Syntaxe JavaScript validée
 - ✅ Documentation mise à jour
 - ⏳ Tests manuels à faire
 
 ### Compatibilité
+
 - ✅ Rétrocompatible : 3 modes existants inchangés
 - ✅ localStorage : Nouvelle clé `pensine-local-git-config`
 - ✅ API unifiée : LocalGitAdapter extend StorageAdapterBase

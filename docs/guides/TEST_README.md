@@ -20,7 +20,7 @@
    ```
 
 3. **Générer un nouveau token GitHub** (si nécessaire) :
-   - Allez sur https://github.com/settings/tokens
+   - Allez sur <https://github.com/settings/tokens>
    - Cliquez "Generate new token (classic)"
    - Sélectionnez au minimum le scope `repo` (full control)
    - Copiez le token généré

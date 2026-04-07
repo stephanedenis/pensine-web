@@ -8,6 +8,7 @@
 ## ⚡ 3 chemins d'accès
 
 ### 1️⃣ Je suis décideur / Product Owner
+
 **Temps** : 15 minutes
 
 ```bash
@@ -22,6 +23,7 @@
 ---
 
 ### 2️⃣ Je suis développeur Frontend
+
 **Temps** : 1 heure
 
 ```bash
@@ -45,6 +47,7 @@ cd pensine-web
 ---
 
 ### 3️⃣ Je suis DevOps / Infrastructure
+
 **Temps** : 30 minutes
 
 ```bash
@@ -79,28 +82,36 @@ cd pensine-web
 ## 🎯 Quick Answers
 
 ### Qu'est-ce que c'est ?
+
 Plugin optionnel pour Pensine Web qui ajoute :
+
 - Wiki-links resolution (`[[note-title]]`)
 - Full-text search rapide (< 500ms local, < 200ms server)
 - Graphe de backlinks
 - Backend optionnel sur Azure
 
 ### Ça casse Pensine ?
+
 **Non.** Zéro breaking change.
+
 - Mode client-only (default) = Pensine fonctionne exactement pareil
 - Backend optionnel = utilisateur choisit d'activer
 
 ### Quand on peut commencer ?
+
 **Cette semaine** si vous approuvez.
+
 - Phase 1 (client-side) : 2 semaines
 - Phase 2 (backend) : 1 semaine (optionnel)
 - Phase 3-4 : production ready
 
 ### Combien ça coûte ?
+
 **Personnel** : ~€10.5k (4 semaines, 4-6 dev)
 **Infrastructure** : ~$32/mois (Azure production)
 
 ### Qui code ?
+
 **Phase 1 (client)** : 1-2 frontend dev (~12-15h)
 **Phase 2 (backend)** : 1-2 backend dev (~9-12h)
 **Phase 3 (intégration)** : 1 integration eng (~10-13h)
@@ -211,18 +222,21 @@ Plugin optionnel pour Pensine Web qui ajoute :
 ## 🚨 Important
 
 ### Avant de coder
+
 ✅ Avoir lu votre section
 ✅ Avoir le contexte architecture
 ✅ Avoir des TODOs clairs
 ✅ Avoir des critères d'acceptation
 
 ### Pendant le développement
+
 ✅ Daily standup (15 min)
 ✅ Code reviews (2 personnes min)
 ✅ Tests écrits en même temps
 ✅ Documentation à jour
 
 ### Avant de passer à la phase suivante
+
 ✅ Go/no-go decision (QA + PM)
 ✅ Code merged + tested
 ✅ Docs finalisées

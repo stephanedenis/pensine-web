@@ -138,6 +138,7 @@ pensine-web/
 ## 🔧 Mises à jour effectuées
 
 ### ✅ index.html
+
 - Tous les `<script src="...">` mis à jour pour les nouveaux chemins
 - `lib/` → `src/lib/`
 - `core/` → `src/core/`
@@ -146,10 +147,12 @@ pensine-web/
 - `views/` → `src/lib/components/`
 
 ### ✅ Imports ES6 internes
+
 - `src/lib/components/settings-view.js`: Import corrigé vers `json-schema-form-builder.js`
 - `src/lib/components/settings-integration.js`: Import corrigé vers `settings-view.js`
 
 ### ✅ Tests de validation
+
 - ✅ Syntaxe JavaScript valide
 - ✅ Aucun import cassé détecté
 - ✅ Aucune référence à chemins obsolètes
@@ -159,6 +162,7 @@ pensine-web/
 ## 🚀 Prochaines étapes
 
 ### 1. Vérifier localement
+
 ```bash
 # Démarrer le serveur
 python3 -m http.server 8000
@@ -172,6 +176,7 @@ firefox http://localhost:8000
 ```
 
 ### 2. Tester les fonctionnalités
+
 - [ ] Initialiser le wizard
 - [ ] Configurer un repo GitHub
 - [ ] Créer une note
@@ -179,6 +184,7 @@ firefox http://localhost:8000
 - [ ] Ouvrir les paramètres
 
 ### 3. Commit git
+
 ```bash
 git status
 git add -A
@@ -187,6 +193,7 @@ git push
 ```
 
 ### 4. CI/CD
+
 ```bash
 # Vérifier que Playwright tests passent
 npx playwright test
@@ -197,10 +204,12 @@ npx playwright test
 ## 📝 Notes importantes
 
 ### Chemins absolus vs relatifs
+
 - **Avant** : `<script src="lib/editor.js"></script>`
 - **Après** : `<script src="src/lib/components/editor.js"></script>`
 
 ### Chemins pour développeurs
+
 ```javascript
 // Ancien
 import Editor from '../lib/editor.js';
@@ -210,6 +219,7 @@ import Editor from '../components/editor.js';  // Depuis src/lib/
 ```
 
 ### Impact sur les utilisateurs
+
 - ✅ **Zéro impact** - changement purement interne
 - ✅ URL d'accès inchangée: `http://localhost:8000`
 - ✅ Fonctionnalités inchangées

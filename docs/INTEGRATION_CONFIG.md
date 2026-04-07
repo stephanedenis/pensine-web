@@ -233,20 +233,23 @@ window.modernConfigManager.getPluginConfig('calendar');
 ### Le panneau ne s'affiche pas
 
 1. Vérifier que `styles/settings.css` est chargé :
+
 ```javascript
 console.log(document.querySelector('link[href*="settings.css"]'));
 ```
 
-2. Vérifier que SettingsView est instancié :
+1. Vérifier que SettingsView est instancié :
+
 ```javascript
 console.log(window.settingsView);
 ```
 
-3. Regarder la console pour les erreurs d'import
+1. Regarder la console pour les erreurs d'import
 
 ### Les formulaires sont vides
 
 1. Vérifier que les plugins ont enregistré leurs schémas :
+
 ```javascript
 const configured = window.modernConfigManager.getConfiguredPlugins();
 console.log('Configured plugins:', configured);
@@ -257,18 +260,20 @@ configured.forEach(id => {
 });
 ```
 
-2. Vérifier que le plugin a bien appelé `registerPluginSchema()` dans `enable()`
+1. Vérifier que le plugin a bien appelé `registerPluginSchema()` dans `enable()`
 
 ### Les modifications ne sont pas sauvegardées
 
 1. Vérifier que le StorageManager est initialisé :
+
 ```javascript
 console.log('Storage mode:', window.storageManager.currentMode);
 ```
 
-2. Vérifier les erreurs dans la console lors de la sauvegarde
+1. Vérifier les erreurs dans la console lors de la sauvegarde
 
-3. Tester manuellement :
+2. Tester manuellement :
+
 ```javascript
 await window.modernConfigManager.save();
 ```
@@ -278,6 +283,7 @@ await window.modernConfigManager.save();
 Si vous aviez un ancien `ConfigManager` dans `app.js`, voici comment migrer :
 
 ### Ancien code
+
 ```javascript
 class ConfigManager {
     async loadFromGitHub() { ... }
@@ -288,6 +294,7 @@ const configManager = new ConfigManager();
 ```
 
 ### Nouveau code
+
 ```javascript
 // Supprimer l'ancien ConfigManager de app.js
 // Utiliser le nouveau système importé
@@ -332,6 +339,7 @@ Après intégration réussie :
 ## Support
 
 Pour toute question ou problème d'intégration, consulter :
+
 - `docs/CONFIG_SYSTEM.md` - Documentation complète du système
 - `docs/SPECIFICATIONS_TECHNIQUES.md` - Architecture globale
 - `docs/journal-de-bord/` - Historique des décisions techniques
