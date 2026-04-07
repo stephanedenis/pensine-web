@@ -1,0 +1,11 @@
+{
+  "id": "inbox",
+  "name": "Inbox",
+  "version": "1.0.0",
+  "description": "Capture rapide de notes dans inbox.md",
+  "author": "Pensine Team",
+  "icon": "📥",
+  "main": "inbox-plugin.js",
+  "tags": ["notes", "capture", "inbox"],
+  "dependencies": []
+}

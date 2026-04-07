@@ -1,0 +1,11 @@
+{
+  "id": "reflection",
+  "name": "Réflexions",
+  "version": "1.0.0",
+  "description": "Entrées de réflexion hebdomadaires dans reflections/YYYY-WNN.md",
+  "author": "Pensine Team",
+  "icon": "🪞",
+  "main": "reflection-plugin.js",
+  "tags": ["journal", "weekly", "reflection"],
+  "dependencies": []
+}

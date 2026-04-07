@@ -1,0 +1,15 @@
+{
+  "name": "pensine-plugin-inbox",
+  "version": "1.0.0",
+  "description": "Capture rapide de notes dans inbox.md",
+  "main": "inbox-plugin.js",
+  "author": "Pensine Team",
+  "license": "MIT",
+  "pensine": {
+    "id": "inbox",
+    "displayName": "Inbox",
+    "icon": "📥",
+    "category": "notes",
+    "compatibility": "^1.0.0"
+  }
+}
