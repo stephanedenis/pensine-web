@@ -3,101 +3,6 @@
  * Zero-install, GitHub-direct knowledge management
  */
 
-/**
- * LEGACY Configuration Manager - Simple localStorage/GitHub sync
- *
- * NOTE: This is the legacy config manager used for basic app settings.
- * The modern plugin-based config system is in core/config-manager.js
- *
- * localStorage is used as a cache for performance
- * GitHub .pensine-config.json is the source of truth for multi-machine sync
- *
- * @deprecated Consider migrating to modern ConfigManager from core/config-manager.js
- */
-class LegacyConfigManager {
-    constructor() {
-        this.configSha = null;
-        this.syncInProgress = false;
-    }
-
-    /**
-     * Load configuration from GitHub and update localStorage cache
-     * @returns {Promise<Object>} Configuration object
-     */
-    async loadFromGitHub() {
-        try {
-            const { config, sha } = await githubAdapter.getConfig();
-            this.configSha = sha;
-
-            // Update localStorage cache
-            Object.entries(config).forEach(([key, value]) => {
-                localStorage.setItem(key, String(value));
-            });
-
-            return config;
-        } catch (error) {
-            console.warn('Could not load config from GitHub, using localStorage:', error);
-            return this.getFromLocalStorage();
-        }
-    }
-
-    /**
-     * Save a configuration value to both localStorage and GitHub
-     * @param {string} key - Configuration key
-     * @param {any} value - Configuration value
-     */
-    async saveToGitHub(key, value) {
-        if (this.syncInProgress) return;
-
-        try {
-            this.syncInProgress = true;
-
-            // Update localStorage immediately for responsiveness
-            localStorage.setItem(key, String(value));
-
-            // Load current config from GitHub
-            const { config, sha } = await githubAdapter.getConfig();
-
-            // Update the specific key
-            config[key] = value;
-
-            // Save back to GitHub
-            this.configSha = await githubAdapter.updateConfig(config, sha || this.configSha);
-
-            console.log(`✓ Configuration synced: ${key} = ${value}`);
-        } catch (error) {
-            console.error('Could not save config to GitHub:', error);
-            // Keep localStorage change even if GitHub fails
-        } finally {
-            this.syncInProgress = false;
-        }
-    }
-
-    /**
-     * Get configuration from localStorage (fallback)
-     * @returns {Object} Configuration object
-     */
-    getFromLocalStorage() {
-        return {
-            calendarVisible: localStorage.getItem('calendarVisible') !== 'false',
-            historyVisible: localStorage.getItem('historyVisible') === 'true',
-            weekStartDay: parseInt(localStorage.getItem('weekStartDay')) || 0,
-            theme: localStorage.getItem('theme') || 'auto'
-        };
-    }
-
-    /**
-     * Get a single configuration value from localStorage
-     * @param {string} key - Configuration key
-     * @returns {string|null} Configuration value
-     */
-    get(key) {
-        return localStorage.getItem(key);
-    }
-}
-
-// Legacy config manager for backward compatibility
-const configManager = new LegacyConfigManager();
 
 // File type detection
 const FILE_TYPES = {
@@ -321,8 +226,12 @@ class PensineApp {
     }
 
     async restorePanelStates() {
-        // Load configuration from GitHub (with localStorage as fallback)
-        const config = await configManager.loadFromGitHub();
+        // Load panel states from pensine-config (ui section) with legacy key fallback
+        const pensineConfig = JSON.parse(localStorage.getItem('pensine-config') || '{}');
+        const ui = pensineConfig.ui || {};
+        const calendarVisible = ui.calendarVisible ?? (localStorage.getItem('calendarVisible') !== 'false');
+        const historyVisible = ui.historyVisible ?? (localStorage.getItem('historyVisible') === 'true');
+        const config = { calendarVisible, historyVisible };
 
         // Restore calendar visibility
         if (config.calendarVisible) {
@@ -967,16 +876,21 @@ class PensineApp {
     async toggleHistory() {
         const sidebar = document.getElementById('history-sidebar');
         sidebar.classList.toggle('open');
-
-        // Save state to localStorage and GitHub
         const isOpen = sidebar.classList.contains('open');
-        await configManager.saveToGitHub('historyVisible', isOpen);
+        this._saveUiState('historyVisible', isOpen);
     }
 
     async closeHistory() {
         const sidebar = document.getElementById('history-sidebar');
         sidebar.classList.remove('open');
-        await configManager.saveToGitHub('historyVisible', false);
+        this._saveUiState('historyVisible', false);
+    }
+
+    _saveUiState(key, value) {
+        const config = JSON.parse(localStorage.getItem('pensine-config') || '{}');
+        if (!config.ui) config.ui = {};
+        config.ui[key] = value;
+        localStorage.setItem('pensine-config', JSON.stringify(config));
     }
 
     showCalendarConfig() {
@@ -1102,7 +1016,7 @@ class PensineApp {
             if (nav) {
                 nav.classList.add('hidden');
             }
-            await configManager.saveToGitHub('calendarVisible', true);
+            this._saveUiState('calendarVisible', true);
 
             // Initialize calendar if not already done
             if (!this.calendarState) {
@@ -1115,7 +1029,7 @@ class PensineApp {
             if (nav) {
                 nav.classList.remove('hidden');
             }
-            await configManager.saveToGitHub('calendarVisible', false);
+            this._saveUiState('calendarVisible', false);
         }
     }
 
@@ -1128,7 +1042,7 @@ class PensineApp {
         if (nav) {
             nav.classList.remove('hidden');
         }
-        await configManager.saveToGitHub('calendarVisible', false);
+        this._saveUiState('calendarVisible', false);
     }
 
     async initCalendar() {
