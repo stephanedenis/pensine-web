@@ -81,56 +81,80 @@
     <div id="message"></div>
   </div>
 
-  <script src="config.js"></script>
-  <script src="lib/github-oauth.js"></script>
-  <script>
-    (async function () {
-      const statusEl = document.getElementById('status');
-      const messageEl = document.getElementById('message');
-      const spinnerEl = document.getElementById('spinner');
+  <script type="module">
+    import GitHubOAuth from '../src/lib/auth/github-oauth.js';
 
-      try {
-        // Vérifier si githubOAuth est chargé
-        if (!window.githubOAuth) {
-          throw new Error('OAuth client not loaded');
-        }
+    const statusEl = document.getElementById('status');
+    const messageEl = document.getElementById('message');
+    const spinnerEl = document.getElementById('spinner');
 
-        // Traiter le callback OAuth
-        statusEl.textContent = 'Échange du code OAuth...';
-        await githubOAuth.handleCallback();
+    function showError(message) {
+      spinnerEl.style.display = 'none';
+      statusEl.textContent = '❌ Erreur d\'authentification';
 
-        // Succès
-        spinnerEl.style.display = 'none';
-        statusEl.textContent = '✅ Authentification réussie !';
-        messageEl.innerHTML = '<div class="success">Redirection vers Pensine...</div>';
+      const errorDiv = document.createElement('div');
+      errorDiv.className = 'error';
 
-        // Restaurer la config legacy si elle existe
-        const legacyConfig = sessionStorage.getItem('legacy_config');
-        if (legacyConfig) {
-          const config = JSON.parse(legacyConfig);
-          localStorage.setItem('pensine-settings', JSON.stringify(config));
-          sessionStorage.removeItem('legacy_config');
-          console.log('✅ Legacy config restored');
-        }
+      const strong = document.createElement('strong');
+      strong.textContent = 'Erreur : ';
+      errorDiv.appendChild(strong);
+      errorDiv.appendChild(document.createTextNode(message));
 
-        // Rediriger vers l'app après 2 secondes
+      const br1 = document.createElement('br');
+      const br2 = document.createElement('br');
+      errorDiv.appendChild(br1);
+      errorDiv.appendChild(br2);
+
+      const link = document.createElement('a');
+      link.href = '/';
+      link.textContent = 'Retour à Pensine';
+      errorDiv.appendChild(link);
+
+      messageEl.textContent = '';
+      messageEl.appendChild(errorDiv);
+    }
+
+    try {
+      // Valider le state CSRF et récupérer le code d'autorisation
+      // Note : ne jamais logger code ou state — ils permettent d'obtenir un token
+      const { code, state } = GitHubOAuth.handleCallback();
+
+      spinnerEl.style.display = 'none';
+      statusEl.textContent = '✅ Authentification réussie !';
+
+      const successDiv = document.createElement('div');
+      successDiv.className = 'success';
+      successDiv.textContent = 'Fermeture de la fenêtre...';
+      messageEl.textContent = '';
+      messageEl.appendChild(successDiv);
+
+      // Notifier la fenêtre parente via postMessage
+      if (window.opener) {
+        window.opener.postMessage(
+          { type: 'oauth-callback', code, state },
+          window.location.origin
+        );
+        window.close();
+      } else {
+        // Fallback : redirection directe si pas de popup
         setTimeout(() => {
           window.location.href = '/';
         }, 2000);
-
-      } catch (error) {
-        console.error('OAuth callback error:', error);
-
-        spinnerEl.style.display = 'none';
-        statusEl.textContent = '❌ Erreur d\'authentification';
-        messageEl.innerHTML = `
-                    <div class="error">
-                        <strong>Erreur:</strong> ${error.message}<br><br>
-                        <a href="/">Retour à Pensine</a>
-                    </div>
-                `;
       }
-    })();
+
+    } catch (error) {
+      // Utiliser un message d'erreur sûr (sans données sensibles)
+      const safeMessage = error.message || 'Erreur inconnue';
+      showError(safeMessage);
+
+      // Notifier la fenêtre parente de l'erreur
+      if (window.opener) {
+        window.opener.postMessage(
+          { type: 'oauth-callback', error: safeMessage },
+          window.location.origin
+        );
+      }
+    }
   </script>
 </body>
 
