@@ -1,0 +1,13 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Inbox Plugin Configuration",
+  "type": "object",
+  "properties": {
+    "inboxPath": {
+      "type": "string",
+      "title": "Chemin du fichier inbox",
+      "description": "Chemin relatif vers le fichier inbox (depuis la racine du dépôt)",
+      "default": "inbox.md"
+    }
+  }
+}

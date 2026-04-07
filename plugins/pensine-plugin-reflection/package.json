@@ -1,0 +1,15 @@
+{
+  "name": "pensine-plugin-reflection",
+  "version": "1.0.0",
+  "description": "Entrées de réflexion hebdomadaires dans reflections/YYYY-WNN.md",
+  "main": "reflection-plugin.js",
+  "author": "Pensine Team",
+  "license": "MIT",
+  "pensine": {
+    "id": "reflection",
+    "displayName": "Réflexions",
+    "icon": "🪞",
+    "category": "journal",
+    "compatibility": "^1.0.0"
+  }
+}

@@ -1,705 +1,157 @@
 /**
  * Pensine Accelerator Plugin
  *
- * Performance-focused plugin with optional Azure backend support
+ * Snippets et templates configurables pour l'éditeur
+ * id: 'accelerator', icon: '⚡'
  *
- * Features:
- * - Wiki-links resolution (client + server)
- * - Full-text search (local + distributed)
- * - Graph visualization (backlinks)
- * - Graceful degradation (works offline)
- *
- * @version 0.1.0
- * @status WIP (Phase 1: Client-side only)
+ * @version 1.0.0
  */
 
 export default class AcceleratorPlugin {
-  /**
-   * Constructor
-   * @param {Object} context - Plugin context from PluginSystem
-   *   - config: ConfigManager
-   *   - eventBus: EventBus
-   *   - storage: StorageManager
-   *   - router: Router
-   */
-  constructor(context) {
-    this.id = 'accelerator';
+  constructor() {
+    this._snippets = {};
+  }
+
+  get manifest() {
+    return {
+      id: 'accelerator',
+      name: 'Accelerator',
+      version: '1.0.0',
+      icon: '⚡',
+      description: "Snippets et templates configurables pour l'éditeur"
+    };
+  }
+
+  async activate(context) {
     this.context = context;
-
-    // State
-    this.enabled = false;
-    this.serverUrl = null;
-    this.online = false;
-
-    // Components
-    this.indexDB = null;
-    this.wikiLinkResolver = null;
-    this.searchEngine = null;
-    this.graphBuilder = null;
-
-    console.log('[Accelerator] Plugin constructed');
-  }
-
-  /**
-   * Enable plugin - called when app starts if plugin is enabled
-   */
-  async enable() {
-    try {
-      console.log('[Accelerator] Enabling...');
-
-      // 1. Load configuration
-      const config = await this.loadConfig();
-      this.serverUrl = config.serverUrl || null;
-
-      // 2. Initialize client-side components (always)
-      await this.initializeClientComponents();
-
-      // 3. Check server availability (non-blocking)
-      if (this.serverUrl) {
-        this.checkServerHealth();
-      }
-
-      // 4. Start background services
-      this.startBackgroundServices(config);
-
-      this.enabled = true;
-      console.log(`[Accelerator] Enabled (mode: ${this.getMode()})`);
-
-      // Emit event
-      this.context.eventBus?.emit('plugin:accelerator:enabled', {
-        mode: this.getMode(),
-        online: this.online
-      });
-
-    } catch (error) {
-      console.error('[Accelerator] Enable failed:', error);
-      throw error;
-    }
-  }
-
-  /**
-   * Disable plugin
-   */
-  async disable() {
-    try {
-      console.log('[Accelerator] Disabling...');
-
-      if (this.indexDB) {
-        await this.indexDB.close();
-      }
-
-      this.enabled = false;
-      console.log('[Accelerator] Disabled');
-
-      this.context.eventBus?.emit('plugin:accelerator:disabled');
-    } catch (error) {
-      console.error('[Accelerator] Disable failed:', error);
-    }
-  }
-
-  /**
-   * Load configuration from ConfigManager
-   */
-  async loadConfig() {
-    const defaultConfig = AcceleratorPlugin.getDefaultConfig();
-
-    try {
-      const userConfig = this.context.config?.getPluginConfig(this.id) || {};
-      return { ...defaultConfig, ...userConfig };
-    } catch (error) {
-      console.warn('[Accelerator] Could not load config, using defaults:', error);
-      return defaultConfig;
-    }
-  }
-
-  /**
-   * Initialize client-side components
-   * These work completely offline and don't require backend
-   */
-  async initializeClientComponents() {
-    // IndexedDB for local caching and search
-    this.indexDB = new AcceleratorIndexedDB();
-    await this.indexDB.init();
-    console.log('[Accelerator] IndexedDB initialized');
-
-    // Wiki-links resolver
-    this.wikiLinkResolver = new WikiLinkResolver(this.indexDB);
-    console.log('[Accelerator] Wiki-link resolver initialized');
-
-    // Full-text search engine
-    this.searchEngine = new SearchEngine(this.indexDB);
-    console.log('[Accelerator] Search engine initialized');
-
-    // Graph builder for backlinks visualization
-    this.graphBuilder = new GraphBuilder(this.indexDB);
-    console.log('[Accelerator] Graph builder initialized');
-  }
-
-  /**
-   * Check if backend server is available
-   * Non-blocking, will retry periodically
-   */
-  async checkServerHealth() {
-    if (!this.serverUrl) return;
-
-    try {
-      const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 2000);
-
-      const response = await fetch(`${this.serverUrl}/api/v1/health`, {
-        signal: controller.signal,
-        headers: { 'User-Agent': 'Pensine-Accelerator/0.1' }
-      });
-
-      clearTimeout(timeout);
-      this.online = response.ok;
-
-      if (this.online) {
-        console.log('[Accelerator] Server is online');
-        this.context.eventBus?.emit('plugin:accelerator:online');
-      }
-    } catch (error) {
-      console.warn('[Accelerator] Server unavailable, using client-only mode');
-      this.online = false;
-      this.context.eventBus?.emit('plugin:accelerator:offline');
-    }
-  }
-
-  /**
-   * Start background services
-   * - Periodic server health checks
-   * - Auto-sync to server if online
-   * - Index new notes
-   */
-  startBackgroundServices(config) {
-    // Health check every 30 seconds
-    if (this.serverUrl) {
-      setInterval(() => this.checkServerHealth(), 30000);
-    }
-
-    // Auto-indexing
-    if (config.indexing?.autoIndex) {
-      this.context.eventBus?.on('editor:file-saved', async (event) => {
-        await this.indexNote(event.file, event.content);
-      });
-    }
-
-    // Background sync
-    if (this.serverUrl && config.indexing?.backgroundSync) {
-      const interval = config.indexing?.syncInterval || 300000;
-      setInterval(() => this.syncWithServer(), interval);
-    }
-
-    console.log('[Accelerator] Background services started');
-  }
-
-  /**
-   * Search notes with fallback strategy
-   * 1. Try server if online
-   * 2. Fallback to local IndexedDB
-   * 3. Return results with confidence level
-   */
-  async search(query, options = {}) {
-    const { limit = 20, timeout = 2000 } = options;
-
-    let results = {
-      query,
-      items: [],
-      source: 'unknown',
-      confidence: 'none',
-      duration: 0
-    };
-
-    const startTime = performance.now();
-
-    try {
-      // Try server first if online and configured
-      if (this.online && this.serverUrl) {
-        try {
-          const serverResults = await this.searchOnServer(query, { limit, timeout });
-          results.items = serverResults;
-          results.source = 'server';
-          results.confidence = 'high';
-        } catch (error) {
-          console.warn('[Accelerator] Server search failed, falling back to local');
-          // Fall through to local search
-        }
-      }
-
-      // Fallback to local if no server results
-      if (results.items.length === 0) {
-        const localResults = await this.searchLocal(query, { limit });
-        results.items = localResults;
-        results.source = 'client';
-        results.confidence = this.online ? 'medium' : 'degraded';
-      }
-
-    } catch (error) {
-      console.error('[Accelerator] Search error:', error);
-      // Final fallback: return empty with error info
-      results.error = error.message;
-      results.confidence = 'error';
-    }
-
-    results.duration = performance.now() - startTime;
-    return results;
-  }
-
-  /**
-   * Search on server (requires backend online)
-   */
-  async searchOnServer(query, options = {}) {
-    const { limit = 20, timeout = 2000 } = options;
-
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), timeout);
-
-    try {
-      const url = new URL(`${this.serverUrl}/api/v1/search`);
-      url.searchParams.set('query', query);
-      url.searchParams.set('limit', limit);
-
-      const response = await fetch(url, {
-        signal: controller.signal,
-        headers: {
-          'Authorization': `Bearer ${this.context.config?.get('github-token') || ''}`,
-          'X-User-Id': this.context.config?.get('github-owner') || ''
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error(`Server error: ${response.status}`);
-      }
-
-      const data = await response.json();
-      return data.results || [];
-
-    } finally {
-      clearTimeout(timeoutId);
-    }
-  }
-
-  /**
-   * Search locally using IndexedDB
-   */
-  async searchLocal(query, options = {}) {
-    const { limit = 20 } = options;
-    return await this.searchEngine.search(query, limit);
-  }
-
-  /**
-   * Resolve wiki-link: [[note-title]] → note ID
-   * Tries server first, falls back to local index
-   */
-  async resolveWikiLink(linkText) {
-    try {
-      // Try server if online
-      if (this.online && this.serverUrl) {
-        try {
-          const result = await this.resolveOnServer(linkText);
-          if (result) return result;
-        } catch (error) {
-          console.warn('[Accelerator] Server wiki-link resolution failed');
-        }
-      }
-
-      // Fallback to local
-      return await this.wikiLinkResolver.resolve(linkText);
-
-    } catch (error) {
-      console.error('[Accelerator] Wiki-link resolution error:', error);
-      return null;
-    }
-  }
-
-  /**
-   * Resolve wiki-link on server
-   */
-  async resolveOnServer(linkText) {
-    const response = await fetch(
-      `${this.serverUrl}/api/v1/wiki-links/resolve?text=${encodeURIComponent(linkText)}`,
-      {
-        headers: {
-          'Authorization': `Bearer ${this.context.config?.get('github-token') || ''}`
-        }
-      }
+    const config = context.config?.getPluginConfig?.(this.manifest.id) || {};
+    this._snippets = config.snippets ? { ...config.snippets } : {};
+    this._createUI();
+    context.events?.on?.(
+      'accelerator:insert-snippet',
+      (data) => this.insertSnippet(data.key),
+      this.manifest.id
     );
-
-    if (!response.ok) return null;
-    const data = await response.json();
-    return data.noteId || null;
   }
 
-  /**
-   * Get backlinks for a note
-   */
-  async getBacklinks(noteId) {
-    try {
-      if (this.online && this.serverUrl) {
-        try {
-          return await this.getBacklinksFromServer(noteId);
-        } catch (error) {
-          console.warn('[Accelerator] Server backlinks failed');
-        }
-      }
-
-      // Fallback to local
-      return await this.graphBuilder.getBacklinks(noteId);
-
-    } catch (error) {
-      console.error('[Accelerator] Backlinks error:', error);
-      return [];
+  async deactivate() {
+    this.context?.events?.clearNamespace?.(this.manifest.id);
+    if (this._menu?.parentNode) {
+      this._menu.parentNode.removeChild(this._menu);
     }
+    if (this._btn?.parentNode) {
+      this._btn.parentNode.removeChild(this._btn);
+    }
+    this.context = null;
   }
 
-  /**
-   * Get backlinks from server
-   */
-  async getBacklinksFromServer(noteId) {
-    const response = await fetch(
-      `${this.serverUrl}/api/v1/backlinks/${encodeURIComponent(noteId)}`,
-      {
-        headers: {
-          'Authorization': `Bearer ${this.context.config?.get('github-token') || ''}`
-        }
-      }
-    );
+  _createUI() {
+    this._btn = document.createElement('button');
+    this._btn.id = 'accelerator-btn';
+    this._btn.textContent = '⚡';
+    this._btn.title = 'Insérer un snippet';
+    this._btn.style.cssText = [
+      'position:fixed',
+      'bottom:140px',
+      'right:10px',
+      'z-index:900',
+      'font-size:20px',
+      'background:none',
+      'border:none',
+      'cursor:pointer'
+    ].join(';');
+    this._btn.addEventListener('click', () => this._toggleMenu());
+    document.body.appendChild(this._btn);
 
-    if (!response.ok) throw new Error('Server error');
-    const data = await response.json();
-    return data.backlinks || [];
+    this._menu = document.createElement('ul');
+    this._menu.id = 'accelerator-menu';
+    this._menu.style.cssText = [
+      'display:none',
+      'position:fixed',
+      'bottom:180px',
+      'right:10px',
+      'z-index:1000',
+      'background:#fff',
+      'border:1px solid #ccc',
+      'border-radius:6px',
+      'padding:4px 0',
+      'margin:0',
+      'list-style:none',
+      'min-width:180px',
+      'box-shadow:0 2px 8px rgba(0,0,0,.2)'
+    ].join(';');
+    document.body.appendChild(this._menu);
+    this._renderMenuItems();
   }
 
-  /**
-   * Index a note in local IndexedDB
-   */
-  async indexNote(noteId, content) {
-    try {
-      await this.indexDB.indexNote({
-        id: noteId,
-        content,
-        timestamp: Date.now()
+  _renderMenuItems() {
+    if (!this._menu) return;
+    this._menu.innerHTML = '';
+    const keys = Object.keys(this._snippets);
+    if (keys.length === 0) {
+      const li = document.createElement('li');
+      li.style.cssText = 'padding:8px 12px;color:#999;font-size:13px;';
+      li.textContent = 'Aucun snippet configuré';
+      this._menu.appendChild(li);
+      return;
+    }
+    for (const key of keys) {
+      const li = document.createElement('li');
+      li.style.cssText = 'padding:6px 12px;cursor:pointer;font-size:13px;';
+      li.textContent = key;
+      li.addEventListener('click', () => {
+        this.insertSnippet(key);
+        this._closeMenu();
       });
-
-      console.log(`[Accelerator] Indexed note: ${noteId}`);
-
-      // If server online, queue for sync
-      if (this.online && this.serverUrl) {
-        // Add to sync queue (will be synced periodically)
-        await this.indexDB.addSyncQueue(noteId);
-      }
-
-    } catch (error) {
-      console.error('[Accelerator] Index error:', error);
+      li.addEventListener('mouseenter', () => { li.style.background = '#f0f0f0'; });
+      li.addEventListener('mouseleave', () => { li.style.background = ''; });
+      this._menu.appendChild(li);
     }
   }
 
-  /**
-   * Sync with server
-   * Send all queued notes for indexing
-   */
-  async syncWithServer() {
-    if (!this.online || !this.serverUrl) {
-      return { synced: 0, skipped: 'server offline' };
-    }
-
-    try {
-      const notesToSync = await this.indexDB.getSyncQueue();
-      if (notesToSync.length === 0) {
-        return { synced: 0, reason: 'nothing to sync' };
-      }
-
-      const response = await fetch(`${this.serverUrl}/api/v1/index/notes`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${this.context.config?.get('github-token') || ''}`
-        },
-        body: JSON.stringify({ notes: notesToSync })
-      });
-
-      if (!response.ok) {
-        throw new Error(`Server error: ${response.status}`);
-      }
-
-      const result = await response.json();
-      console.log(`[Accelerator] Synced ${result.indexed} notes with server`);
-
-      // Clear sync queue
-      await this.indexDB.clearSyncQueue();
-
-      return { synced: result.indexed };
-
-    } catch (error) {
-      console.error('[Accelerator] Sync error:', error);
-      return { synced: 0, error: error.message };
+  _toggleMenu() {
+    if (this._menu) {
+      const isVisible = this._menu.style.display !== 'none';
+      this._menu.style.display = isVisible ? 'none' : 'block';
     }
   }
 
-  /**
-   * Get visualization graph (nodes + edges)
-   */
-  async getGraph() {
-    try {
-      if (this.online && this.serverUrl) {
-        try {
-          return await this.getGraphFromServer();
-        } catch (error) {
-          console.warn('[Accelerator] Server graph failed');
-        }
-      }
-
-      return await this.graphBuilder.buildGraph();
-
-    } catch (error) {
-      console.error('[Accelerator] Graph error:', error);
-      return { nodes: [], edges: [] };
-    }
+  _closeMenu() {
+    if (this._menu) this._menu.style.display = 'none';
   }
 
   /**
-   * Get graph from server
+   * Insère le texte d'un snippet dans l'éditeur actif
+   * @param {string} key - Clé du snippet
    */
-  async getGraphFromServer() {
-    const response = await fetch(`${this.serverUrl}/api/v1/graph`, {
-      headers: {
-        'Authorization': `Bearer ${this.context.config?.get('github-token') || ''}`
-      }
-    });
-
-    if (!response.ok) throw new Error('Server error');
-    return await response.json();
+  insertSnippet(key) {
+    const text = this._snippets[key];
+    if (text === undefined) return;
+    this.context?.events?.emit?.('editor:insert-text', { text });
   }
 
   /**
-   * Get current operation mode
+   * Ajoute ou remplace un snippet
+   * @param {string} key
+   * @param {string} text
    */
-  getMode() {
-    if (!this.serverUrl) return 'client-only';
-    if (this.online) return 'hybrid';
-    return 'client-fallback';
+  addSnippet(key, text) {
+    if (!key || text === undefined) return;
+    this._snippets[key] = text;
+    this._renderMenuItems();
   }
 
   /**
-   * Get plugin status
+   * Supprime un snippet
+   * @param {string} key
    */
-  getStatus() {
-    return {
-      id: this.id,
-      enabled: this.enabled,
-      mode: this.getMode(),
-      online: this.online,
-      serverUrl: this.serverUrl,
-      components: {
-        indexDB: this.indexDB?.isInitialized || false,
-        wikiLinks: !!this.wikiLinkResolver,
-        search: !!this.searchEngine,
-        graph: !!this.graphBuilder
-      }
-    };
+  removeSnippet(key) {
+    delete this._snippets[key];
+    this._renderMenuItems();
   }
 
-  /**
-   * JSON Schema for configuration
-   */
-  static getConfigSchema() {
-    return {
-      title: 'Accelerator Plugin Configuration',
-      type: 'object',
-      properties: {
-        enabled: {
-          type: 'boolean',
-          title: 'Enable Accelerator',
-          default: true
-        },
-        serverUrl: {
-          type: 'string',
-          title: 'Backend Server URL',
-          description: 'Optional - leave empty for client-only mode',
-          default: null,
-          examples: ['https://pensine-accelerator.azurewebsites.net']
-        },
-        features: {
-          type: 'object',
-          title: 'Features',
-          properties: {
-            wikiLinks: {
-              type: 'boolean',
-              title: 'Enable Wiki-Links',
-              default: true
-            },
-            fullTextSearch: {
-              type: 'boolean',
-              title: 'Enable Full-Text Search',
-              default: true
-            },
-            graphVisualization: {
-              type: 'boolean',
-              title: 'Enable Graph Visualization',
-              default: false
-            },
-            backlinkDetection: {
-              type: 'boolean',
-              title: 'Detect Backlinks',
-              default: true
-            }
-          }
-        },
-        indexing: {
-          type: 'object',
-          title: 'Indexing Settings',
-          properties: {
-            autoIndex: {
-              type: 'boolean',
-              title: 'Auto-Index Notes',
-              default: true
-            },
-            backgroundSync: {
-              type: 'boolean',
-              title: 'Background Sync',
-              default: true
-            },
-            syncInterval: {
-              type: 'number',
-              title: 'Sync Interval (ms)',
-              default: 300000,
-              minimum: 60000
-            }
-          }
-        },
-        performance: {
-          type: 'object',
-          title: 'Performance Tuning',
-          properties: {
-            searchTimeout: {
-              type: 'number',
-              title: 'Search Timeout (ms)',
-              default: 2000
-            },
-            cacheSize: {
-              type: 'string',
-              title: 'Cache Size',
-              default: '100MB'
-            }
-          }
-        }
-      }
-    };
-  }
-
-  /**
-   * Default configuration
-   */
-  static getDefaultConfig() {
-    return {
-      enabled: true,
-      serverUrl: null,
-      features: {
-        wikiLinks: true,
-        fullTextSearch: true,
-        graphVisualization: false,
-        backlinkDetection: true
-      },
-      indexing: {
-        autoIndex: true,
-        backgroundSync: true,
-        syncInterval: 300000
-      },
-      performance: {
-        searchTimeout: 2000,
-        cacheSize: '100MB'
-      }
-    };
-  }
-}
-
-/**
- * Placeholder: IndexedDB wrapper
- * @todo Implement proper IndexedDB with FTS
- */
-class AcceleratorIndexedDB {
-  async init() {
-    // TODO
-  }
-
-  async indexNote(note) {
-    // TODO
-  }
-
-  async search(query, limit) {
-    // TODO
-    return [];
-  }
-
-  async getBacklinks(noteId) {
-    // TODO
-    return [];
-  }
-
-  async addSyncQueue(noteId) {
-    // TODO
-  }
-
-  async getSyncQueue() {
-    // TODO
-    return [];
-  }
-
-  async clearSyncQueue() {
-    // TODO
-  }
-
-  async close() {
-    // TODO
-  }
-}
-
-/**
- * Placeholder: Wiki-link resolver
- * @todo Implement [[note-title]] resolution
- */
-class WikiLinkResolver {
-  constructor(indexDB) {
-    this.indexDB = indexDB;
-  }
-
-  async resolve(linkText) {
-    // TODO: Parse [[text]] and find matching note ID
-    return null;
-  }
-}
-
-/**
- * Placeholder: Full-text search engine
- * @todo Implement FTS using IndexedDB
- */
-class SearchEngine {
-  constructor(indexDB) {
-    this.indexDB = indexDB;
-  }
-
-  async search(query, limit) {
-    // TODO: FTS implementation
-    return [];
-  }
-}
-
-/**
- * Placeholder: Graph builder for backlinks
- * @todo Implement graph building from wiki-links
- */
-class GraphBuilder {
-  constructor(indexDB) {
-    this.indexDB = indexDB;
-  }
-
-  async getBacklinks(noteId) {
-    // TODO: Find all notes that link to noteId
-    return [];
-  }
-
-  async buildGraph() {
-    // TODO: Build full graph (nodes + edges)
-    return { nodes: [], edges: [] };
+  /** Retourne une copie des snippets configurés */
+  getSnippets() {
+    return { ...this._snippets };
   }
 }

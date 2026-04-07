@@ -1,0 +1,15 @@
+{
+  "name": "pensine-plugin-word-counter",
+  "version": "1.0.0",
+  "description": "Affiche le nombre de mots et caractères dans l'éditeur",
+  "main": "word-counter-plugin.js",
+  "author": "Pensine Team",
+  "license": "MIT",
+  "pensine": {
+    "id": "word-counter",
+    "displayName": "Word Counter",
+    "icon": "🔢",
+    "category": "productivity",
+    "compatibility": "^1.0.0"
+  }
+}

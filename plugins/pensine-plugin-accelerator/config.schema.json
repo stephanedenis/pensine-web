@@ -1,0 +1,23 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Accelerator Plugin Configuration",
+  "type": "object",
+  "properties": {
+    "snippets": {
+      "type": "object",
+      "title": "Snippets",
+      "description": "Dictionnaire clé → texte des snippets disponibles dans l'éditeur",
+      "additionalProperties": {
+        "type": "string"
+      },
+      "default": {},
+      "examples": [
+        {
+          "todo": "- [ ] ",
+          "date": "<!-- date -->",
+          "hr": "\n---\n"
+        }
+      ]
+    }
+  }
+}
