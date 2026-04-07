@@ -1,0 +1,15 @@
+{
+  "name": "pensine-plugin-accelerator",
+  "version": "1.0.0",
+  "description": "Snippets et templates configurables pour l'éditeur",
+  "main": "accelerator-plugin.js",
+  "author": "Pensine Team",
+  "license": "MIT",
+  "pensine": {
+    "id": "accelerator",
+    "displayName": "Accelerator",
+    "icon": "⚡",
+    "category": "productivity",
+    "compatibility": "^1.0.0"
+  }
+}

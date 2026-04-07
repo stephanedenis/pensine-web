@@ -1,0 +1,11 @@
+{
+  "id": "accelerator",
+  "name": "Accelerator",
+  "version": "1.0.0",
+  "description": "Snippets et templates configurables pour l'éditeur",
+  "author": "Pensine Team",
+  "icon": "⚡",
+  "main": "accelerator-plugin.js",
+  "tags": ["productivity", "snippets", "templates"],
+  "dependencies": []
+}
