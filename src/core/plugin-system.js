@@ -11,6 +11,8 @@
 
 import EventBus, { EVENTS } from './event-bus.js';
 import { createPaniniContext, LegacyPluginAdapter } from './panini-wrappers.js';
+import toastNotifications from '../lib/components/toast-notifications.js';
+import modalDialog from '../lib/components/modal-dialog.js';
 
 class PluginSystem {
   constructor(eventBus, storageManager, configManager) {
@@ -246,14 +248,12 @@ class PluginSystem {
 
       // Notifications
       showToast: (message, type = 'info') => {
-        console.log(`[${pluginId}] ${type.toUpperCase()}: ${message}`);
-        // TODO: Implémenter UI toast
+        toastNotifications.show(message, type);
       },
 
       // Modals
       showModal: (title, content, options = {}) => {
-        console.log(`[${pluginId}] Modal: ${title}`);
-        // TODO: Implémenter UI modal
+        return modalDialog.confirm(title, { message: content, ...options });
       },
 
       // Container principal

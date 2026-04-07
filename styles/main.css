@@ -901,3 +901,225 @@ button:hover {
 .config-footer .btn-secondary:hover {
     background: var(--bg-tertiary);
 }
+
+/* ==========================================================================
+   Toast Notifications
+   ========================================================================== */
+
+#toast-container {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 99999;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    pointer-events: none;
+}
+
+.toast {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    border-radius: 6px;
+    min-width: 280px;
+    max-width: 420px;
+    font-size: 0.9rem;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+    pointer-events: all;
+    opacity: 0;
+    transform: translateY(16px);
+    transition: opacity 0.25s ease, transform 0.25s ease;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    color: var(--text-primary);
+}
+
+.toast.toast-visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.toast.toast-hiding {
+    opacity: 0;
+    transform: translateY(16px);
+}
+
+.toast-success { border-left: 4px solid var(--success); }
+.toast-warning { border-left: 4px solid #fbbf24; }
+.toast-error   { border-left: 4px solid var(--error); }
+.toast-info    { border-left: 4px solid var(--accent); }
+
+.toast-message { flex: 1; }
+
+.toast-close {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 0 4px;
+    font-size: 0.85rem;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+.toast-close:hover { color: var(--text-primary); }
+
+/* ==========================================================================
+   Modal Dialog
+   ========================================================================== */
+
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 99998;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.modal-overlay.modal-visible {
+    opacity: 1;
+}
+
+.modal-panel {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    min-width: 320px;
+    max-width: 480px;
+    width: 90%;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+    overflow: hidden;
+    transform: scale(0.95);
+    transition: transform 0.2s ease;
+}
+
+.modal-overlay.modal-visible .modal-panel {
+    transform: scale(1);
+}
+
+.modal-header {
+    padding: 20px 24px 12px;
+    border-bottom: 1px solid var(--border);
+}
+
+.modal-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.modal-body {
+    padding: 16px 24px;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+.modal-footer {
+    padding: 12px 24px 20px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.btn-danger {
+    background: #c0392b;
+    color: white;
+    border: none;
+    padding: 8px 18px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+.btn-danger:hover { background: #e74c3c; }
+
+/* ==========================================================================
+   Journal Plugin
+   ========================================================================== */
+
+.journal-plugin-editor {
+    position: fixed;
+    inset: 0;
+    z-index: 9990;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.journal-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+}
+
+.journal-panel {
+    position: relative;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    width: 90%;
+    max-width: 760px;
+    height: 80vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+    overflow: hidden;
+}
+
+.journal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg-tertiary);
+}
+
+.journal-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.journal-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.journal-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.journal-textarea {
+    flex: 1;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    border: none;
+    outline: none;
+    padding: 20px;
+    font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+    font-size: 0.92rem;
+    line-height: 1.7;
+    resize: none;
+    tab-size: 2;
+}
+
+.journal-wordcount {
+    padding: 6px 20px;
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+    border-top: 1px solid var(--border);
+    text-align: right;
+}

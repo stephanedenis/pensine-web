@@ -220,6 +220,8 @@ class PensineApp {
             // Bootstrap has already created these - just reference them
             if (window.eventBus && window.pluginSystem && window.configManager) {
                 this.modernConfigManager = window.configManager;
+                // Expose on window for tests and external access
+                window.modernConfigManager = window.configManager;
 
                 // Create SettingsView if needed
                 if (window.settingsView) {
@@ -876,7 +878,7 @@ class PensineApp {
     async showSettings() {
         // Try to use modern settings view if available
         if (this.settingsView) {
-            this.settingsView.show();
+            await this.settingsView.show();
         } else {
             // Fallback: Open .pensine-config.json in the unified editor
             console.log('⚠️ Modern settings view not available, falling back to config editor');
@@ -1172,7 +1174,8 @@ class PensineApp {
                 try {
                     const journalFiles = await this.getJournalFilesFromRepo(repoInfo.name);
                     journalFiles.forEach(file => {
-                        const match = file.match(/(\d{4})_(\d{2})_(\d{2})\.md$/);
+                        // Support both yyyy-MM-dd.md and yyyy_MM_dd.md formats
+                        const match = file.match(/(\d{4})[-_](\d{2})[-_](\d{2})\.md$/);
                         if (match) {
                             const dateKey = `${match[1]}-${match[2]}-${match[3]}`;
 
@@ -1249,7 +1252,12 @@ class PensineApp {
                 const [year, month, day] = dateStr.split('-').map(Number);
                 const date = new Date(year, month - 1, day);
 
-                // Get all sources for this date
+                // Emit via EventBus so Journal plugin (and others) can intercept
+                if (window.eventBus) {
+                    window.eventBus.emit('calendar:day-click', { date, dateStr }, 'calendar');
+                }
+
+                // Fallback: load directly if no plugin handles it
                 const sources = markedDatesMap.get(dateStr) || [];
                 this.loadJournalByDate(date, sources);
             }
@@ -1286,9 +1294,45 @@ class PensineApp {
     }
 
     async getJournalFilesFromRepo(repoName) {
-        // TODO: Implement repo-specific file listing
-        // For now, use the default storage manager
-        return await this.getJournalFiles();
+        try {
+            const config = JSON.parse(localStorage.getItem('pensine-config') || '{}');
+            const owner = config.git?.owner;
+
+            // Primary repo: use existing storageManager
+            const primaryRepo = config.git?.repo || config.git?.repositories?.[0];
+            if (!repoName || repoName === primaryRepo) {
+                return await this.getJournalFiles();
+            }
+
+            // Additional repos: direct GitHub API call with the stored token
+            if (!owner) return [];
+            const token = await window.tokenStorage?.getToken?.();
+            if (!token) return [];
+
+            const url = `https://api.github.com/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repoName)}/contents/journals`;
+            const resp = await fetch(url, {
+                headers: {
+                    Authorization: `token ${token}`,
+                    Accept: 'application/vnd.github.v3+json'
+                }
+            });
+
+            if (!resp.ok) {
+                if (resp.status === 404) {
+                    console.info(`[Calendar] No journals/ folder in ${repoName}`);
+                    return [];
+                }
+                throw new Error(`GitHub API ${resp.status}: ${resp.statusText}`);
+            }
+
+            const files = await resp.json();
+            return files
+                .filter(f => f.type === 'file' && f.name.endsWith('.md'))
+                .map(f => f.name);
+        } catch (error) {
+            console.warn(`[Calendar] Could not list journals from ${repoName}:`, error.message);
+            return [];
+        }
     }
 
 
@@ -1882,13 +1926,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         // Create appReady promise with error handling
         window.appReady = window.app.init().then(() => {
             console.log('✅ PensineApp initialized');
-
-            // Exposer modernConfigManager via window.app aussi
-            if (configManager) {
-                window.app.modernConfigManager = configManager;
-                console.log('✅ modernConfigManager exposed via window.app');
-            }
-
+            // NOTE: window.app.modernConfigManager is set inside init() - do not overwrite here.
             return window.app;
         }).catch((initError) => {
             console.error('❌ App init() failed:', initError);
