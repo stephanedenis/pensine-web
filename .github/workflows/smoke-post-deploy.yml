@@ -30,7 +30,10 @@ jobs:
           cache: 'npm'
 
       - name: Installer les dépendances
-        run: npm ci
+        run: |
+          # npm ci est strict (lockfile doit être en sync). Si désynchronisé,
+          # fallback sur npm install pour ne pas bloquer les smoke tests.
+          npm ci || (echo "⚠️ lock file désynchronisé, fallback sur npm install" && npm install)
 
       - name: Installer Playwright Chromium
         run: npx playwright install chromium --with-deps
