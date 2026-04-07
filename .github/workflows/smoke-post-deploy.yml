@@ -8,9 +8,9 @@ on:
   workflow_dispatch:
     inputs:
       target_url:
-        description: 'URL à tester (par défaut https://pensine.org)'
+        description: "URL à tester (par défaut https://pensine.org)"
         required: false
-        default: 'https://pensine.org'
+        default: "https://pensine.org"
 
 jobs:
   smoke-test:
@@ -29,8 +29,8 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
+          node-version: "20"
+          cache: "npm"
 
       - name: Installer les dépendances
         run: |
