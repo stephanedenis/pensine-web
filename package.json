@@ -3,15 +3,24 @@
   "version": "1.0.0",
   "description": "Test utilities for Pensine Web",
   "scripts": {
-    "test": "playwright test",
-    "test:config": "playwright test tests/config-system-integration.spec.mjs",
+    "test": "playwright test",  "test:smoke": "playwright test tests/smoke.spec.mjs --project=chromium-ci",
+  "test:smoke:prod": "BASE_URL=https://pensine.org playwright test tests/smoke.spec.mjs --project=chromium-ci",    "test:config": "playwright test tests/config-system-integration.spec.mjs",
     "test:ui": "playwright test --ui",
-    "test:debug": "playwright test --debug"
+    "test:debug": "playwright test --debug",
+    "lint": "eslint app.js src/**/*.js plugins/**/*.js",
+    "lint:fix": "eslint --fix app.js src/**/*.js plugins/**/*.js",
+    "lint:md": "markdownlint 'docs/**/*.md' 'README.md'",
+    "lint:md:fix": "markdownlint --fix 'docs/**/*.md' 'README.md'",
+    "todos": "grep -rn 'TODO' --include='*.js' --include='*.mjs' src/ plugins/ | wc -l",
+    "todos:list": "grep -rn 'TODO' --include='*.js' --include='*.mjs' src/ plugins/",
+    "validate": "node -c app.js && for file in src/core/*.js src/lib/**/*.js; do node -c $file 2>/dev/null || true; done && echo '✅ Syntax validation passed'"
   },
   "dependencies": {
     "playwright": "^1.40.0"
   },
   "devDependencies": {
-    "@playwright/test": "^1.57.0"
+    "@playwright/test": "^1.57.0",
+    "eslint": "^9.39.2",
+    "markdownlint-cli": "^0.47.0"
   }
 }

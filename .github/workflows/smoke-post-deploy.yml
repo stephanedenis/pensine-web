@@ -1,0 +1,73 @@
+name: Smoke tests post-déploiement
+
+on:
+  # Se déclenche après chaque déploiement GitHub Pages
+  deployment_status:
+
+  # Peut aussi être triggeré manuellement
+  workflow_dispatch:
+    inputs:
+      target_url:
+        description: 'URL à tester (par défaut https://pensine.org)'
+        required: false
+        default: 'https://pensine.org'
+
+jobs:
+  smoke-test:
+    # Uniquement si le déploiement est réussi (évite les runs sur les déploiements échoués)
+    if: github.event_name == 'workflow_dispatch' || github.event.deployment_status.state == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Installer les dépendances
+        run: npm ci
+
+      - name: Installer Playwright Chromium
+        run: npx playwright install chromium --with-deps
+
+      - name: Déterminer l'URL cible
+        id: target
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            echo "url=${{ github.event.inputs.target_url }}" >> $GITHUB_OUTPUT
+          else
+            echo "url=${{ github.event.deployment_status.target_url }}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Attendre la propagation du déploiement
+        run: |
+          echo "Test contre : ${{ steps.target.outputs.url }}"
+          # Attendre que les fichiers soient bien servis (CDN / cache GitHub Pages)
+          for i in {1..6}; do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" "${{ steps.target.outputs.url }}")
+            echo "Tentative $i : HTTP $STATUS"
+            if [[ "$STATUS" == "200" ]]; then break; fi
+            sleep 10
+          done
+
+      - name: Lancer les smoke tests
+        run: |
+          BASE_URL="${{ steps.target.outputs.url }}" \
+          npx playwright test tests/smoke.spec.mjs \
+            --project=chromium-ci \
+            --reporter=list
+        env:
+          CI: true
+
+      - name: Uploader le rapport en cas d'échec
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-${{ github.run_id }}
+          path: playwright-report/
+          retention-days: 7
