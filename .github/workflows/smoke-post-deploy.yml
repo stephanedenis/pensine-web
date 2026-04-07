@@ -18,6 +18,9 @@ jobs:
     if: github.event_name == 'workflow_dispatch' || github.event.deployment_status.state == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    permissions:
+      issues: write
+      contents: read
 
     steps:
       - name: Checkout
@@ -74,3 +77,64 @@ jobs:
           name: playwright-report-${{ github.run_id }}
           path: playwright-report/
           retention-days: 7
+
+      - name: Créer une issue et assigner à Copilot si échec
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const runUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            const targetUrl = '${{ steps.target.outputs.url }}' || 'https://pensine.org';
+            const sha = context.sha.substring(0, 7);
+
+            // Éviter les doublons : chercher une issue ouverte récente avec le même titre-clé
+            const { data: openIssues } = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: 'smoke-test-failure',
+              state: 'open',
+              per_page: 5,
+            });
+
+            if (openIssues.length > 0) {
+              // Ajouter un commentaire sur l'issue existante plutôt que d'en créer une nouvelle
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: openIssues[0].number,
+                body: `🔁 Nouvel échec sur le commit \`${sha}\` — [Run ${context.runId}](${runUrl})`,
+              });
+              console.log(`Commentaire ajouté sur l'issue #${openIssues[0].number}`);
+              return;
+            }
+
+            // Créer une nouvelle issue assignée à Copilot
+            const issue = await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `🚨 Smoke tests échoués sur ${targetUrl} (${sha})`,
+              labels: ['bug', 'smoke-test-failure'],
+              assignees: ['copilot'],
+              body: [
+                '## Smoke tests échoués après déploiement',
+                '',
+                `**URL testée :** ${targetUrl}`,
+                `**Commit :** \`${sha}\``,
+                `**Run CI :** [${context.runId}](${runUrl})`,
+                '',
+                '## Contexte',
+                '',
+                'Les smoke tests Playwright (`tests/smoke.spec.mjs`) ont échoué après le dernier déploiement GitHub Pages.',
+                'Le rapport complet est disponible en artifact sur le run CI ci-dessus.',
+                '',
+                '## Actions attendues',
+                '',
+                '1. Analyser les logs du run CI pour identifier le test en échec',
+                '2. Reproduire localement : `BASE_URL=' + targetUrl + ' npm run test:smoke`',
+                '3. Corriger le code ou le test selon la cause racine',
+                '4. Vérifier que `npm run validate` passe',
+                '5. Ouvrir une PR avec le fix',
+              ].join('\n'),
+            });
+
+            console.log(`Issue créée : #${issue.data.number} — ${issue.data.html_url}`);
