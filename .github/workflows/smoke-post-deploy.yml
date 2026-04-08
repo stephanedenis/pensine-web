@@ -47,7 +47,11 @@ jobs:
           if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
             echo "url=${{ github.event.inputs.target_url }}" >> $GITHUB_OUTPUT
           else
-            echo "url=${{ github.event.deployment_status.target_url }}" >> $GITHUB_OUTPUT
+            # environment_url = URL du site déployé (ex: https://pensine.org)
+            # target_url = URL du job CI (à ne pas utiliser pour les tests)
+            ENV_URL="${{ github.event.deployment_status.environment_url }}"
+            FALLBACK="https://pensine.org"
+            echo "url=${ENV_URL:-$FALLBACK}" >> $GITHUB_OUTPUT
           fi
 
       - name: Attendre la propagation du déploiement
@@ -108,13 +112,13 @@ jobs:
               return;
             }
 
-            // Créer une nouvelle issue assignée à Copilot
+            // Créer une nouvelle issue — mention @copilot dans le body pour déclencher l'agent
+            // (assignees: ['copilot'] est invalide via l'API REST)
             const issue = await github.rest.issues.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
               title: `🚨 Smoke tests échoués sur ${targetUrl} (${sha})`,
               labels: ['bug', 'smoke-test-failure'],
-              assignees: ['copilot'],
               body: [
                 '## Smoke tests échoués après déploiement',
                 '',
@@ -134,6 +138,9 @@ jobs:
                 '3. Corriger le code ou le test selon la cause racine',
                 '4. Vérifier que `npm run validate` passe',
                 '5. Ouvrir une PR avec le fix',
+                '',
+                '---',
+                '@copilot merci de corriger ce problème.',
               ].join('\n'),
             });
 
