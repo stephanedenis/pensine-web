@@ -345,7 +345,21 @@ class PensineBootstrap {
     const { default: EventBus } = await import('../src/core/event-bus.js');
     const { default: PluginSystem } = await import('../src/core/plugin-system.js');
     const { default: ConfigManager } = await import('../src/core/config-manager.js');
+    const { default: toastNotifications } = await import('../src/lib/components/toast-notifications.js');
+    window.toastNotifications = toastNotifications;
     this.logger.debug('Core modules imported');
+
+    // Exposer la version de l'application depuis package.json
+    try {
+      const pkgResp = await fetch('/package.json');
+      if (pkgResp.ok) {
+        const pkg = await pkgResp.json();
+        window.PENSINE_VERSION = pkg.version;
+        this.logger.debug(`App version: ${pkg.version}`);
+      }
+    } catch (_) {
+      // Non-bloquant
+    }
 
     this.logger.wait('Creating EventBus instance...');
     window.eventBus = new EventBus();
@@ -503,7 +517,7 @@ class PensineBootstrap {
 
     // Exposer references globales pour app.js
     window.modernConfigManager = window.configManager;
-    this.logger.debug('Global references exposed: modernConfigManager');
+    this.logger.debug('Global references exposed: modernConfigManager, toastNotifications');
 
     // Résoudre la promise
     if (this.resolveReady) {

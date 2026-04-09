@@ -520,3 +520,27 @@
         grid-template-rows: 1fr 1fr;
     }
 }
+
+/* Navigation journal prev/next */
+.journal-nav {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+.journal-nav.hidden {
+    display: none;
+}
+
+.journal-nav-label {
+    font-size: 0.8rem;
+    color: var(--text-secondary, #999);
+    min-width: 90px;
+    text-align: center;
+}
+
+.journal-nav button:disabled {
+    opacity: 0.3;
+    cursor: default;
+}

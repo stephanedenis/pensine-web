@@ -328,7 +328,7 @@ export function createPaniniContext({
   // Build context matching PaniniPluginContext interface
   return {
     app: 'pensine',
-    version: '1.0.0', // TODO: Get from package.json or config
+    version: window.PENSINE_VERSION || '0.0.22',
     events: wrappedEventBus,
     config: wrappedConfig,
     storage: wrappedStorage,

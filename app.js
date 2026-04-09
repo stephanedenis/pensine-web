@@ -1188,6 +1188,11 @@ class PensineApp {
             console.log(`✅ Calendar now has ${allEvents.size} dates with events`);
         }
 
+        // Stocker les dates triées pour la navigation journal
+        this.journalDates = Array.from(markedDatesMap.keys()).sort();
+        this.journalDatesMap = markedDatesMap;
+        console.log(`🗓️ Journal dates indexed for navigation: ${this.journalDates.length} entries`);
+
         // Setup config button listener
         const configBtn = document.getElementById('calendar-config-btn');
         if (configBtn) {
@@ -1647,6 +1652,60 @@ class PensineApp {
 
         // Disable save button initially
         document.getElementById('editor-save-btn').disabled = true;
+
+        // Navigation journal prev/next
+        this._updateJournalNav(path);
+    }
+
+    /**
+     * Met à jour la barre de navigation journal (prev/next)
+     * Visible uniquement pour les fichiers journals/YYYY-MM-DD.md
+     */
+    _updateJournalNav(path) {
+        const navEl = document.getElementById('journal-nav');
+        const prevBtn = document.getElementById('journal-nav-prev');
+        const nextBtn = document.getElementById('journal-nav-next');
+        const labelEl = document.getElementById('journal-nav-label');
+        if (!navEl || !prevBtn || !nextBtn || !labelEl) return;
+
+        // Déterminer si c'est un fichier journal datable
+        const match = path && path.match(/journals\/(\d{4}-\d{2}-\d{2})\.md$/);
+        const dates = this.journalDates;
+
+        if (!match || !dates || dates.length === 0) {
+            navEl.classList.add('hidden');
+            return;
+        }
+
+        const currentDateStr = match[1];
+        const idx = dates.indexOf(currentDateStr);
+        const prevDate = idx > 0 ? dates[idx - 1] : null;
+        const nextDate = idx >= 0 && idx < dates.length - 1 ? dates[idx + 1] : null;
+
+        navEl.classList.remove('hidden');
+        labelEl.textContent = currentDateStr;
+
+        prevBtn.disabled = !prevDate;
+        nextBtn.disabled = !nextDate;
+
+        // Remplacer les listeners (cloner pour éviter les doublons)
+        const newPrev = prevBtn.cloneNode(true);
+        const newNext = nextBtn.cloneNode(true);
+        prevBtn.parentNode.replaceChild(newPrev, prevBtn);
+        nextBtn.parentNode.replaceChild(newNext, nextBtn);
+
+        if (prevDate) {
+            newPrev.addEventListener('click', () => {
+                const [y, m, d] = prevDate.split('-').map(Number);
+                this.loadJournalByDate(new Date(y, m - 1, d), this.journalDatesMap?.get(prevDate) || []);
+            });
+        }
+        if (nextDate) {
+            newNext.addEventListener('click', () => {
+                const [y, m, d] = nextDate.split('-').map(Number);
+                this.loadJournalByDate(new Date(y, m - 1, d), this.journalDatesMap?.get(nextDate) || []);
+            });
+        }
     }
 
     /**
@@ -1747,8 +1806,11 @@ class PensineApp {
      * @param {string} message - Success message
      */
     showSuccess(message) {
-        // TODO: Add success notification UI
-        console.log(message);
+        if (window.toastNotifications) {
+            window.toastNotifications.show(message, 'success');
+        } else {
+            console.log(message);
+        }
     }
 
     /**

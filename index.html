@@ -98,6 +98,12 @@
                         <span id="editor-file-name"></span>
                         <span id="editor-file-type" class="file-type-badge"></span>
                     </div>
+                    <!-- Navigation journal prev/next (visible uniquement pour les fichiers journal) -->
+                    <div id="journal-nav" class="journal-nav hidden">
+                        <button id="journal-nav-prev" class="btn-secondary" title="Entrée précédente">◀</button>
+                        <span id="journal-nav-label" class="journal-nav-label"></span>
+                        <button id="journal-nav-next" class="btn-secondary" title="Entrée suivante">▶</button>
+                    </div>
                     <div class="editor-controls">
                         <div class="view-mode-switcher">
                             <button id="view-mode-code" class="view-mode-btn" data-mode="code" title="Vue Code">

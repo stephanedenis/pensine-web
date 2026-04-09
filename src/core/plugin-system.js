@@ -13,6 +13,7 @@ import EventBus, { EVENTS } from './event-bus.js';
 import { createPaniniContext, LegacyPluginAdapter } from './panini-wrappers.js';
 import toastNotifications from '../lib/components/toast-notifications.js';
 import modalDialog from '../lib/components/modal-dialog.js';
+import { getToken } from '../lib/auth/github-oauth.js';
 
 class PluginSystem {
   constructor(eventBus, storageManager, configManager) {
@@ -37,6 +38,23 @@ class PluginSystem {
 
     console.log('🔌 Initializing plugin system...');
 
+    // Récupérer l'utilisateur OAuth si un token est disponible
+    let user = null;
+    try {
+      const token = getToken();
+      if (token) {
+        const resp = await fetch('https://api.github.com/user', {
+          headers: { Authorization: `token ${token}`, Accept: 'application/vnd.github.v3+json' }
+        });
+        if (resp.ok) {
+          user = await resp.json();
+          console.log(`👤 Authenticated as: ${user.login}`);
+        }
+      }
+    } catch (error) {
+      console.warn('⚠️ Could not fetch OAuth user:', error.message);
+    }
+
     // Create shared PaniniPluginContext
     this.paniniContext = createPaniniContext({
       eventBus: this.eventBus,
@@ -49,7 +67,7 @@ class PluginSystem {
         offline: this.storageManager?.mode === 'local' || this.storageManager?.mode === 'local-git'
       },
       logger: console,
-      user: null // TODO: Get from auth system
+      user
     });
 
     // Charger config plugins depuis storage
