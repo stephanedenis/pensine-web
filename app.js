@@ -1276,11 +1276,13 @@ class PensineApp {
         this.currentDate = date;
         await this.closeCalendar();
 
-        const fileName = `journals/${this.formatDate(date)}.md`;
+        const d = date instanceof Date ? date : new Date(date);
+        const dateStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        const fileName = `journals/${dateStr}.md`;
 
         if (sources.length === 0) {
             // No existing entries, create new
-            const emptyContent = `# ${this.formatDate(date)}\n\n`;
+            const emptyContent = `# ${dateStr}\n\n`;
             await this.openInEditor(fileName, emptyContent);
         } else if (sources.length === 1) {
             // Single source, open directly
@@ -1288,7 +1290,7 @@ class PensineApp {
                 const { content } = await storageManager.getFile(fileName);
                 await this.openInEditor(fileName, content);
             } catch (error) {
-                const emptyContent = `# ${this.formatDate(date)}\n\n`;
+                const emptyContent = `# ${dateStr}\n\n`;
                 await this.openInEditor(fileName, emptyContent);
             }
         } else {
@@ -1302,7 +1304,9 @@ class PensineApp {
         // For now, show first source with indication of multiple sources
         console.log(`📑 Multiple sources for ${date}:`, sources);
 
-        const fileName = `journals/${this.formatDate(date)}.md`;
+        const d = date instanceof Date ? date : new Date(date);
+        const dateStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        const fileName = `journals/${dateStr}.md`;
         try {
             const { content } = await storageManager.getFile(fileName);
             await this.openInEditor(fileName, content);
@@ -1322,7 +1326,7 @@ class PensineApp {
                 setTimeout(() => notification.remove(), 5000);
             }
         } catch (error) {
-            const emptyContent = `# ${this.formatDate(date)}\n\n`;
+            const emptyContent = `# ${dateStr}\n\n`;
             await this.openInEditor(fileName, emptyContent);
         }
     }
